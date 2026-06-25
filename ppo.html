@@ -1,0 +1,944 @@
+
+       <!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام العاهل - الأرشيف السماوي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri&family=Cairo:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --system-blue: #00e5ff;
+            --sys-cyan: #00f0ff;
+            --sys-cyan-glow: rgba(0, 240, 255, 0.6);
+            --sys-purple: #9d4edd;
+            --sys-purple-glow: rgba(157, 78, 221, 0.4);
+            --system-dark: rgba(5, 7, 15, 0.98);
+            --system-border: #0077ff;
+            --system-glow: 0 0 15px rgba(0, 229, 255, 0.4);
+            --system-text: #e0f7fa;
+            --gold-accent: #ffd700;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #02040a;
+            
+            color: var(--system-text);
+            font-family: 'Cairo', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .sys-font { font-family: 'Rajdhani', sans-serif; letter-spacing: 0.05em; }
+
+        /* تخصيص شريط التمرير السيادي */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--sys-cyan);
+            border-radius: 10px;
+        }
+
+        /* نافذة النظام المتجاوبة الفخمة */
+        .system-window {
+            background: var(--system-dark);
+            border: 2px solid var(--sys-cyan);
+            border-radius: 8px;
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.15), inset 0 0 15px rgba(0, 240, 255, 0.1);
+            width: 100%;
+            max-width: 850px;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            backdrop-filter: blur(16px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .system-window::before, .system-window::after {
+            content: ''; position: absolute; width: 20px; height: 20px; pointer-events: none; z-index: 100;
+        }
+        .system-window::before { top: -2px; left: -2px; border-top: 3px solid var(--sys-cyan); border-left: 3px solid var(--sys-cyan); }
+        .system-window::after { bottom: -2px; right: -2px; border-bottom: 3px solid var(--sys-cyan); border-right: 3px solid var(--sys-cyan); }
+
+        /* شريط معلومات العاهل المدمج */
+        .monarch-status-header {
+            background: rgba(2, 4, 10, 0.85);
+            border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+            padding: 10px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            z-index: 20;
+        }
+
+        .status-badge {
+            background: rgba(0, 240, 255, 0.05);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 4px;
+            padding: 4px 10px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .system-header {
+            text-align: center;
+            font-family: 'Rajdhani', 'Cairo', monospace;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: var(--sys-cyan);
+            letter-spacing: 2px;
+            padding: 15px;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.3);
+            background: rgba(0, 240, 255, 0.05);
+            text-shadow: 0 0 8px var(--sys-cyan);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .system-headeri {
+            text-align: center;
+            font-family: 'Rajdhani', 'Cairo', monospace;
+            font-size: 1.0rem;
+            font-weight: 400;
+            color: var(--sys-cyan);
+            letter-spacing: 0.5px;
+            padding: 4px;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.3);
+            background: rgba(0, 240, 255, 0.05);
+            text-shadow: 0 0 8px var(--sys-cyan);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-container {
+            padding: 12px 15px;
+            border-bottom: 1px dashed var(--sys-cyan);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .system-input {
+            flex: 1;
+            min-width: 200px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--sys-cyan);
+            color: var(--sys-cyan);
+            padding: 10px 15px;
+            border-radius: 4px;
+            font-family: 'Cairo', sans-serif;
+            outline: none;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .system-input:focus {
+            box-shadow: 0 0 10px var(--sys-cyan-glow);
+        }
+
+        /* قائمة السور الديناميكية */
+        .surah-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 15px;
+            list-style: none;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 12px;
+        }
+
+        .surah-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            padding: 12px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .surah-card:hover {
+            background: rgba(0, 240, 255, 0.08);
+            border-color: var(--sys-cyan);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .surah-number {
+            font-family: 'Share Tech Mono', monospace;
+            color: rgba(0, 240, 255, 0.6);
+            font-size: 0.85rem;
+        }
+
+        /* واجهة القراءة والتشغيل */
+        .reader-view {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            background: var(--system-dark);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 10;
+        }
+
+        .reader-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--sys-cyan);
+            background: rgba(0, 0, 0, 0.8);
+            gap: 10px;
+        }
+
+        #current-surah-title {
+            font-weight: 900;
+            color: var(--sys-cyan);
+            font-size: 1.2rem;
+            text-align: center;
+            text-shadow: 0 0 10px var(--sys-cyan-glow);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .btn-system {
+            background: transparent;
+            border: 1px solid var(--sys-cyan);
+            color: var(--sys-cyan);
+            padding: 6px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .btn-system:hover {
+            background: rgba(0, 240, 255, 0.2);
+            box-shadow: 0 0 15px var(--sys-cyan-glow);
+        }
+
+        /* حاوية الآيات مع التضبيب والتصميم الفاخر */
+        .ayah-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 25px 30px;
+            font-family: 'Amiri', serif;
+            font-size: 1.7rem;
+            line-height: 2.4;
+            text-align: justify;
+            word-spacing: 2px;
+            background-image: radial-gradient(circle at center, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.85) 100%);
+        }
+
+        .ayah-text {
+            display: inline;
+            transition: color 0.2s;
+        }
+
+        .ayah-text:hover {
+            color: var(--sys-cyan);
+        }
+
+        .ayah-number {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            line-height: 30px;
+            text-align: center;
+            border: 1px solid var(--gold-accent);
+            border-radius: 50%;
+            font-size: 0.85rem;
+            color: var(--gold-accent);
+            margin: 0 8px;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        /* لوحة الصوت والمراقبة الذكية للأثمان */
+        .audio-player-control-panel {
+            padding: 15px;
+            border-top: 1px solid var(--sys-cyan);
+            background: rgba(2, 4, 10, 0.95);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .progress-and-tracker-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 6px 12px;
+            border: 1px solid rgba(0, 240, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .tracking-status-badge {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgb(16, 185, 129);
+            color: rgb(16, 185, 129);
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        .audio-player {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        audio {
+            width: 100%;
+            height: 40px;
+            outline: none;
+        }
+
+        /* تصميم مربع الاختيار الفخم للقراء */
+        .reciter-select-menu {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--sys-cyan);
+            color: var(--sys-cyan);
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.85rem;
+            font-weight: bold;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .reciter-select-menu:focus {
+            box-shadow: 0 0 10px var(--sys-cyan-glow);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+            }
+            .system-window {
+                height: 100vh;
+                width: 100vw;
+                border: none;
+                border-radius: 0;
+            }
+            .surah-list {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 8px;
+                padding: 10px;
+            }
+            .ayah-container {
+                font-size: 1.5rem;
+                line-height: 2.1;
+                padding: 15px;
+            }
+            .btn-system {
+                padding: 5px 10px;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .surah-list {
+                grid-template-columns: 1fr;
+            }
+            #current-surah-title {
+                font-size: 1rem;
+            }
+            .monarch-status-header {
+                font-size: 0.75rem;
+                padding: 8px 10px;
+            }
+        }
+
+        /* نظام التنبيهات */
+        .system-toast {
+            position: fixed;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(2, 4, 10, 0.95);
+            border: 2px solid var(--sys-cyan);
+            color: var(--sys-cyan);
+            padding: 12px 24px;
+            border-radius: 6px;
+            box-shadow: 0 0 15px var(--sys-cyan-glow);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 10000;
+            font-size: 0.95rem;
+            text-align: center;
+            backdrop-filter: blur(8px);
+            font-weight: 900;
+        }
+
+        .system-toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .loading-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--system-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            color: var(--sys-cyan);
+            font-family: 'Share Tech Mono', monospace;
+            display: none;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+    </style>
+    <link rel="stylesheet" href="index11.css">
+    <script src="monarch-core.js"></script>
+</head>
+<body>
+<div class="sov-secondary-bg" aria-hidden="true"></div>
+
+    <div class="system-window">
+        <div class="monarch-status-header">
+            <div class="flex items-center gap-3" style="display: flex; align-items: center; gap: 15px;">
+                <div class="status-badge" style="color: #ffd700; border-color: #ffd700;">
+                    <span>👑 المستوى:</span>
+                    <span id="header-lvl" class="sys-font">1</span>
+                </div>
+                <div class="status-badge" style="color: #00f0ff; border-color: #00f0ff;">
+                    <span>📊 الخبرة XP:</span>
+                    <span id="header-xp" class="sys-font">0/100</span>
+                </div>
+                <div class="status-badge" style="color: #fbbf24; border-color: #fbbf24;">
+                    <span>🪙 الذهب:</span>
+                    <span id="header-gold" class="sys-font">0</span>
+                </div>
+    
+            </div>
+            <div>
+                <select id="reciter-select" class="reciter-select-menu" onchange="changeReciter()">
+    <option value="afs">مشاري العفاسي</option>
+    <option value="maher">ماهر المعيقلي</option>
+    <option value="husary">محمود خليل الحصري</option>
+    <option value="luhaidan">محمد اللحيدان</option>
+    
+    <!-- القراء المضافون من الأرشيف الجديد -->
+    <option value="obk">أبو بكر الشاطري</option>
+    <option value="shoraimy">سعود الشريم</option>
+    <option value="tblawi">محمد محمود الطبلاوي</option>
+    <option value="tnjy">خليفة الطنيجي</option>
+    <option value="bari">عبد الباري الثبيتي</option>
+    <option value="yahya">يحيى حوى</option>
+    <option value="salah">صلاح هاشم</option>
+</select>
+            </div>
+        </div>
+
+        <div id="main-view" style="display: flex; flex-direction: column; height: 100%;">
+            <div class="system-header">
+                <span>[ الأرشيف السماوي : القرآن الكريم ]</span>
+                <button onclick="window.location.href='index11.html'" class="btn-system">🏠 لوحة التحكم</button>
+            </div>
+            
+            <div class="search-container">
+                <input type="text" id="search-input" class="system-input" placeholder="> أدخل اسم السورة للبحث اللحظي..." onkeyup="filterSurahs()">
+            </div>
+
+            <div class="search-container" style="padding-top:0; border:none;">
+                <button class="btn-system" onclick="loadBookmark()" style="width: 100%; border-color: var(--gold-accent); color: var(--gold-accent);">
+                    [ استرجاع نقطة الحفظ السابقة ]
+                </button>
+            </div>
+
+            <ul class="surah-list" id="surah-list"></ul>
+        </div>
+
+        <div class="reader-view" id="reader-view">
+            <div class="reader-header">
+                <button class="btn-system" onclick="closeReader()">[ عودة ]</button>
+                <div id="current-surah-title"></div>
+                <button class="btn-system" onclick="saveBookmark()">[ حفظ التقدم ]</button>
+            </div>
+            
+            <div class="ayah-container" id="ayah-container"></div>
+
+            <div class="audio-player-control-panel">
+                <div class="progress-and-tracker-bar">
+                    <div>
+                        <span>التقدم الحالي: </span>
+                        <span id="playback-percentage" class="sys-font">0%</span>
+                    </div>
+                    <div class="system-headeri">
+                
+                <button onclick="window.location.href='ppo.html'" class="btn-system">🏠  لوحة التحكم القرانية</button>
+            </div>
+            
+                    <div class="flex items-center gap-2" style="display: flex; gap: 10px;">
+                        <span id="earned-multiplier" style="color: #ffd700; font-weight: bold;">أثمان مستمعة: 0/8</span>
+                        <span id="tracking-status" class="tracking-status-badge">> قيد الاستماع النشط</span>
+                    </div>
+                </div>
+
+                <div class="audio-player">
+                    <audio id="quran-audio" controls>
+                        <source src="" type="audio/mpeg">
+                    </audio>
+                </div>
+            </div>
+        </div>
+
+        <div class="loading-overlay" id="loading">
+            > DECODING DATA...
+        </div>
+    </div>
+
+    <div class="system-toast" id="toast">[ تم فك تشفير السجل بنجاح ]</div>
+
+    <script>
+        const API_BASE = "https://api.alquran.cloud/v1";
+        let allSurahs = [];
+        let currentSurahId = null;
+        
+        // القراء وخوادم الصوت المباشرة والبديلة لتجاوز القيود
+       // القراء وخوادم الصوت المباشرة والبديلة لتجاوز القيود
+const RECITERS = {
+    afs: { name: "مشاري العفاسي", server: "https://server8.mp3quran.net/afs/" },
+    maher: { name: "ماهر المعيقلي", server: "https://server12.mp3quran.net/maher/" },
+    husary: { name: "محمود خليل الحصري", server: "https://server13.mp3quran.net/husr/" },
+    luhaidan: { name: "محمد اللحيدان", server: "https://server8.mp3quran.net/lhdan/" },
+    
+    // قواعد البيانات المضافة من الخادم 12
+    obk: { name: "أبو بكر الشاطري", server: "https://server12.mp3quran.net/obk/" },
+    shoraimy: { name: "سعود الشريم", server: "https://server12.mp3quran.net/shoraimy/" },
+    tblawi: { name: "محمد محمود الطبلاوي", server: "https://server12.mp3quran.net/tblawi/" },
+    tnjy: { name: "خليفة الطنيجي", server: "https://server12.mp3quran.net/tnjy/" },
+    bari: { name: "عبد الباري الثبيتي", server: "https://server12.mp3quran.net/bari/" },
+    yahya: { name: "يحيى حوى", server: "https://server12.mp3quran.net/yahya/" },
+    salah: { name: "صلاح هاشم", server: "https://server12.mp3quran.net/salah_hashim_m/" }
+};
+
+        let activeReciterKey = localStorage.getItem('sovereign_reciter_key') || 'afs';
+
+        // بنية وميكانيكا كائن العاهل لمزامنة البيانات
+        const PlayerSync = {
+            data: {
+                level: 1,
+                xp: 0,
+                gold: 0,
+                stats: { str: 10, vit: 10, agi: 10, int: 10, sen: 10 }
+            },
+            init() {
+                this.load();
+                this.updateUI();
+                
+                // الاستماع اللحظي في حال حدوث تغييرات من index11.html
+                window.addEventListener('storage', (e) => {
+                    if (e.key === 'monarch_system_data') {
+                        this.load();
+                        this.updateUI();
+                    }
+                });
+            },
+            load() {
+                try {
+                    const saved = JSON.parse(localStorage.getItem('monarch_system_data') || '{}');
+                    this.data.level = saved.level || 1;
+                    this.data.xp = saved.xp || 0;
+                    this.data.gold = saved.gold || 0;
+                    this.data.stats = saved.stats || { str: 10, vit: 10, agi: 10, int: 10, sen: 10 };
+                } catch (e) {
+                    console.error("Error loading monarch core data");
+                }
+            },
+            save() {
+                try {
+                    if (window.SovereignCore) {
+                        SovereignCore.save(this.data);
+                    } else {
+                        localStorage.setItem('monarch_system_data', JSON.stringify(this.data));
+                    }
+                    this.updateUI();
+                    // إطلاق حدث التحديث للنوافذ الأخرى
+                    if (typeof BroadcastChannel !== 'undefined') {
+                        const bc = new BroadcastChannel('sovereign_sync');
+                        bc.postMessage({ type: 'GOLD_UPDATED' });
+                    }
+                } catch (e) {
+                    console.error("Error saving monarch core data");
+                }
+            },
+            addRewards(xpToAdd, goldToAdd) {
+                this.load(); // تحديث أخير للتأمين
+                this.data.xp += xpToAdd;
+                this.data.gold += goldToAdd;
+                
+                // حسابات تخطي المستوى
+                let xpNeeded = this.data.level * 100;
+                let leveledUp = false;
+                while (this.data.xp >= xpNeeded) {
+                    this.data.xp -= xpNeeded;
+                    this.data.level += 1;
+                    leveledUp = true;
+                    xpNeeded = this.data.level * 100;
+                    
+                    // زيادة السمات تلقائياً
+                    Object.keys(this.data.stats).forEach(k => this.data.stats[k] += 1);
+                }
+                
+                this.save();
+                
+                if (leveledUp) {
+                    this.triggerLevelUpConfetti();
+                    showToast(`⚡ ارتقاء سيادي! لقد وصلت إلى المستوى ${this.data.level}!`);
+                }
+            },
+            updateUI() {
+                const lvlNeeded = this.data.level * 100;
+                document.getElementById('header-lvl').innerText = this.data.level;
+                document.getElementById('header-xp').innerText = `${this.data.xp}/${lvlNeeded}`;
+                document.getElementById('header-gold').innerText = this.data.gold.toLocaleString();
+            },
+            triggerLevelUpConfetti() {
+                confetti({
+                    particleCount: 150,
+                    spread: 80,
+                    origin: { y: 0.6 },
+                    colors: ['#00f0ff', '#ffd700', '#9d4edd']
+                });
+            }
+        };
+
+        // محرك الاستماع ومراقبة الأثمان لمنع التلاعب
+        const AudioTracker = {
+            completedSurahs: JSON.parse(localStorage.getItem('sovereign_completed_surahs') || '{}'),
+            currentSurahKey: '',
+            lastTime: 0,
+            trackedThumns: {}, // أثمان مستمعة للسورة الحالية
+
+            resetTrackerForSurah(surahId) {
+                this.currentSurahKey = `surah_${surahId}`;
+                this.lastTime = 0;
+                
+                // تهيئة أو جلب الأثمان المسجلة لهذه السورة
+                if (!this.completedSurahs[this.currentSurahKey]) {
+                    this.completedSurahs[this.currentSurahKey] = {
+                        thumns: [false, false, false, false, false, false, false, false],
+                        fullyCompleted: false
+                    };
+                }
+                this.renderThumnStatus();
+            },
+
+            updateTracker(currentTime, duration) {
+                if (!duration || duration <= 0) return;
+
+                // حماية ضد القفز اليدوي للأمام (Anti-Cheat / Seek Protection)
+                if (currentTime - this.lastTime > 3) {
+                    document.getElementById('tracking-status').innerText = "⚠️ تم رصد تقديم يدوي";
+                    document.getElementById('tracking-status').style.borderColor = "#f43f5e";
+                    document.getElementById('tracking-status').style.color = "#f43f5e";
+                    document.getElementById('tracking-status').style.backgroundColor = "rgba(244, 63, 94, 0.1)";
+                    this.lastTime = currentTime;
+                    return;
+                } else {
+                    document.getElementById('tracking-status').innerText = "> قيد الاستماع النشط";
+                    document.getElementById('tracking-status').style.borderColor = "#10b981";
+                    document.getElementById('tracking-status').style.color = "#10b981";
+                    document.getElementById('tracking-status').style.backgroundColor = "rgba(16, 185, 129, 0.1)";
+                }
+
+                this.lastTime = currentTime;
+
+                // تحديث النسبة المئوية
+                const percentage = Math.floor((currentTime / duration) * 100);
+                document.getElementById('playback-percentage').innerText = `${percentage}%`;
+
+                // تقسيم السورة إلى 8 أثمان (كل ثمن = 12.5%)
+                const thumnIndex = Math.floor((currentTime / duration) * 8);
+                
+                if (thumnIndex >= 0 && thumnIndex < 8) {
+                    const hasEarnedThisThumn = this.completedSurahs[this.currentSurahKey].thumns[thumnIndex];
+                    
+                    if (!hasEarnedThisThumn) {
+                        // كسب مكافأة الثمن!
+                        this.completedSurahs[this.currentSurahKey].thumns[thumnIndex] = true;
+                        this.saveToStorage();
+                        this.renderThumnStatus();
+                        
+                        // إضافة المكافأة الثابتة (1 XP و 1 ذهب)
+                        PlayerSync.addRewards(1, 1);
+                        
+                        // تنبيه بنجاح وتفجير احتفال صغير
+                        showToast("✨ كسبت مكافأة ثُمن الاستماع: +1 XP / +1 ذهب");
+                        confetti({
+                            particleCount: 30,
+                            spread: 40,
+                            origin: { y: 0.9 },
+                            colors: ['#00e5ff', '#ffd700']
+                        });
+                    }
+                }
+
+                // التحقق من إكمال السورة بالكامل (تم إزالة المكافأة الإضافية الكبرى بناء على طلبك)
+                if (percentage >= 99 && !this.completedSurahs[this.currentSurahKey].fullyCompleted) {
+                    this.completedSurahs[this.currentSurahKey].fullyCompleted = true;
+                    this.saveToStorage();
+                    
+                    showToast("🏆 عظيم! لقد أكملت استماع السورة كاملة بنجاح!");
+                    
+                    confetti({
+                        particleCount: 100,
+                        spread: 60,
+                        origin: { y: 0.8 },
+                        colors: ['#00e5ff', '#ffd700']
+                    });
+                }
+            },
+
+            renderThumnStatus() {
+                const data = this.completedSurahs[this.currentSurahKey];
+                if (!data) return;
+                const earnedCount = data.thumns.filter(t => t === true).length;
+                
+                document.getElementById('earned-multiplier').innerText = `أثمان مستمعة: ${earnedCount}/8`;
+                if (earnedCount === 8 || data.fullyCompleted) {
+                    document.getElementById('earned-multiplier').style.color = '#10b981';
+                } else {
+                    document.getElementById('earned-multiplier').style.color = '#ffd700';
+                }
+            },
+
+            saveToStorage() {
+                localStorage.setItem('sovereign_completed_surahs', JSON.stringify(this.completedSurahs));
+            }
+        };
+
+        // الهالة السيادية — يُطبّقها SovereignCore.init() تلقائياً
+        document.addEventListener("DOMContentLoaded", async () => {
+            if (window.SovereignCore) SovereignCore.applyAura();
+            PlayerSync.init();
+            
+            // قراءة القارئ المفضل المخزن
+            const selectEl = document.getElementById('reciter-select');
+            if (selectEl) {
+                selectEl.value = activeReciterKey;
+            }
+
+            showLoading(true);
+            try {
+                const response = await fetch(`${API_BASE}/surah`);
+                const data = await response.json();
+                allSurahs = data.data;
+                renderSurahs(allSurahs);
+            } catch (error) {
+                console.error("Error:", error);
+                showToast("فشل في فك تشفير اتصال السجل السماوي");
+            }
+            showLoading(false);
+            
+            // مراقبة أحداث الصوت
+            const audioPlayer = document.getElementById('quran-audio');
+            audioPlayer.addEventListener('timeupdate', () => {
+                AudioTracker.updateTracker(audioPlayer.currentTime, audioPlayer.duration);
+            });
+        });
+
+        // تغيير القارئ المفضل وتطبيق المسار المباشر
+        function changeReciter() {
+            const selectEl = document.getElementById('reciter-select');
+            activeReciterKey = selectEl.value;
+            localStorage.setItem('sovereign_reciter_key', activeReciterKey);
+            showToast(`🎙️ تم اختيار القارئ: ${RECITERS[activeReciterKey].name}`);
+            
+            // تحديث الصوت إذا كانت السورة مفتوحة ومحملة
+            if (currentSurahId) {
+                const audioPlayer = document.getElementById("quran-audio");
+                const surahFormatted = currentSurahId.toString().padStart(3, '0');
+                const wasPlaying = !audioPlayer.paused;
+                
+                audioPlayer.src = `${RECITERS[activeReciterKey].server}${surahFormatted}.mp3`;
+                if (wasPlaying) {
+                    audioPlayer.play();
+                }
+            }
+        }
+
+        function renderSurahs(surahs) {
+            const listElement = document.getElementById("surah-list");
+            listElement.innerHTML = "";
+            
+            surahs.forEach(surah => {
+                const li = document.createElement("li");
+                li.className = "surah-card";
+                li.onclick = () => openSurah(surah.number, surah.name);
+                li.innerHTML = `
+                    <span class="surah-number">${surah.number.toString().padStart(3, '0')}</span>
+                    <span style="font-weight: bold;">${surah.name}</span>
+                `;
+                listElement.appendChild(li);
+            });
+        }
+
+        function filterSurahs() {
+            const query = document.getElementById("search-input").value;
+            const cleanQuery = query.replace(/[\u064B-\u065F]/g, '');
+            
+            const filtered = allSurahs.filter(surah => {
+                const cleanName = surah.name.replace(/[\u064B-\u065F]/g, '');
+                return cleanName.includes(cleanQuery);
+            });
+            renderSurahs(filtered);
+        }
+
+        async function openSurah(number, name) {
+            showLoading(true);
+            currentSurahId = number;
+            document.getElementById("current-surah-title").innerText = name;
+            
+            try {
+                // فك تشفير الآيات والنصوص من الخادم الرئيسي
+                const response = await fetch(`${API_BASE}/surah/${number}/ar.alafasy`);
+                const data = await response.json();
+                const ayahs = data.data.ayahs;
+
+                const container = document.getElementById("ayah-container");
+                container.innerHTML = "";
+
+                if (number !== 1 && number !== 9) {
+                    container.innerHTML = `<div style="text-align: center; margin-bottom: 20px; color: var(--sys-cyan); font-size: 1.4rem;">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>`;
+                }
+
+                ayahs.forEach(ayah => {
+                    let text = ayah.text;
+                    if (number !== 1 && ayah.numberInSurah === 1) {
+                        text = text.replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", "").trim();
+                    }
+
+                    container.innerHTML += `
+                        <span class="ayah-text" id="ayah-${ayah.numberInSurah}" onclick="playAyah('${ayah.audio}')" style="cursor:pointer;" title="انقر للاستماع للآية منفردة">
+                            ${text}
+                        </span>
+                        <span class="ayah-number">${ayah.numberInSurah}</span>
+                    `;
+                });
+
+                // تصفير وتهيئة محرك مراقبة الأثمان
+                AudioTracker.resetTrackerForSurah(number);
+
+                // إعداد مسار الصوت التلقائي بناءً على القارئ النشط
+                const audioPlayer = document.getElementById("quran-audio");
+                const surahFormatted = number.toString().padStart(3, '0');
+                audioPlayer.src = `${RECITERS[activeReciterKey].server}${surahFormatted}.mp3`;
+
+                document.getElementById("main-view").style.display = "none";
+                document.getElementById("reader-view").style.display = "flex";
+
+                // جعل السورة تبدأ من الأعلى دائماً عند الفتح
+                document.getElementById("ayah-container").scrollTop = 0;
+
+            } catch (error) {
+                console.error("Error:", error);
+                showToast("حدث خطأ أثناء فك تشفير البيانات من الأرشيف");
+            }
+            showLoading(false);
+        }
+
+        function closeReader() {
+            document.getElementById("quran-audio").pause();
+            document.getElementById("reader-view").style.display = "none";
+            document.getElementById("main-view").style.display = "flex";
+            currentSurahId = null;
+        }
+
+        function playAyah(audioUrl) {
+            const audioPlayer = document.getElementById("quran-audio");
+            audioPlayer.src = audioUrl;
+            audioPlayer.play();
+        }
+
+        function saveBookmark() {
+            if (!currentSurahId) return;
+            
+            const bookmarkData = {
+                surahId: currentSurahId,
+                surahName: document.getElementById("current-surah-title").innerText
+            };
+            
+            localStorage.setItem("monarch_quran_bookmark", JSON.stringify(bookmarkData));
+            showToast("[ تم تحديث نقطة حفظ الأرشيف بنجاح ]");
+        }
+
+        function loadBookmark() {
+            const saved = localStorage.getItem("monarch_quran_bookmark");
+            if (saved) {
+                const data = JSON.parse(saved);
+                openSurah(data.surahId, data.surahName);
+                showToast("[ تم استرجاع بوابتك السابقة ]");
+            } else {
+                showToast("[ لا توجد نقطة حفظ سابقة مسجلة ]");
+            }
+        }
+
+        function showLoading(show) {
+            document.getElementById("loading").style.display = show ? "flex" : "none";
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.innerText = message;
+            toast.classList.add("show");
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+        // ==========================================
+// خط الأنابيب الموحّد — الهالة والمزامنة يديرهما SovereignCore
+// ==========================================
+window.addEventListener('storage', (e) => {
+    if (e.key === 'monarch_system_data') {
+        if (typeof loadMonarchTitle === 'function') loadMonarchTitle();
+        // تحديث فوري إذا تغيرت البيانات في المتصفح
+        if (typeof PlayerState !== 'undefined') PlayerState.init();
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    applyAura();
+});
+    </script>
+</body>
+</html>
+
+
+

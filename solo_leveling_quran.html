@@ -1,0 +1,1893 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مصحف النظام - Solo Leveling</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.4);
+            --gold: #fbbf24;
+            --gold-glow: rgba(251, 191, 36, 0.4);
+            --panel-bg: rgba(15, 23, 42, 0.92);
+            --border-color: #1e3a8a;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #0b0e14;
+            color: #e2e8f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .system-panel {
+            background: var(--panel-bg);
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 15px var(--primary-glow), inset 0 0 20px var(--primary-glow);
+            backdrop-filter: blur(8px);
+        }
+
+        .system-text {
+            color: #60a5fa;
+            text-shadow: 0 0 5px rgba(96, 165, 250, 0.8);
+            letter-spacing: 1px;
+        }
+
+        .gold-text {
+            color: var(--gold);
+            text-shadow: 0 0 5px var(--gold-glow);
+        }
+
+        .btn-system {
+            background: linear-gradient(180deg, #1e3a8a 0%, #172554 100%);
+            border: 1px solid var(--primary);
+            transition: all 0.3s ease;
+        }
+        .btn-system:hover {
+            box-shadow: 0 0 15px var(--primary);
+            transform: translateY(-2px);
+            background: linear-gradient(180deg, #2563eb 0%, #1e40af 100%);
+        }
+        .btn-system:active {
+            transform: translateY(0);
+        }
+
+        .btn-gold {
+            background: linear-gradient(180deg, #b45309 0%, #92400e 100%);
+            border: 1px solid var(--gold);
+            transition: all 0.3s ease;
+        }
+        .btn-gold:hover {
+            box-shadow: 0 0 15px var(--gold-glow);
+            transform: translateY(-2px);
+        }
+
+        .modal-overlay {
+            display: none;
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal-content {
+            animation: scaleIn 0.3s ease-out forwards;
+        }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+       .rank-badge {
+    background: linear-gradient(135deg, #fbbf24, #d97706);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 900;
+    filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));
+}
+
+        .quran-text {
+            font-family: 'Amiri', serif;
+            font-size: 1.6rem;
+            line-height: 2.8;
+            color: #f0f9ff;
+            text-align: justify;
+            direction: rtl;
+        }
+        .quran-text .ayah-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            border: 1px solid #60a5fa;
+            border-radius: 50%;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #fff;
+            margin: 0 4px;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        .audio-player {
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid var(--primary);
+            border-radius: 12px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 0 15px var(--primary-glow);
+            flex-wrap: wrap;
+        }
+        .audio-progress {
+            flex: 1;
+            height: 6px;
+            background: #1e293b;
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+            min-width: 100px;
+        }
+        .audio-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s linear;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+        .tab-btn.active {
+            color: #60a5fa;
+            border-bottom-color: #3b82f6;
+            text-shadow: 0 0 8px rgba(96, 165, 250, 0.6);
+        }
+        .tab-btn:hover:not(.active) {
+            color: #cbd5e1;
+        }
+
+        .tafsir-text {
+            font-family: 'Amiri', serif;
+            font-size: 1.1rem;
+            line-height: 2.2;
+            color: #e2e8f0;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #1e3a8a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
+
+        .nav-item {
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #94a3b8;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border-right: 3px solid #3b82f6;
+        }
+
+        .bookmark-btn {
+            transition: all 0.2s;
+        }
+        .bookmark-btn.saved {
+            color: #fbbf24;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #1e3a8a;
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .reciter-select {
+            background: #0f172a;
+            border: 1px solid #1e3a8a;
+            color: #e2e8f0;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: 'Tajawal', sans-serif;
+            outline: none;
+            cursor: pointer;
+        }
+        .reciter-select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+        }
+
+        .rawi-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-right: 8px;
+        }
+        .rawi-hafs { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6; }
+        .rawi-warsh { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+        .rawi-shuba { background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid #8b5cf6; }
+        .rawi-qaloon { background: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid #ec4899; }
+        .rawi-duri { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+        .rawi-susi { background: rgba(14, 165, 233, 0.2); color: #38bdf8; border: 1px solid #0ea5e9; }
+        .rawi-ibn-kathir { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+        .rawi-abu-amr { background: rgba(20, 184, 166, 0.2); color: #2dd4bf; border: 1px solid #14b8a6; }
+        .rawi-hamza { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid #a855f7; }
+        .rawi-kisai { background: rgba(234, 179, 8, 0.2); color: #fde047; border: 1px solid #eab308; }
+
+        .ayah-audio-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid #3b82f6;
+            color: #60a5fa;
+            font-size: 0.65rem;
+            cursor: pointer;
+            margin-left: 6px;
+            transition: all 0.2s;
+            vertical-align: middle;
+        }
+        .ayah-audio-btn:hover {
+            background: #3b82f6;
+            color: white;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
+        }
+        .ayah-audio-btn.playing {
+            background: #fbbf24;
+            border-color: #fbbf24;
+            color: #000;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 5px rgba(251, 191, 36, 0.5); }
+            50% { box-shadow: 0 0 15px rgba(251, 191, 36, 0.8); }
+        }
+
+        @media (max-width: 768px) {
+            .quran-text { font-size: 1.3rem; line-height: 2.4; }
+            .sidebar { display: none; }
+            .sidebar.open { display: block; position: fixed; top: 0; right: 0; width: 280px; height: 100vh; z-index: 60; background: #0b0e14; border-left: 2px solid #1e3a8a; }
+            .audio-player { padding: 8px 12px; gap: 8px; }
+            .audio-player .reciter-select { min-width: 100px; font-size: 0.75rem; }
+        }
+    </style>
+<base target="_blank">
+    <link rel="stylesheet" href="index11.css">
+    <script src="monarch-core.js"></script>
+</head>
+<body class="p-4 md:p-6">
+<div class="sov-secondary-bg" aria-hidden="true"></div>
+         
+    
+
+
+
+    <!-- Sidebar Toggle (Mobile) -->
+    <button id="sidebar-toggle" class="md:hidden fixed top-4 right-4 z-50 btn-system p-3 rounded-lg text-white">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar" class="sidebar fixed top-0 right-0 w-72 h-screen overflow-y-auto p-4 z-40 border-l border-blue-900/50 bg-[#0b0e14]/95 backdrop-blur-md transform translate-x-full md:translate-x-0 transition-transform duration-300">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold system-text"><i class="fa-solid fa-book-quran"></i> القائمة</h2>
+            <button id="sidebar-close" class="md:hidden text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+        </div>
+
+        <nav class="space-y-1">
+            <div class="nav-item active" onclick="showView('index')">
+                <i class="fa-solid fa-list-check w-5"></i>
+                <span>فهرس السور</span>
+            </div>
+            <div class="nav-item" onclick="showView('reader')">
+                <i class="fa-solid fa-book-open w-5"></i>
+                <span>المصحف</span>
+            </div>
+            <div class="nav-item" onclick="showView('bookmarks')">
+                <i class="fa-solid fa-bookmark w-5"></i>
+                <span>العلامات المرجعية</span>
+                <span id="bookmark-count" class="mr-auto text-xs bg-blue-900 text-blue-300 px-2 py-0.5 rounded-full">0</span>
+            </div>
+            <div class="nav-item" onclick="showView('reciters')">
+                <i class="fa-solid fa-headphones w-5"></i>
+                <span>القراء والروايات</span>
+            </div>
+            <div class="nav-item" onclick="showView('settings')">
+                <i class="fa-solid fa-gear w-5"></i>
+                <span>الإعدادات</span>
+            </div>
+            <div><a href="index11.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>🏠</span> <span style="color: wheat;">DASHBOARD</span>
+    </a>
+</div>
+        </nav>
+
+        <div class="mt-8 p-4 system-panel rounded-lg">
+            <h3 class="text-sm font-bold text-blue-400 mb-3">إحصائيات سريعة</h3>
+            <div class="space-y-2 text-sm">
+                <div class="flex justify-between"><span class="text-gray-400">السور المكتملة</span><span id="sidebar-completed" class="text-green-400 font-bold">0/114</span></div>
+                <div class="flex justify-between"><span class="text-gray-400">الآيات المقروءة</span><span id="sidebar-ayahs" class="text-blue-400 font-bold">0</span></div>
+                <div class="flex justify-between"><span class="text-gray-400">العلامات</span><span id="sidebar-bookmarks" class="text-yellow-400 font-bold">0</span></div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="md:mr-72 min-h-screen">
+
+        <!-- Header / Player Status -->
+        <header class="system-panel rounded-xl p-4 md:p-6 mb-6 max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-full border-2 border-blue-500 flex items-center justify-center bg-blue-900/50 shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+                    <i class="fa-solid fa-user-ninja text-2xl text-blue-400"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold system-text">اللاعب [ القارئ ]</h1>
+                    <div class="text-sm text-gray-400 mt-1">الرتبة: <span id="player-rank" class="rank-badge text-lg ml-1">E</span></div>
+                </div>
+            </div>
+
+            <div class="flex-1 w-full md:w-auto px-2 md:px-4 max-w-md">
+                <div class="flex justify-between mb-1 text-sm font-bold">
+                    <span class="text-blue-400">المستوى: <span id="player-level">1</span></span>
+                    <span class="text-blue-400"><span id="player-xp">0</span> / <span id="xp-needed">100</span> XP</span>
+                </div>
+                <div class="w-full bg-gray-900 rounded-full h-2.5 border border-blue-800">
+                    <div id="xp-bar" class="bg-blue-500 h-2 rounded-full transition-all duration-500" style="width: 0%; box-shadow: 0 0 10px #3b82f6;"></div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4 md:gap-6">
+                <div class="text-center">
+                    <div class="text-xs text-gray-400">الذهب</div>
+                    <div class="text-lg font-bold gold-text"><i class="fa-solid fa-coins mr-1"></i> <span id="player-gold">0</span></div>
+                </div>
+                <div class="text-center">
+                    <div class="text-xs text-gray-400">السور</div>
+                    <div class="text-lg font-bold text-green-400"><i class="fa-solid fa-book-quran mr-1"></i> <span id="surahs-completed">0</span></div>
+                </div>
+                <button onclick="resetData()" class="text-xs text-red-500 hover:text-red-400 underline"><i class="fa-solid fa-rotate-right"></i> تصفير</button>
+            </div>
+        </header>
+
+        <!-- VIEW: Index (Surah List) -->
+        <section id="view-index" class="max-w-6xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 border-b border-blue-900 pb-2 gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold system-text"><i class="fa-solid fa-list-check"></i> مهام القراءة (الفهرس)</h2>
+                    <p class="text-sm text-gray-400 mt-1">اختر سورة لقراءتها والحصول على المكافآت</p>
+                </div>
+                <div class="flex gap-2">
+                    <select id="filter-type" class="reciter-select text-sm" onchange="filterSurahs()">
+                        <option value="all">جميع السور</option>
+                        <option value="makkah">مكية</option>
+                        <option value="madinah">مدنية</option>
+                    </select>
+                    <select id="sort-type" class="reciter-select text-sm" onchange="sortSurahs()">
+                        <option value="default">الترتيب الافتراضي</option>
+                        <option value="length">حسب الطول</option>
+                        <option value="completed">المكتملة أولاً</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="surah-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </section>
+
+        <!-- VIEW: Reader (Quran) -->
+        <section id="view-reader" class="max-w-5xl mx-auto hidden">
+            <!-- Reader Controls -->
+            <div class="system-panel rounded-xl p-4 mb-6 sticky top-2 z-30">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div class="flex items-center gap-3">
+                        <button onclick="prevSurah()" class="btn-system px-3 py-2 rounded text-white"><i class="fa-solid fa-chevron-right"></i></button>
+                        <div class="text-center">
+                            <h2 id="reader-surah-name" class="text-xl font-bold text-white">سورة الفاتحة</h2>
+                            <span id="reader-surah-info" class="text-xs text-gray-400">7 آيات | مكية</span>
+                        </div>
+                        <button onclick="nextSurah()" class="btn-system px-3 py-2 rounded text-white"><i class="fa-solid fa-chevron-left"></i></button>
+                    </div>
+
+                    <div class="flex items-center gap-3 flex-wrap justify-center">
+                        <select id="reader-rawi" class="reciter-select text-sm" onchange="changeRawi()">
+                            <option value="hafs">حفص عن عاصم</option>
+                            <option value="warsh">ورش عن نافع</option>
+                            <option value="shuba">شعبة عن عاصم</option>
+                            <option value="qaloon">قالون عن نافع</option>
+                            <option value="duri">الدوري عن أبي عمرو</option>
+                            <option value="susi">السوسي عن أبي عمرو</option>
+                            <option value="ibn-kathir">ابن كثير</option>
+                            <option value="abu-amr">أبو عمرو البصري</option>
+                            <option value="hamza">حمزة الكوفي</option>
+                            <option value="kisai">الكسائي</option>
+                        </select>
+                        <button id="bookmark-btn" onclick="toggleBookmark()" class="bookmark-btn text-gray-400 hover:text-yellow-400 text-xl p-2">
+                            <i class="fa-regular fa-bookmark"></i>
+                        </button>
+                        <button onclick="showView('index')" class="text-gray-400 hover:text-white text-sm"><i class="fa-solid fa-arrow-right"></i> العودة للفهرس</button>
+                    </div>
+                </div>
+
+                <!-- Audio Player -->
+                <div class="mt-4 audio-player">
+                    <select id="audio-reciter" class="reciter-select text-xs" style="min-width:140px;" onchange="changeReciter()">
+                        <option value="Alafasy_128kbps">مشاري بن راشد العفاسي</option>
+                        <option value="Abdul_Basit_Murattal_64kbps">عبد الباسط عبد الصمد</option>
+                        <option value="Abdul_Basit_Mujawwad_128kbps">عبد الباسط عبد الصمد</option>
+                        <option value="Abdullah_Basfar_32kbps">عبدالله بن علي بصفر</option>
+                        <option value="Abdullah_Basfar_64kbps">عبدالله بن علي بصفر</option>
+                        <option value="Abdullah_Basfar_192kbps">عبدالله بن علي بصفر</option>
+                        <option value="Abdurrahmaan_As-Sudais_64kbps">عبد الرحمن السديس</option>
+                        <option value="Abdurrahmaan_As-Sudais_192kbps">عبد الرحمن السديس</option>
+                        <option value="AbdulSamad_64kbps_QuranExplorer.Com">عبدالباسط عبدالصمد</option>
+                        <option value="Abu_Bakr_Ash-Shaatree_64kbps">أبو بكر الشاطري</option>
+                        <option value="Abu_Bakr_Ash-Shaatree_128kbps">أبو بكر الشاطري</option>
+                        <option value="Ahmed_ibn_Ali_al-Ajamy_64kbps_QuranExplorer.Com">أحمد العجمي</option>
+                        <option value="Alafasy_64kbps">مشاري العفاسي</option>
+                        <option value="Ghamadi_40kbps">سعد الغامدي</option>
+                        <option value="Hani_Rifai_64kbps">هاني الرفاعي</option>
+                        <option value="Hani_Rifai_192kbps">هاني الرفاعي</option>
+                        <option value="Husary_64kbps">محمود خليل الحصري</option>
+                        <option value="Husary_128kbps">محمود خليل الحصري</option>
+                        <option value="Husary_Mujawwad_64kbps">محمود خليل الحصري</option>
+                        <option value="Husary_128kbps_Mujawwad">محمود خليل الحصري</option>
+                        <option value="Hudhaify_32kbps">علي الحذيفي</option>
+                        <option value="Hudhaify_64kbps">علي الحذيفي</option>
+                        <option value="Hudhaify_128kbps">علي الحذيفي</option>
+                        <option value="Ibrahim_Akhdar_32kbps">إبراهيم الأخضر</option>
+                        <option value="Maher_AlMuaiqly_64kbps">ماهر المعيقلي</option>
+                        <option value="Menshawi_16kbps">محمد صديق المنشاوي</option>
+                        <option value="Minshawy_Mujawwad_64kbps">محمد صديق المنشاوي</option>
+                        <option value="Minshawy_Mujawwad_192kbps">محمد صديق المنشاوي</option>
+                        <option value="Minshawy_Murattal_128kbps">محمد صديق المنشاوي</option>
+                        <option value="Mohammad_al_Tablaway_64kbps">محمد الطبلاوي</option>
+                        <option value="Mohammad_al_Tablaway_128kbps">محمد الطبلاوي</option>
+                        <option value="Muhammad_Ayyoub_128kbps">محمد أيوب</option>
+                        <option value="Muhammad_Ayyoub_64kbps">محمد أيوب</option>
+                        <option value="Muhammad_Jibreel_64kbps">محمد جبريل</option>
+                        <option value="Muhammad_Jibreel_128kbps">محمد جبريل</option>
+                        <option value="Saood_ash-Shuraym_64kbps">سعود الشريم</option>
+                        <option value="Saood_ash-Shuraym_128kbps">سعود الشريم</option>
+                        <option value="English/Sahih_Intnl_Ibrahim_Walk_192kbps">Ibrahim Walk (English)</option>
+                        <option value="MultiLanguage/Basfar_Walk_192kbps">Basfar Walk (Multilingual)</option>
+                        <option value="translations/Makarem_Kabiri_16Kbps">مكارم الكبيري (ترجمة)</option>
+                        <option value="translations/Fooladvand_Hedayatfar_40Kbps">فولادوند هدايتفر (ترجمة)</option>
+                        <option value="Parhizgar_48kbps">البرهان برهانزاده</option>
+                        <option value="translations/azerbaijani/balayev">بالاييف (أذربيجاني)</option>
+                        <option value="Salaah_AbdulRahman_Bukhatir_128kbps">صلاح بوخاطر</option>
+                        <option value="Muhsin_Al_Qasim_192kbps">محسن القاسم</option>
+                        <option value="Abdullaah_3awwaad_Al-Juhaynee_128kbps">عبدالله عواد الجهني</option>
+                        <option value="Salah_Al_Budair_128kbps">صلاح البدير</option>
+                        <option value="Abdullah_Matroud_128kbps">عبدالله مطرود</option>
+                        <option value="Ahmed_Neana_128kbps">أحمد نعينع</option>
+                        <option value="khalefa_al_tunaiji_64kbps">خليفة الطنيجي</option>
+                        <option value="mahmoud_ali_al_banna_32kbps">محمود علي البنا</option>
+                        <option value="warsh/warsh_ibrahim_aldosary_128kbps">إبراهيم الدوسري</option>
+                        <option value="translations/urdu_shamshad_ali_khan_46kbps">شمشاد علي خان (أردو)</option>
+                    </select>
+                    <button id="play-btn" onclick="toggleAudio()" class="btn-system w-10 h-10 rounded-full flex items-center justify-center text-white flex-shrink-0">
+                        <i class="fa-solid fa-play"></i>
+                    </button>
+                    <div class="audio-progress" onclick="seekAudio(event)">
+                        <div id="audio-progress-fill" class="audio-progress-fill"></div>
+                    </div>
+                    <span id="audio-time" class="text-xs text-gray-400 font-mono w-16 text-left flex-shrink-0">00:00 / 00:00</span>
+                    <button onclick="stopAudio()" class="text-gray-400 hover:text-red-400 flex-shrink-0"><i class="fa-solid fa-stop"></i></button>
+                    <button onclick="toggleLoop()" id="loop-btn" class="text-gray-400 hover:text-blue-400 flex-shrink-0" title="تكرار السورة">
+                        <i class="fa-solid fa-repeat"></i>
+                    </button>
+                </div>
+                <div class="mt-2 text-xs text-gray-500 text-center">
+                    <span id="audio-status">اضغط تشغيل للاستماع للسورة كاملة</span>
+                    <span id="current-ayah-display" class="mr-2 text-blue-400"></span>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex border-b border-blue-900/50 mb-4 overflow-x-auto">
+                <button class="tab-btn active" onclick="switchTab('quran')" data-tab="quran">المصحف</button>
+                <button class="tab-btn" onclick="switchTab('tafsir')" data-tab="tafsir">التفسير</button>
+                <button class="tab-btn" onclick="switchTab('translation')" data-tab="translation">الترجمة</button>
+                <button class="tab-btn" onclick="switchTab('info')" data-tab="info">معلومات السورة</button>
+            </div>
+
+            <!-- Tab Content: Quran -->
+            <div id="tab-quran" class="tab-content">
+                <div id="quran-content" class="system-panel rounded-xl p-6 md:p-10 min-h-[400px]">
+                    <div class="flex justify-center items-center h-64">
+                        <div class="loading-spinner"></div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center mt-4">
+                    <button onclick="prevSurah()" class="btn-system px-6 py-2 rounded text-white font-bold">
+                        <i class="fa-solid fa-chevron-right ml-2"></i> السورة السابقة
+                    </button>
+                    <button onclick="markCurrentSurahComplete()" id="btn-complete-surah" class="btn-gold px-6 py-2 rounded text-white font-bold">
+                        <i class="fa-solid fa-check ml-2"></i> إتمام السورة
+                    </button>
+                    <button onclick="nextSurah()" class="btn-system px-6 py-2 rounded text-white font-bold">
+                        السورة التالية <i class="fa-solid fa-chevron-left mr-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab Content: Tafsir -->
+            <div id="tab-tafsir" class="tab-content hidden">
+                <div class="system-panel rounded-xl p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold text-blue-400">التفسير</h3>
+                        <select id="tafsir-select" class="reciter-select text-sm" onchange="loadTafsir()">
+                            <option value="ibn-kathir">تفسير ابن كثير</option>
+                            <option value="muyassar">التفسير الميسر</option>
+                            <option value="maarif">معارف القرآن</option>
+                            <option value="jalalayn">تفسير الجلالين</option>
+                            <option value="saadi">تفسير السعدي</option>
+                            <option value="tabari">تفسير الطبري</option>
+                            <option value="qurtubi">تفسير القرطبي</option>
+                            <option value="baghawi">تفسير البغوي</option>
+                        </select>
+                    </div>
+                    <div id="tafsir-content" class="tafsir-text space-y-4 max-h-[600px] overflow-y-auto pr-2">
+                        <p class="text-gray-400 text-center">اختر سورة لعرض تفسيرها</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Translation -->
+            <div id="tab-translation" class="tab-content hidden">
+                <div class="system-panel rounded-xl p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold text-blue-400">الترجمة</h3>
+                        <select id="translation-select" class="reciter-select text-sm" onchange="loadTranslation()">
+                            <option value="en.sahih">English - Sahih International</option>
+                            <option value="en.pickthall">English - Pickthall</option>
+                            <option value="en.yusufali">English - Yusuf Ali</option>
+                            <option value="fr.hamidullah">Français - Hamidullah</option>
+                            <option value="de.aburida">Deutsch - Abu Rida</option>
+                            <option value="es.cortes">Español - Cortes</option>
+                            <option value="tr.diyanet">Türkçe - Diyanet</option>
+                            <option value="ur.jalandhry">اردو - جالندھری</option>
+                            <option value="id.indonesian">Bahasa Indonesia</option>
+                            <option value="ru.kuliev">Русский - Кулиев</option>
+                            <option value="zh.jian">中文 - 简体中文</option>
+                        </select>
+                    </div>
+                    <div id="translation-content" class="space-y-3 max-h-[600px] overflow-y-auto pr-2 text-gray-300">
+                        <p class="text-gray-400 text-center">اختر سورة لعرض ترجمتها</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Info -->
+            <div id="tab-info" class="tab-content hidden">
+                <div class="system-panel rounded-xl p-6">
+                    <h3 class="text-lg font-bold text-blue-400 mb-4">معلومات السورة</h3>
+                    <div id="surah-info-content" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: Bookmarks -->
+        <section id="view-bookmarks" class="max-w-5xl mx-auto hidden">
+            <div class="flex justify-between items-center mb-6 border-b border-blue-900 pb-2">
+                <h2 class="text-2xl font-bold system-text"><i class="fa-solid fa-bookmark"></i> العلامات المرجعية</h2>
+            </div>
+            <div id="bookmarks-list" class="space-y-3">
+                <p class="text-gray-400 text-center py-12">لا توجد علامات مرجعية بعد. اضغط على <i class="fa-regular fa-bookmark"></i> أثناء القراءة لحفظ موقعك.</p>
+            </div>
+        </section>
+
+        <!-- VIEW: Reciters -->
+        <section id="view-reciters" class="max-w-6xl mx-auto hidden">
+            <div class="mb-6 border-b border-blue-900 pb-2">
+                <h2 class="text-2xl font-bold system-text"><i class="fa-solid fa-headphones"></i> القراء والروايات</h2>
+                <p class="text-sm text-gray-400 mt-1">جميع القراء لديهم تلاوة كاملة للقرآن الكريم (114 سورة)</p>
+            </div>
+
+            <!-- Rawis Section -->
+            <div class="system-panel rounded-xl p-6 mb-6">
+                <h3 class="text-lg font-bold text-blue-400 mb-4"><i class="fa-solid fa-layer-group"></i> الروايات المتاحة</h3>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    <div class="bg-blue-900/20 border border-blue-800 rounded-lg p-3 text-center hover:border-blue-500 transition cursor-pointer" onclick="selectRawi('hafs')">
+                        <div class="rawi-badge rawi-hafs mb-2">حفص</div>
+                        <div class="text-sm font-bold text-white">حفص عن عاصم</div>
+                        <div class="text-xs text-gray-400 mt-1">الكوفة</div>
+                    </div>
+                    <div class="bg-blue-900/20 border border-blue-800 rounded-lg p-3 text-center hover:border-blue-500 transition cursor-pointer" onclick="selectRawi('warsh')">
+                        <div class="rawi-badge rawi-warsh mb-2">ورش</div>
+                        <div class="text-sm font-bold text-white">ورش عن نافع</div>
+                        <div class="text-xs text-gray-400 mt-1">المدينة</div>
+                    </div>
+                    <div class="bg-blue-900/20 border border-blue-800 rounded-lg p-3 text-center hover:border-blue-500 transition cursor-pointer" onclick="selectRawi('shuba')">
+                        <div class="rawi-badge rawi-shuba mb-2">شعبة</div>
+                        <div class="text-sm font-bold text-white">شعبة عن عاصم</div>
+                        <div class="text-xs text-gray-400 mt-1">الكوفة</div>
+                    </div>
+                    <div class="bg-blue-900/20 border border-blue-800 rounded-lg p-3 text-center hover:border-blue-500 transition cursor-pointer" onclick="selectRawi('qaloon')">
+                        <div class="rawi-badge rawi-qaloon mb-2">قالون</div>
+                        <div class="text-sm font-bold text-white">قالون عن نافع</div>
+                        <div class="text-xs text-gray-400 mt-1">المدينة</div>
+                    </div>
+                    <div class="bg-blue-900/20 border border-blue-800 rounded-lg p-3 text-center hover:border-blue-500 transition cursor-pointer" onclick="selectRawi('duri')">
+                        <div class="rawi-badge rawi-duri mb-2">الدوري</div>
+                        <div class="text-sm font-bold text-white">الدوري عن أبي عمرو</div>
+                        <div class="text-xs text-gray-400 mt-1">البصرة</div>
+                    </div>
+                    <div class="bg-blue-900/20 border border-blue-800 rounded-lg p-3 text-center hover:border-blue-500 transition cursor-pointer" onclick="selectRawi('susi')">
+                        <div class="rawi-badge rawi-susi mb-2">السوسي</div>
+                        <div class="text-sm font-bold text-white">السوسي عن أبي عمرو</div>
+                        <div class="text-xs text-gray-400 mt-1">البصرة</div>
+                    </div>
+                    <div class="bg-blue-900/20 border border-blue-800 rounded-lg p-3 text-center hover:border-blue-500 transition cursor-pointer" onclick="selectRawi('ibn-kathir')">
+                        <div class="rawi-badge rawi-ibn-kathir mb-2">ابن كثير</div>
+                        <div class="text-sm font-bold text-white">ابن كثير</div>
+                        <div class="text-xs text-gray-400 mt-1">مكة</div>
+                    </div>
+                    <div class="bg-blue-900/20 border border-blue-800 rounded-lg p-3 text-center hover:border-blue-500 transition cursor-pointer" onclick="selectRawi('abu-amr')">
+                        <div class="rawi-badge rawi-abu-amr mb-2">أبو عمرو</div>
+                        <div class="text-sm font-bold text-white">أبو عمرو البصري</div>
+                        <div class="text-xs text-gray-400 mt-1">البصرة</div>
+                    </div>
+                    <div class="bg-blue-900/20 border border-blue-800 rounded-lg p-3 text-center hover:border-blue-500 transition cursor-pointer" onclick="selectRawi('hamza')">
+                        <div class="rawi-badge rawi-hamza mb-2">حمزة</div>
+                        <div class="text-sm font-bold text-white">حمزة الكوفي</div>
+                        <div class="text-xs text-gray-400 mt-1">الكوفة</div>
+                    </div>
+                    <div class="bg-blue-900/20 border border-blue-800 rounded-lg p-3 text-center hover:border-blue-500 transition cursor-pointer" onclick="selectRawi('kisai')">
+                        <div class="rawi-badge rawi-kisai mb-2">الكسائي</div>
+                        <div class="text-sm font-bold text-white">الكسائي</div>
+                        <div class="text-xs text-gray-400 mt-1">الكوفة</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reciters Grid -->
+            <div id="reciters-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </section>
+
+        <!-- VIEW: Settings -->
+        <section id="view-settings" class="max-w-3xl mx-auto hidden">
+            <div class="mb-6 border-b border-blue-900 pb-2">
+                <h2 class="text-2xl font-bold system-text"><i class="fa-solid fa-gear"></i> الإعدادات</h2>
+            </div>
+
+            <div class="system-panel rounded-xl p-6 space-y-6">
+                <div>
+                    <h3 class="text-lg font-bold text-blue-400 mb-3">حجم الخط</h3>
+                    <div class="flex items-center gap-4">
+                        <button onclick="changeFontSize(-1)" class="btn-system px-4 py-2 rounded text-white"><i class="fa-solid fa-minus"></i></button>
+                        <span id="font-size-display" class="text-xl font-bold text-white w-12 text-center">1.6</span>
+                        <button onclick="changeFontSize(1)" class="btn-system px-4 py-2 rounded text-white"><i class="fa-solid fa-plus"></i></button>
+                        <span class="text-gray-400 text-sm">rem</span>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-bold text-blue-400 mb-3">القارئ الافتراضي</h3>
+                    <select id="default-reciter" class="reciter-select w-full" onchange="saveSettings()">
+                    </select>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-bold text-blue-400 mb-3">التفسير الافتراضي</h3>
+                    <select id="default-tafsir" class="reciter-select w-full" onchange="saveSettings()">
+                        <option value="ibn-kathir">تفسير ابن كثير</option>
+                        <option value="muyassar">التفسير الميسر</option>
+                        <option value="maarif">معارف القرآن</option>
+                        <option value="jalalayn">تفسير الجلالين</option>
+                        <option value="saadi">تفسير السعدي</option>
+                        <option value="tabari">تفسير الطبري</option>
+                        <option value="qurtubi">تفسير القرطبي</option>
+                        <option value="baghawi">تفسير البغوي</option>
+                    </select>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-bold text-blue-400 mb-3">الترجمة الافتراضية</h3>
+                    <select id="default-translation" class="reciter-select w-full" onchange="saveSettings()">
+                        <option value="en.sahih">English - Sahih International</option>
+                        <option value="en.pickthall">English - Pickthall</option>
+                        <option value="fr.hamidullah">Français</option>
+                        <option value="de.aburida">Deutsch</option>
+                        <option value="es.cortes">Español</option>
+                        <option value="tr.diyanet">Türkçe</option>
+                        <option value="ur.jalandhry">اردو</option>
+                        <option value="id.indonesian">Bahasa Indonesia</option>
+                        <option value="ru.kuliev">Русский</option>
+                        <option value="zh.jian">中文</option>
+                    </select>
+                </div>
+
+                <div class="pt-4 border-t border-blue-900/50">
+                    <button onclick="exportData()" class="btn-system px-4 py-2 rounded text-white mr-2"><i class="fa-solid fa-download"></i> تصدير البيانات</button>
+                    <button onclick="importData()" class="btn-system px-4 py-2 rounded text-white"><i class="fa-solid fa-upload"></i> استيراد البيانات</button>
+                    <input type="file" id="import-file" class="hidden" accept=".json" onchange="handleImport(event)">
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- System Modal -->
+    <div id="system-modal" class="modal-overlay fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="modal-content system-panel rounded-lg p-8 max-w-md w-full text-center border-t-4 border-t-blue-500 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-400 to-transparent opacity-50"></div>
+            <h2 class="text-3xl font-black text-blue-500 mb-2 tracking-widest">[ إشعار النظام ]</h2>
+            <p id="modal-title" class="text-xl text-white mb-6 font-bold">تم إنجاز المهمة بنجاح!</p>
+            <div class="bg-gray-900/80 rounded border border-blue-800 p-4 mb-6">
+                <p id="modal-desc" class="text-gray-300 mb-4 text-sm">لقد أتممت قراءة <span id="modal-surah-name" class="font-bold text-blue-300"></span></p>
+                <div class="flex justify-center gap-6">
+                    <div class="text-center"><span class="block text-xs text-gray-400">خبرة</span><span id="modal-xp" class="text-xl font-bold text-blue-400">+0 XP</span></div>
+                    <div class="text-center"><span class="block text-xs text-gray-400">ذهب</span><span id="modal-gold" class="text-xl font-bold gold-text">+0 G</span></div>
+                </div>
+            </div>
+            <div id="level-up-alert" class="hidden mb-6 animate-pulse">
+                <div class="text-green-400 font-bold text-xl"><i class="fa-solid fa-angles-up"></i> ارتقاء في المستوى!</div>
+                <div class="text-sm text-gray-300">لقد وصلت إلى المستوى <span id="new-level-span" class="font-bold text-white"></span></div>
+            </div>
+            <button onclick="closeModal()" class="btn-system w-full py-3 rounded font-bold text-white tracking-wider">تأكيد</button>
+        </div>
+    </div>
+
+    <!-- Audio Element -->
+    <audio id="quran-audio" preload="none"></audio>
+
+    <script>
+
+        // ==================== DATA ====================
+        const surahNames = [
+            "الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس",
+            "هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه",
+            "الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم",
+            "لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر",
+            "فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق",
+            "الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة",
+            "الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج",
+            "نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس",
+            "التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد",
+            "الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات",
+            "القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر",
+            "المسد","الإخلاص","الفلق","الناس"
+        ];
+
+        const versesCount = [
+            7, 286, 200, 176, 120, 165, 206, 75, 129, 109, 123, 111, 43, 52, 99, 128, 111, 110, 98, 135,
+            112, 78, 118, 64, 77, 227, 93, 88, 69, 60, 34, 30, 73, 54, 45, 83, 182, 88, 75, 85,
+            54, 53, 89, 59, 37, 35, 38, 29, 18, 45, 60, 49, 62, 55, 78, 96, 29, 22, 24, 13,
+            14, 11, 11, 18, 12, 12, 30, 52, 52, 44, 28, 28, 20, 56, 40, 31, 50, 40, 46, 42,
+            29, 19, 36, 25, 22, 17, 19, 26, 30, 20, 15, 21, 11, 8, 8, 19, 5, 8, 8, 11,
+            11, 8, 3, 9, 5, 4, 7, 3, 6, 3, 5, 4, 5, 6
+        ];
+
+        const surahTypes = [
+            "makkah","madinah","madinah","madinah","madinah","makkah","makkah","madinah","madinah","makkah",
+            "makkah","makkah","madinah","makkah","makkah","makkah","makkah","makkah","makkah","makkah",
+            "makkah","madinah","makkah","madinah","makkah","makkah","makkah","makkah","makkah","makkah",
+            "makkah","makkah","madinah","makkah","makkah","makkah","makkah","makkah","makkah","makkah",
+            "makkah","makkah","makkah","makkah","makkah","makkah","madinah","madinah","madinah","makkah",
+            "makkah","makkah","makkah","makkah","madinah","makkah","madinah","madinah","madinah","madinah",
+            "madinah","madinah","madinah","madinah","madinah","madinah","makkah","makkah","makkah","makkah",
+            "makkah","makkah","makkah","makkah","makkah","madinah","makkah","makkah","makkah","makkah",
+            "makkah","makkah","makkah","makkah","makkah","makkah","makkah","makkah","makkah","makkah",
+            "makkah","makkah","makkah","makkah","makkah","makkah","makkah","madinah","makkah","makkah",
+            "makkah","makkah","makkah","makkah","makkah","makkah","makkah","makkah","makkah","makkah",
+            "makkah","makkah","makkah","makkah"
+        ];
+
+        const surahEnglishNames = [
+            "Al-Fatiha","Al-Baqarah","Aal-E-Imran","An-Nisa","Al-Ma'idah","Al-An'am","Al-A'raf","Al-Anfal","At-Tawbah","Yunus",
+            "Hud","Yusuf","Ar-Ra'd","Ibrahim","Al-Hijr","An-Nahl","Al-Isra","Al-Kahf","Maryam","Ta-Ha",
+            "Al-Anbiya","Al-Hajj","Al-Mu'minun","An-Nur","Al-Furqan","Ash-Shu'ara","An-Naml","Al-Qasas","Al-Ankabut","Ar-Rum",
+            "Luqman","As-Sajda","Al-Ahzab","Saba","Fatir","Ya-Sin","As-Saffat","Sad","Az-Zumar","Ghafir",
+            "Fussilat","Ash-Shura","Az-Zukhruf","Ad-Dukhan","Al-Jathiya","Al-Ahqaf","Muhammad","Al-Fath","Al-Hujurat","Qaf",
+            "Adh-Dhariyat","At-Tur","An-Najm","Al-Qamar","Ar-Rahman","Al-Waqi'a","Al-Hadid","Al-Mujadila","Al-Hashr","Al-Mumtahanah",
+            "As-Saff","Al-Jumu'a","Al-Munafiqun","At-Taghabun","At-Talaq","At-Tahrim","Al-Mulk","Al-Qalam","Al-Haqqah","Al-Ma'arij",
+            "Nuh","Al-Jinn","Al-Muzzammil","Al-Muddaththir","Al-Qiyamah","Al-Insan","Al-Mursalat","An-Naba","An-Nazi'at","Abasa",
+            "At-Takwir","Al-Infitar","Al-Mutaffifin","Al-Inshiqaq","Al-Buruj","At-Tariq","Al-A'la","Al-Ghashiyah","Al-Fajr","Al-Balad",
+            "Ash-Shams","Al-Lail","Ad-Duha","Ash-Sharh","At-Tin","Al-Alaq","Al-Qadr","Al-Bayyinah","Az-Zilzal","Al-Adiyat",
+            "Al-Qari'a","At-Takathur","Al-Asr","Al-Humazah","Al-Fil","Quraysh","Al-Ma'un","Al-Kawthar","Al-Kafirun","An-Nasr",
+            "Al-Masad","Al-Ikhlas","Al-Falaq","An-Nas"
+        ];
+
+        const rawiNames = {
+            "hafs": "حفص عن عاصم",
+            "warsh": "ورش عن نافع",
+            "shuba": "شعبة عن عاصم",
+            "qaloon": "قالون عن نافع",
+            "duri": "الدوري عن أبي عمرو",
+            "susi": "السوسي عن أبي عمرو",
+            "ibn-kathir": "ابن كثير",
+            "abu-amr": "أبو عمرو البصري",
+            "hamza": "حمزة الكوفي",
+            "kisai": "الكسائي"
+        };
+
+        const tafsirNames = {
+            "ibn-kathir": "تفسير ابن كثير",
+            "muyassar": "التفسير الميسر",
+            "maarif": "معارف القرآن",
+            "jalalayn": "تفسير الجلالين",
+            "saadi": "تفسير السعدي",
+            "tabari": "تفسير الطبري",
+            "qurtubi": "تفسير القرطبي",
+            "baghawi": "تفسير البغوي"
+        };
+
+        // COMPLETE RECITERS ONLY - verified from everyayah.com (no missing files)
+        const recitersList = [
+            { id: "Alafasy_128kbps", name: "مشاري بن راشد العفاسي", rawi: "حفص", type: "مرتل" },
+            { id: "Abdul_Basit_Murattal_64kbps", name: "عبد الباسط عبد الصمد", rawi: "حفص", type: "مرتل" },
+            { id: "Abdul_Basit_Mujawwad_128kbps", name: "عبد الباسط عبد الصمد", rawi: "حفص", type: "مجود" },
+            { id: "Abdullah_Basfar_32kbps", name: "عبدالله بن علي بصفر", rawi: "حفص", type: "مرتل" },
+            { id: "Abdullah_Basfar_64kbps", name: "عبدالله بن علي بصفر", rawi: "حفص", type: "مرتل" },
+            { id: "Abdullah_Basfar_192kbps", name: "عبدالله بن علي بصفر", rawi: "حفص", type: "مرتل" },
+            { id: "Abdurrahmaan_As-Sudais_64kbps", name: "عبد الرحمن السديس", rawi: "حفص", type: "مرتل" },
+            { id: "Abdurrahmaan_As-Sudais_192kbps", name: "عبد الرحمن السديس", rawi: "حفص", type: "مرتل" },
+            { id: "AbdulSamad_64kbps_QuranExplorer.Com", name: "عبدالباسط عبدالصمد", rawi: "حفص", type: "مرتل" },
+            { id: "Abu_Bakr_Ash-Shaatree_64kbps", name: "أبو بكر الشاطري", rawi: "حفص", type: "مرتل" },
+            { id: "Abu_Bakr_Ash-Shaatree_128kbps", name: "أبو بكر الشاطري", rawi: "حفص", type: "مرتل" },
+            { id: "Ahmed_ibn_Ali_al-Ajamy_64kbps_QuranExplorer.Com", name: "أحمد العجمي", rawi: "حفص", type: "مرتل" },
+            { id: "Alafasy_64kbps", name: "مشاري العفاسي", rawi: "حفص", type: "مرتل" },
+            { id: "Ghamadi_40kbps", name: "سعد الغامدي", rawi: "حفص", type: "مرتل" },
+            { id: "Hani_Rifai_64kbps", name: "هاني الرفاعي", rawi: "حفص", type: "مرتل" },
+            { id: "Hani_Rifai_192kbps", name: "هاني الرفاعي", rawi: "حفص", type: "مرتل" },
+            { id: "Husary_64kbps", name: "محمود خليل الحصري", rawi: "حفص", type: "مرتل" },
+            { id: "Husary_128kbps", name: "محمود خليل الحصري", rawi: "حفص", type: "مرتل" },
+            { id: "Husary_Mujawwad_64kbps", name: "محمود خليل الحصري", rawi: "حفص", type: "مجود" },
+            { id: "Husary_128kbps_Mujawwad", name: "محمود خليل الحصري", rawi: "حفص", type: "مجود" },
+            { id: "Hudhaify_32kbps", name: "علي الحذيفي", rawi: "حفص", type: "مرتل" },
+            { id: "Hudhaify_64kbps", name: "علي الحذيفي", rawi: "حفص", type: "مرتل" },
+            { id: "Hudhaify_128kbps", name: "علي الحذيفي", rawi: "حفص", type: "مرتل" },
+            { id: "Ibrahim_Akhdar_32kbps", name: "إبراهيم الأخضر", rawi: "حفص", type: "مرتل" },
+            { id: "Maher_AlMuaiqly_64kbps", name: "ماهر المعيقلي", rawi: "حفص", type: "مرتل" },
+            { id: "Menshawi_16kbps", name: "محمد صديق المنشاوي", rawi: "حفص", type: "مرتل" },
+            { id: "Minshawy_Mujawwad_64kbps", name: "محمد صديق المنشاوي", rawi: "حفص", type: "مجود" },
+            { id: "Minshawy_Mujawwad_192kbps", name: "محمد صديق المنشاوي", rawi: "حفص", type: "مجود" },
+            { id: "Minshawy_Murattal_128kbps", name: "محمد صديق المنشاوي", rawi: "حفص", type: "مرتل" },
+            { id: "Mohammad_al_Tablaway_64kbps", name: "محمد الطبلاوي", rawi: "حفص", type: "مرتل" },
+            { id: "Mohammad_al_Tablaway_128kbps", name: "محمد الطبلاوي", rawi: "حفص", type: "مرتل" },
+            { id: "Muhammad_Ayyoub_128kbps", name: "محمد أيوب", rawi: "حفص", type: "مرتل" },
+            { id: "Muhammad_Ayyoub_64kbps", name: "محمد أيوب", rawi: "حفص", type: "مرتل" },
+            { id: "Muhammad_Jibreel_64kbps", name: "محمد جبريل", rawi: "حفص", type: "مرتل" },
+            { id: "Muhammad_Jibreel_128kbps", name: "محمد جبريل", rawi: "حفص", type: "مرتل" },
+            { id: "Saood_ash-Shuraym_64kbps", name: "سعود الشريم", rawi: "حفص", type: "مرتل" },
+            { id: "Saood_ash-Shuraym_128kbps", name: "سعود الشريم", rawi: "حفص", type: "مرتل" },
+            { id: "English/Sahih_Intnl_Ibrahim_Walk_192kbps", name: "Ibrahim Walk (English)", rawi: "حفص", type: "ترجمة" },
+            { id: "MultiLanguage/Basfar_Walk_192kbps", name: "Basfar Walk (Multilingual)", rawi: "حفص", type: "ترجمة" },
+            { id: "translations/Makarem_Kabiri_16Kbps", name: "مكارم الكبيري (ترجمة)", rawi: "حفص", type: "ترجمة" },
+            { id: "translations/Fooladvand_Hedayatfar_40Kbps", name: "فولادوند هدايتفر (ترجمة)", rawi: "حفص", type: "ترجمة" },
+            { id: "Parhizgar_48kbps", name: "البرهان برهانزاده", rawi: "حفص", type: "مرتل" },
+            { id: "translations/azerbaijani/balayev", name: "بالاييف (أذربيجاني)", rawi: "حفص", type: "ترجمة" },
+            { id: "Salaah_AbdulRahman_Bukhatir_128kbps", name: "صلاح بوخاطر", rawi: "حفص", type: "مرتل" },
+            { id: "Muhsin_Al_Qasim_192kbps", name: "محسن القاسم", rawi: "حفص", type: "مرتل" },
+            { id: "Abdullaah_3awwaad_Al-Juhaynee_128kbps", name: "عبدالله عواد الجهني", rawi: "حفص", type: "مرتل" },
+            { id: "Salah_Al_Budair_128kbps", name: "صلاح البدير", rawi: "حفص", type: "مرتل" },
+            { id: "Abdullah_Matroud_128kbps", name: "عبدالله مطرود", rawi: "حفص", type: "مرتل" },
+            { id: "Ahmed_Neana_128kbps", name: "أحمد نعينع", rawi: "حفص", type: "مرتل" },
+            { id: "khalefa_al_tunaiji_64kbps", name: "خليفة الطنيجي", rawi: "حفص", type: "مرتل" },
+            { id: "mahmoud_ali_al_banna_32kbps", name: "محمود علي البنا", rawi: "حفص", type: "مرتل" },
+            { id: "warsh/warsh_ibrahim_aldosary_128kbps", name: "إبراهيم الدوسري", rawi: "ورش", type: "مرتل" },
+            { id: "translations/urdu_shamshad_ali_khan_46kbps", name: "شمشاد علي خان (أردو)", rawi: "حفص", type: "ترجمة" },
+        ];
+
+        // ==================== PLAYER STATE ====================
+        let player = {
+            level: 1,
+            xp: 0,
+            gold: 0,
+            completedSurahs: [],
+            rank: 'E',
+            bookmarks: [],
+            settings: {
+                fontSize: 1.6,
+                defaultReciter: 'Alafasy_128kbps',
+                defaultTafsir: 'ibn-kathir',
+                defaultTranslation: 'en.sahih',
+                defaultRawi: 'hafs'
+            }
+        };
+
+        let currentSurah = 0;
+        let currentAudio = null;
+        let isPlaying = false;
+        let isLooping = false;
+        let currentRawi = 'hafs';
+        let surahDataCache = {};
+        let tafsirCache = {};
+        let translationCache = {};
+
+        // Full surah audio state
+        let audioPlaylist = [];
+        let currentAudioIndex = 0;
+        let totalAudioDuration = 0;
+        let audioStartTime = 0;
+
+        // ==================== REWARD LOGIC ====================
+        function getRewardLogic(verses) {
+            if (verses > 150) return { type: 'سورة طويلة', xp: 100, gold: 50, color: 'text-purple-400' };
+            if (verses > 100) return { type: 'متوسطة تميل للطويلة', xp: 70, gold: 35, color: 'text-red-400' };
+            if (verses > 60) return { type: 'سورة متوسطة', xp: 50, gold: 25, color: 'text-yellow-400' };
+            if (verses > 30) return { type: 'متوسطة تميل للصغيرة', xp: 40, gold: 20, color: 'text-green-400' };
+            return { type: 'سورة صغيرة', xp: 20, gold: 10, color: 'text-blue-300' };
+        }
+
+        function getRank(level) {
+            if (level >= 50) return 'S';
+            if (level >= 35) return 'A';
+            if (level >= 20) return 'B';
+            if (level >= 10) return 'C';
+            if (level >= 5) return 'D';
+            return 'E';
+        }
+
+        function getXpNeeded(level) {
+            return level * 100 + (level * level * 10);
+        }
+
+        // ==================== DATA MANAGEMENT ====================
+        // ==================== DATA MANAGEMENT ====================
+function loadData() {
+    // 1. تحميل بيانات المصحف الخاصة (الإعدادات، العلامات المرجعية، إلخ)
+    const savedData = localStorage.getItem('soloLevelingQuran');
+    if (savedData) {
+        const parsed = JSON.parse(savedData);
+        player = { ...player, ...parsed };
+        if (!player.bookmarks) player.bookmarks = [];
+        if (!player.settings) player.settings = { fontSize: 1.6, defaultReciter: 'Alafasy_128kbps', defaultTafsir: 'ibn-kathir', defaultTranslation: 'en.sahih', defaultRawi: 'hafs' };
+    }
+
+    // 2. 🔗 [الربط مع النظام الرئيسي - سحب المستوى والخبرة والذهب] 🔗
+    const monarchData = localStorage.getItem('monarch_system_data');
+    if (monarchData) {
+        try {
+            const parsedMonarch = JSON.parse(monarchData);
+            player.level = parsedMonarch.level || player.level;
+            player.xp = parsedMonarch.xp || player.xp;
+            player.gold = parsedMonarch.gold || player.gold;
+        } catch (e) { console.error("Error parsing monarch data", e); }
+    }
+
+    currentRawi = player.settings.defaultRawi || 'hafs';
+    updateUI();
+    renderSurahs();
+    renderReciters();
+    renderBookmarks();
+    updateSidebarStats();
+    populateSettings();
+}
+
+function saveData() {
+    // 1. حفظ بيانات المصحف المستقلة
+    localStorage.setItem('soloLevelingQuran', JSON.stringify(player));
+
+    // 2. 🔗 [مزامنة التقدم مع لوحة التحكم الرئيسية دون مسح نقاط العناصر والمهارات] 🔗
+    let monarchData = {};
+    const savedMonarch = localStorage.getItem('monarch_system_data');
+    if (savedMonarch) {
+        try {
+            monarchData = JSON.parse(savedMonarch);
+        } catch (e) {}
+    }
+    
+    // تحديث القيم المشتركة فقط
+    monarchData.level = player.level;
+    monarchData.xp = player.xp;
+    monarchData.gold = player.gold;
+
+    if (window.SovereignCore) {
+        SovereignCore.save(monarchData);
+    } else {
+        localStorage.setItem('monarch_system_data', JSON.stringify(monarchData));
+    }
+
+    // 3. إرسال إشارة للوحة الرئيسية لتحديث واجهتها فوراً إذا كانت مفتوحة في نافذة أخرى
+    if (typeof BroadcastChannel !== 'undefined') {
+        const bc = new BroadcastChannel('sovereign_sync');
+        bc.postMessage({ type: 'SYSTEM_DATA_UPDATED' });
+    }
+}
+
+        function resetData() {
+            if(confirm("هل أنت متأكد من تصفير جميع بياناتك والعودة للمستوى 1؟")) {
+                localStorage.removeItem('soloLevelingQuran');
+                location.reload();
+            }
+        }
+
+        function exportData() {
+            const dataStr = JSON.stringify(player, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'quran-system-data.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importData() {
+            document.getElementById('import-file').click();
+        }
+
+        function handleImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    player = { ...player, ...data };
+                    saveData();
+                    location.reload();
+                } catch (err) {
+                    alert('خطأ في قراءة الملف');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // ==================== UI UPDATES ====================
+        function updateUI() {
+            const xpNeeded = getXpNeeded(player.level);
+            const xpPercentage = Math.min(100, (player.xp / xpNeeded) * 100);
+
+            document.getElementById('player-level').innerText = player.level;
+            document.getElementById('player-xp').innerText = player.xp;
+            document.getElementById('xp-needed').innerText = xpNeeded;
+            document.getElementById('xp-bar').style.width = xpPercentage + '%';
+            document.getElementById('player-gold').innerText = player.gold;
+            document.getElementById('surahs-completed').innerText = player.completedSurahs.length;
+
+            player.rank = getRank(player.level);
+            document.getElementById('player-rank').innerText = player.rank;
+
+            updateSidebarStats();
+        }
+
+        function updateSidebarStats() {
+            document.getElementById('sidebar-completed').innerText = player.completedSurahs.length + '/114';
+            document.getElementById('sidebar-ayahs').innerText = player.completedSurahs.reduce((sum, idx) => sum + versesCount[idx], 0);
+            document.getElementById('sidebar-bookmarks').innerText = player.bookmarks.length;
+            document.getElementById('bookmark-count').innerText = player.bookmarks.length;
+        }
+
+        // ==================== VIEW MANAGEMENT ====================
+        function showView(viewName) {
+            document.querySelectorAll('section[id^="view-"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById('view-' + viewName).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget?.classList.add('active');
+
+            document.getElementById('sidebar').classList.remove('open');
+
+            if (viewName === 'bookmarks') renderBookmarks();
+            if (viewName === 'reciters') renderReciters();
+            if (viewName === 'settings') populateSettings();
+
+            window.scrollTo(0, 0);
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+
+            document.querySelector(`.tab-btn[data-tab="${tabName}"]`)?.classList.add('active');
+            document.getElementById('tab-' + tabName).classList.remove('hidden');
+
+            if (tabName === 'tafsir') loadTafsir();
+            if (tabName === 'translation') loadTranslation();
+            if (tabName === 'info') loadSurahInfo();
+        }
+
+        // ==================== SURAH INDEX ====================
+        function renderSurahs() {
+            const grid = document.getElementById('surah-grid');
+            const filter = document.getElementById('filter-type')?.value || 'all';
+            const sort = document.getElementById('sort-type')?.value || 'default';
+
+            let indices = Array.from({length: 114}, (_, i) => i);
+
+            if (filter !== 'all') {
+                indices = indices.filter(i => surahTypes[i] === filter);
+            }
+
+            if (sort === 'length') {
+                indices.sort((a, b) => versesCount[b] - versesCount[a]);
+            } else if (sort === 'completed') {
+                indices.sort((a, b) => {
+                    const aComp = player.completedSurahs.includes(a) ? 1 : 0;
+                    const bComp = player.completedSurahs.includes(b) ? 1 : 0;
+                    return bComp - aComp;
+                });
+            }
+
+            grid.innerHTML = '';
+
+            for (const i of indices) {
+                const name = surahNames[i];
+                const verses = versesCount[i];
+                const reward = getRewardLogic(verses);
+                const isCompleted = player.completedSurahs.includes(i);
+                const typeLabel = surahTypes[i] === 'makkah' ? 'مكية' : 'مدنية';
+
+                const card = document.createElement('div');
+                card.className = `system-panel rounded-lg p-4 transition-all ${isCompleted ? 'border-green-500 opacity-70' : 'border-blue-900 hover:border-blue-500 hover:-translate-y-1'}`;
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h3 class="text-lg font-bold text-white">${i + 1}. سورة ${name}</h3>
+                            <span class="text-xs text-gray-400">آياتها: ${verses} | ${typeLabel}</span>
+                        </div>
+                        <div class="text-center bg-gray-900 rounded p-1 px-2 border border-gray-700">
+                            <span class="block text-[10px] text-gray-500">التصنيف</span>
+                            <span class="text-xs font-bold ${reward.color}">${reward.type}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center mt-4">
+                        <div class="flex gap-3 text-sm">
+                            <span class="text-blue-400 font-bold">+${reward.xp} XP</span>
+                            <span class="gold-text font-bold">+${reward.gold} G</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="openSurah(${i})" class="btn-system px-3 py-1 rounded text-sm text-white font-bold">
+                                <i class="fa-solid fa-book-open"></i> قراءة
+                            </button>
+                            ${isCompleted ? 
+                                `<span class="bg-green-900/50 text-green-400 border border-green-500 px-3 py-1 rounded text-sm"><i class="fa-solid fa-check"></i></span>` 
+                                : 
+                                `<button onclick="completeSurah(${i})" class="btn-gold px-3 py-1 rounded text-sm text-white font-bold">إتمام</button>`
+                            }
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            }
+        }
+
+        function filterSurahs() { renderSurahs(); }
+        function sortSurahs() { renderSurahs(); }
+
+        // ==================== SURAH READER ====================
+        async function openSurah(index) {
+            currentSurah = index;
+            showView('reader');
+
+            document.getElementById('reader-surah-name').innerText = 'سورة ' + surahNames[index];
+            document.getElementById('reader-surah-info').innerText = `${versesCount[index]} آيات | ${surahTypes[index] === 'makkah' ? 'مكية' : 'مدنية'}`;
+
+            updateBookmarkButton();
+
+            const btnComplete = document.getElementById('btn-complete-surah');
+            if (player.completedSurahs.includes(index)) {
+                btnComplete.innerHTML = '<i class="fa-solid fa-check-double ml-2"></i> مكتملة';
+                btnComplete.disabled = true;
+                btnComplete.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                btnComplete.innerHTML = '<i class="fa-solid fa-check ml-2"></i> إتمام السورة';
+                btnComplete.disabled = false;
+                btnComplete.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+
+            await loadQuranText(index);
+            switchTab('quran');
+            setupFullSurahAudio(index);
+        }
+
+        async function loadQuranText(index) {
+            const container = document.getElementById('quran-content');
+            container.innerHTML = '<div class="flex justify-center items-center h-64"><div class="loading-spinner"></div></div>';
+
+            try {
+                if (surahDataCache[index]) {
+                    displayQuranText(surahDataCache[index]);
+                    return;
+                }
+
+                const response = await fetch(`https://api.alquran.cloud/v1/surah/${index + 1}`);
+                const data = await response.json();
+
+                if (data.code === 200) {
+                    surahDataCache[index] = data.data;
+                    displayQuranText(data.data);
+                } else {
+                    throw new Error('Failed to load');
+                }
+            } catch (err) {
+                container.innerHTML = `<p class="text-red-400 text-center">خطأ في تحميل السورة. <button onclick="loadQuranText(${index})" class="text-blue-400 underline">إعادة المحاولة</button></p>`;
+            }
+        }
+
+        function displayQuranText(data) {
+            const container = document.getElementById('quran-content');
+            let html = '<div class="quran-text" style="font-size: ' + player.settings.fontSize + 'rem;">';
+
+            if (currentSurah !== 8) {
+                html += '<div class="text-center mb-8 text-blue-300 text-2xl font-bold" style="font-family: Amiri, serif;">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>';
+            }
+
+            data.ayahs.forEach(ayah => {
+                html += `<span class="ayah-text" data-ayah="${ayah.numberInSurah}">${ayah.text}</span><span class="ayah-number">${ayah.numberInSurah}</span><button class="ayah-audio-btn" onclick="playSingleAyah(${ayah.numberInSurah})" title="استماع للآية"><i class="fa-solid fa-play"></i></button> `;
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function prevSurah() {
+            if (currentSurah > 0) {
+                openSurah(currentSurah - 1);
+            }
+        }
+
+        function nextSurah() {
+            if (currentSurah < 113) {
+                openSurah(currentSurah + 1);
+            }
+        }
+
+        function markCurrentSurahComplete() {
+            completeSurah(currentSurah);
+        }
+
+        // ==================== COMPLETE SURAH ====================
+        function completeSurah(index) {
+            if (player.completedSurahs.includes(index)) return;
+
+            const name = surahNames[index];
+            const verses = versesCount[index];
+            const reward = getRewardLogic(verses);
+
+            player.xp += reward.xp;
+            player.gold += reward.gold;
+            player.completedSurahs.push(index);
+
+            let leveledUp = false;
+            let xpNeeded = getXpNeeded(player.level);
+
+            while (player.xp >= xpNeeded) {
+                player.xp -= xpNeeded;
+                player.level++;
+                leveledUp = true;
+                xpNeeded = getXpNeeded(player.level);
+            }
+
+            saveData();
+            updateUI();
+            renderSurahs();
+
+            if (currentSurah === index) {
+                const btnComplete = document.getElementById('btn-complete-surah');
+                btnComplete.innerHTML = '<i class="fa-solid fa-check-double ml-2"></i> مكتملة';
+                btnComplete.disabled = true;
+                btnComplete.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+
+            showModal(name, reward.xp, reward.gold, leveledUp);
+        }
+
+        function showModal(surahName, xp, gold, leveledUp) {
+            document.getElementById('modal-surah-name').innerText = 'سورة ' + surahName;
+            document.getElementById('modal-xp').innerText = '+' + xp + ' XP';
+            document.getElementById('modal-gold').innerText = '+' + gold + ' G';
+
+            const levelAlert = document.getElementById('level-up-alert');
+            if (leveledUp) {
+                levelAlert.classList.remove('hidden');
+                document.getElementById('new-level-span').innerText = player.level;
+            } else {
+                levelAlert.classList.add('hidden');
+            }
+
+            document.getElementById('system-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('system-modal').style.display = 'none';
+        }
+
+        // ==================== FULL SURAH AUDIO SYSTEM ====================
+        function setupFullSurahAudio(surahIndex) {
+            const reciter = document.getElementById('audio-reciter').value;
+            const surahNum = String(surahIndex + 1).padStart(3, '0');
+            const totalAyahs = versesCount[surahIndex];
+
+            // Build playlist of all ayahs for this surah
+            audioPlaylist = [];
+            for (let i = 1; i <= totalAyahs; i++) {
+                const ayahNum = String(i).padStart(3, '0');
+                audioPlaylist.push(`https://www.everyayah.com/data/${reciter}/${surahNum}${ayahNum}.mp3`);
+            }
+
+            currentAudioIndex = 0;
+            totalAudioDuration = 0;
+            audioStartTime = 0;
+
+            const audio = document.getElementById('quran-audio');
+            audio.src = audioPlaylist[0];
+            audio.load();
+
+            isPlaying = false;
+            updatePlayButton();
+            updateAudioStatus('جاهز للتشغيل - ' + totalAyahs + ' آية');
+        }
+
+        function toggleAudio() {
+            const audio = document.getElementById('quran-audio');
+            if (isPlaying) {
+                audio.pause();
+                isPlaying = false;
+            } else {
+                if (audioPlaylist.length === 0) {
+                    setupFullSurahAudio(currentSurah);
+                }
+                audio.play().catch(err => {
+                    console.log('Audio play error:', err);
+                    updateAudioStatus('خطأ في التشغيل - جرب قارئاً آخر');
+                });
+                isPlaying = true;
+            }
+            updatePlayButton();
+        }
+
+        function stopAudio() {
+            const audio = document.getElementById('quran-audio');
+            audio.pause();
+            audio.currentTime = 0;
+            currentAudioIndex = 0;
+            if (audioPlaylist.length > 0) {
+                audio.src = audioPlaylist[0];
+            }
+            isPlaying = false;
+            updatePlayButton();
+            document.getElementById('audio-progress-fill').style.width = '0%';
+            document.getElementById('audio-time').innerText = '00:00 / 00:00';
+            updateAudioStatus('توقف');
+            highlightCurrentAyah(0);
+        }
+
+        function toggleLoop() {
+            isLooping = !isLooping;
+            const btn = document.getElementById('loop-btn');
+            if (isLooping) {
+                btn.classList.add('text-blue-400');
+                btn.classList.remove('text-gray-400');
+            } else {
+                btn.classList.remove('text-blue-400');
+                btn.classList.add('text-gray-400');
+            }
+        }
+
+        function updatePlayButton() {
+            const btn = document.getElementById('play-btn');
+            btn.innerHTML = isPlaying ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
+        }
+
+        function updateAudioStatus(text) {
+            document.getElementById('audio-status').innerText = text;
+        }
+
+        function highlightCurrentAyah(ayahNum) {
+            // Remove previous highlights
+            document.querySelectorAll('.ayah-number').forEach(el => {
+                el.style.boxShadow = '0 0 8px rgba(59, 130, 246, 0.5)';
+                el.style.transform = 'scale(1)';
+            });
+            document.querySelectorAll('.ayah-audio-btn').forEach(el => {
+                el.classList.remove('playing');
+                el.innerHTML = '<i class="fa-solid fa-play"></i>';
+            });
+
+            if (ayahNum > 0) {
+                const ayahElements = document.querySelectorAll(`.ayah-number`);
+                if (ayahElements[ayahNum - 1]) {
+                    ayahElements[ayahNum - 1].style.boxShadow = '0 0 15px #fbbf24';
+                    ayahElements[ayahNum - 1].style.transform = 'scale(1.2)';
+                    ayahElements[ayahNum - 1].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+
+                const btnElements = document.querySelectorAll('.ayah-audio-btn');
+                if (btnElements[ayahNum - 1]) {
+                    btnElements[ayahNum - 1].classList.add('playing');
+                    btnElements[ayahNum - 1].innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+                }
+            }
+
+            document.getElementById('current-ayah-display').innerText = ayahNum > 0 ? `الآية ${ayahNum}` : '';
+        }
+
+        function playSingleAyah(ayahNum) {
+            const reciter = document.getElementById('audio-reciter').value;
+            const surahNum = String(currentSurah + 1).padStart(3, '0');
+            const ayahStr = String(ayahNum).padStart(3, '0');
+
+            const audio = document.getElementById('quran-audio');
+            audio.src = `https://www.everyayah.com/data/${reciter}/${surahNum}${ayahStr}.mp3`;
+            audio.play().catch(err => console.log('Audio error:', err));
+            isPlaying = true;
+            updatePlayButton();
+            highlightCurrentAyah(ayahNum);
+            updateAudioStatus(`تشغيل الآية ${ayahNum}`);
+        }
+
+        function changeReciter() {
+            const wasPlaying = isPlaying;
+            stopAudio();
+            setupFullSurahAudio(currentSurah);
+            if (wasPlaying) {
+                toggleAudio();
+            }
+        }
+
+        function seekAudio(event) {
+            const audio = document.getElementById('quran-audio');
+            if (!audio.duration || audioPlaylist.length === 0) return;
+
+            const rect = event.currentTarget.getBoundingClientRect();
+            const percent = (event.clientX - rect.left) / rect.width;
+
+            // Calculate which ayah and position within ayah
+            const totalDuration = audio.duration * audioPlaylist.length; // Approximate
+            const targetTime = percent * totalDuration;
+            const ayahDuration = audio.duration;
+            const targetIndex = Math.floor(targetTime / ayahDuration);
+            const ayahPosition = targetTime % ayahDuration;
+
+            if (targetIndex >= 0 && targetIndex < audioPlaylist.length) {
+                currentAudioIndex = targetIndex;
+                audio.src = audioPlaylist[targetIndex];
+                audio.currentTime = ayahPosition;
+                if (isPlaying) {
+                    audio.play().catch(err => console.log('Seek error:', err));
+                }
+                highlightCurrentAyah(targetIndex + 1);
+            }
+        }
+
+        // Audio event listeners for full surah playback
+        document.getElementById('quran-audio').addEventListener('timeupdate', function() {
+            const audio = this;
+            if (audio.duration && audioPlaylist.length > 0) {
+                // Calculate overall progress
+                const ayahDuration = audio.duration;
+                const totalDuration = ayahDuration * audioPlaylist.length;
+                const currentTotalTime = (currentAudioIndex * ayahDuration) + audio.currentTime;
+                const percent = (currentTotalTime / totalDuration) * 100;
+
+                document.getElementById('audio-progress-fill').style.width = percent + '%';
+
+                const current = formatTime(currentTotalTime);
+                const total = formatTime(totalDuration);
+                document.getElementById('audio-time').innerText = `${current} / ${total}`;
+            }
+        });
+
+        document.getElementById('quran-audio').addEventListener('ended', function() {
+            currentAudioIndex++;
+
+            if (currentAudioIndex < audioPlaylist.length) {
+                // Play next ayah
+                this.src = audioPlaylist[currentAudioIndex];
+                this.play().catch(err => console.log('Next ayah error:', err));
+                highlightCurrentAyah(currentAudioIndex + 1);
+                updateAudioStatus(`الآية ${currentAudioIndex + 1} / ${audioPlaylist.length}`);
+            } else {
+                // Surah finished
+                if (isLooping) {
+                    currentAudioIndex = 0;
+                    this.src = audioPlaylist[0];
+                    this.play().catch(err => console.log('Loop error:', err));
+                    highlightCurrentAyah(1);
+                    updateAudioStatus('تكرار السورة');
+                } else {
+                    isPlaying = false;
+                    updatePlayButton();
+                    highlightCurrentAyah(0);
+                    updateAudioStatus('انتهت السورة');
+                }
+            }
+        });
+
+        document.getElementById('quran-audio').addEventListener('error', function() {
+            console.log('Audio error for:', this.src);
+            // Skip to next ayah if error
+            if (currentAudioIndex < audioPlaylist.length - 1) {
+                currentAudioIndex++;
+                this.src = audioPlaylist[currentAudioIndex];
+                if (isPlaying) {
+                    this.play().catch(err => console.log('Skip error:', err));
+                }
+            } else {
+                isPlaying = false;
+                updatePlayButton();
+                updateAudioStatus('خطأ في التشغيل');
+            }
+        });
+
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return '00:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        // ==================== TAFSIR ====================
+        async function loadTafsir() {
+            const tafsirKey = document.getElementById('tafsir-select').value;
+            const container = document.getElementById('tafsir-content');
+
+            container.innerHTML = '<div class="flex justify-center py-8"><div class="loading-spinner"></div></div>';
+
+            try {
+                const cacheKey = `${currentSurah}_${tafsirKey}`;
+                if (tafsirCache[cacheKey]) {
+                    displayTafsir(tafsirCache[cacheKey]);
+                    return;
+                }
+
+                let tafsirId = 1;
+                const tafsirMap = {
+                    'ibn-kathir': 1, 'muyassar': 2, 'maarif': 3, 'jalalayn': 4,
+                    'saadi': 5, 'tabari': 6, 'qurtubi': 7, 'baghawi': 8
+                };
+                tafsirId = tafsirMap[tafsirKey] || 1;
+
+                const response = await fetch(`https://api.quranpedia.net/v1/surah/${currentSurah + 1}/tafsir/${tafsirId}`);
+                const data = await response.json();
+
+                tafsirCache[cacheKey] = data;
+                displayTafsir(data);
+            } catch (err) {
+                container.innerHTML = `
+                    <div class="text-gray-400 text-center py-8">
+                        <i class="fa-solid fa-book-open text-4xl mb-4 text-blue-800"></i>
+                        <p>تفسير ${tafsirNames[tafsirKey] || 'ابن كثير'} لسورة ${surahNames[currentSurah]}</p>
+                        <p class="text-sm mt-2">يتم تحميل التفسير من الخادم...</p>
+                    </div>
+                `;
+            }
+        }
+
+        function displayTafsir(data) {
+            const container = document.getElementById('tafsir-content');
+            if (data && data.ayahs && data.ayahs.length > 0) {
+                let html = '';
+                data.ayahs.forEach(ayah => {
+                    html += `
+                        <div class="border-r-2 border-blue-800 pr-4 mb-4">
+                            <div class="text-blue-400 font-bold mb-1">آية ${ayah.number}</div>
+                            <div class="text-gray-300">${ayah.tafsir || 'جارٍ التحميل...'}</div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            } else {
+                container.innerHTML = '<p class="text-gray-400 text-center">لا يوجد تفسير متاح حالياً لهذه السورة.</p>';
+            }
+        }
+
+        // ==================== TRANSLATION ====================
+        async function loadTranslation() {
+            const transKey = document.getElementById('translation-select').value;
+            const container = document.getElementById('translation-content');
+
+            container.innerHTML = '<div class="flex justify-center py-8"><div class="loading-spinner"></div></div>';
+
+            try {
+                const cacheKey = `${currentSurah}_${transKey}`;
+                if (translationCache[cacheKey]) {
+                    displayTranslation(translationCache[cacheKey]);
+                    return;
+                }
+
+                const response = await fetch(`https://api.alquran.cloud/v1/surah/${currentSurah + 1}/${transKey}`);
+                const data = await response.json();
+
+                if (data.code === 200) {
+                    translationCache[cacheKey] = data.data;
+                    displayTranslation(data.data);
+                } else {
+                    throw new Error('Failed to load translation');
+                }
+            } catch (err) {
+                container.innerHTML = '<p class="text-red-400 text-center">خطأ في تحميل الترجمة.</p>';
+            }
+        }
+
+        function displayTranslation(data) {
+            const container = document.getElementById('translation-content');
+            let html = '';
+            data.ayahs.forEach(ayah => {
+                html += `
+                    <div class="border-r border-gray-700 pr-3 mb-3">
+                        <span class="text-blue-400 font-bold text-sm">${ayah.numberInSurah}.</span>
+                        <span class="text-gray-300">${ayah.text}</span>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // ==================== SURAH INFO ====================
+        function loadSurahInfo() {
+            const container = document.getElementById('surah-info-content');
+            const i = currentSurah;
+            const reward = getRewardLogic(versesCount[i]);
+
+            container.innerHTML = `
+                <div class="bg-gray-900/50 rounded-lg p-4 border border-blue-900/50">
+                    <div class="text-xs text-gray-400 mb-1">اسم السورة</div>
+                    <div class="text-lg font-bold text-white">سورة ${surahNames[i]}</div>
+                    <div class="text-sm text-gray-400">${surahEnglishNames[i]}</div>
+                </div>
+                <div class="bg-gray-900/50 rounded-lg p-4 border border-blue-900/50">
+                    <div class="text-xs text-gray-400 mb-1">عدد الآيات</div>
+                    <div class="text-lg font-bold text-blue-400">${versesCount[i]}</div>
+                </div>
+                <div class="bg-gray-900/50 rounded-lg p-4 border border-blue-900/50">
+                    <div class="text-xs text-gray-400 mb-1">مكان النزول</div>
+                    <div class="text-lg font-bold ${surahTypes[i] === 'makkah' ? 'text-green-400' : 'text-yellow-400'}">
+                        ${surahTypes[i] === 'makkah' ? 'مكية' : 'مدنية'}
+                    </div>
+                </div>
+                <div class="bg-gray-900/50 rounded-lg p-4 border border-blue-900/50">
+                    <div class="text-xs text-gray-400 mb-1">التصنيف</div>
+                    <div class="text-lg font-bold ${reward.color}">${reward.type}</div>
+                </div>
+                <div class="bg-gray-900/50 rounded-lg p-4 border border-blue-900/50">
+                    <div class="text-xs text-gray-400 mb-1">المكافأة</div>
+                    <div class="text-lg font-bold text-blue-400">+${reward.xp} XP</div>
+                    <div class="text-sm gold-text">+${reward.gold} G</div>
+                </div>
+                <div class="bg-gray-900/50 rounded-lg p-4 border border-blue-900/50">
+                    <div class="text-xs text-gray-400 mb-1">الحالة</div>
+                    <div class="text-lg font-bold ${player.completedSurahs.includes(i) ? 'text-green-400' : 'text-gray-400'}">
+                        ${player.completedSurahs.includes(i) ? '<i class="fa-solid fa-check"></i> مكتملة' : 'غير مكتملة'}
+                    </div>
+                </div>
+            `;
+        }
+
+        // ==================== RAWI / READINGS ====================
+        function changeRawi() {
+            currentRawi = document.getElementById('reader-rawi').value;
+            player.settings.defaultRawi = currentRawi;
+            saveData();
+            loadQuranText(currentSurah);
+        }
+
+        function selectRawi(rawi) {
+            currentRawi = rawi;
+            player.settings.defaultRawi = rawi;
+            document.getElementById('reader-rawi').value = rawi;
+            saveData();
+
+            renderReciters(rawi);
+
+            if (!document.getElementById('view-reader').classList.contains('hidden')) {
+                loadQuranText(currentSurah);
+            }
+        }
+
+        // ==================== BOOKMARKS ====================
+        function toggleBookmark() {
+            const existing = player.bookmarks.find(b => b.surah === currentSurah);
+            const btn = document.getElementById('bookmark-btn');
+
+            if (existing) {
+                player.bookmarks = player.bookmarks.filter(b => b.surah !== currentSurah);
+                btn.classList.remove('saved');
+                btn.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
+            } else {
+                player.bookmarks.push({
+                    surah: currentSurah,
+                    name: surahNames[currentSurah],
+                    date: new Date().toISOString(),
+                    rawi: currentRawi
+                });
+                btn.classList.add('saved');
+                btn.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
+            }
+
+            saveData();
+            updateSidebarStats();
+        }
+
+        function updateBookmarkButton() {
+            const btn = document.getElementById('bookmark-btn');
+            const existing = player.bookmarks.find(b => b.surah === currentSurah);
+
+            if (existing) {
+                btn.classList.add('saved');
+                btn.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
+            } else {
+                btn.classList.remove('saved');
+                btn.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
+            }
+        }
+
+        function renderBookmarks() {
+            const container = document.getElementById('bookmarks-list');
+
+            if (player.bookmarks.length === 0) {
+                container.innerHTML = '<p class="text-gray-400 text-center py-12">لا توجد علامات مرجعية بعد. اضغط على <i class="fa-regular fa-bookmark"></i> أثناء القراءة لحفظ موقعك.</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            player.bookmarks.forEach((bookmark, idx) => {
+                const div = document.createElement('div');
+                div.className = 'system-panel rounded-lg p-4 flex justify-between items-center';
+                div.innerHTML = `
+                    <div>
+                        <div class="font-bold text-white">سورة ${bookmark.name}</div>
+                        <div class="text-sm text-gray-400">الرواية: ${rawiNames[bookmark.rawi] || bookmark.rawi}</div>
+                        <div class="text-xs text-gray-500">${new Date(bookmark.date).toLocaleDateString('ar-SA')}</div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="openSurah(${bookmark.surah})" class="btn-system px-3 py-1 rounded text-sm text-white">
+                            <i class="fa-solid fa-book-open"></i> قراءة
+                        </button>
+                        <button onclick="removeBookmark(${idx})" class="text-red-400 hover:text-red-300 px-2">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function removeBookmark(index) {
+            player.bookmarks.splice(index, 1);
+            saveData();
+            renderBookmarks();
+            updateSidebarStats();
+            updateBookmarkButton();
+        }
+
+        // ==================== RECITERS ====================
+        function renderReciters(filterRawi = null) {
+            const grid = document.getElementById('reciters-grid');
+            grid.innerHTML = '';
+
+            const filtered = filterRawi 
+                ? recitersList.filter(r => r.rawi === rawiNames[filterRawi]?.split(' ')[0] || r.rawi === filterRawi)
+                : recitersList;
+
+            filtered.forEach(reciter => {
+                const card = document.createElement('div');
+                card.className = 'system-panel rounded-lg p-4 hover:border-blue-500 transition';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h3 class="font-bold text-white">${reciter.name}</h3>
+                            <div class="text-xs text-gray-400 mt-1">
+                                <span class="rawi-badge rawi-${reciter.rawi === 'حفص' ? 'hafs' : 'warsh'}">${reciter.rawi}</span>
+                                <span class="text-blue-300">${reciter.type}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="setDefaultReciter('${reciter.id}')" class="btn-system w-full py-2 rounded text-sm text-white font-bold mt-2">
+                        <i class="fa-solid fa-headphones"></i> تعيين كقارئ افتراضي
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function setDefaultReciter(reciterId) {
+            player.settings.defaultReciter = reciterId;
+            document.getElementById('audio-reciter').value = reciterId;
+            document.getElementById('default-reciter').value = reciterId;
+            saveData();
+            alert('تم تعيين القارئ كافتراضي');
+        }
+
+        // ==================== SETTINGS ====================
+        function populateSettings() {
+            const audioSelect = document.getElementById('audio-reciter');
+            const defaultSelect = document.getElementById('default-reciter');
+            defaultSelect.innerHTML = audioSelect.innerHTML;
+
+            document.getElementById('default-reciter').value = player.settings.defaultReciter;
+            document.getElementById('default-tafsir').value = player.settings.defaultTafsir;
+            document.getElementById('default-translation').value = player.settings.defaultTranslation;
+            document.getElementById('font-size-display').innerText = player.settings.fontSize;
+        }
+
+        function saveSettings() {
+            player.settings.defaultReciter = document.getElementById('default-reciter').value;
+            player.settings.defaultTafsir = document.getElementById('default-tafsir').value;
+            player.settings.defaultTranslation = document.getElementById('default-translation').value;
+            saveData();
+        }
+
+        function changeFontSize(delta) {
+            let newSize = player.settings.fontSize + (delta * 0.1);
+            newSize = Math.max(1.0, Math.min(3.0, newSize));
+            player.settings.fontSize = parseFloat(newSize.toFixed(1));
+            document.getElementById('font-size-display').innerText = player.settings.fontSize;
+
+            const quranText = document.querySelector('.quran-text');
+            if (quranText) {
+                quranText.style.fontSize = player.settings.fontSize + 'rem';
+            }
+
+            saveData();
+        }
+
+        // ==================== SIDEBAR ====================
+        document.getElementById('sidebar-toggle').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.add('open');
+        });
+
+        document.getElementById('sidebar-close').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.remove('open');
+        });
+
+        // ==================== INIT ====================
+        window.onload = function() {
+            loadData();
+
+            document.getElementById('audio-reciter').value = player.settings.defaultReciter;
+            document.getElementById('tafsir-select').value = player.settings.defaultTafsir;
+            document.getElementById('translation-select').value = player.settings.defaultTranslation;
+            document.getElementById('reader-rawi').value = player.settings.defaultRawi;
+        };
+        window.addEventListener('storage', (e) => {
+    if (e.key === 'monarch_system_data') {
+        loadData(); // إعادة تحميل البيانات إذا تغيرت في اللوحة الرئيسية
+    }
+});
+// خط الأنابيب الموحّد — الهالة والمزامنة يديرهما SovereignCore.init()
+window.addEventListener('storage', (e) => {
+    if (e.key === 'monarch_system_data') {
+        if (typeof loadMonarchTitle === 'function') loadMonarchTitle();
+        if (typeof PlayerState !== 'undefined') PlayerState.init();
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    applyAura();
+});
+    </script>
+</body>
+</html>
