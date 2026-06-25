@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Math | Sovereign System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'sys-dark': '#000000',
+                        'sys-cyan': '#00f0ff',
+                        'sys-purple': '#b026ff',
+                        'sys-white': '#ffffff',
+                        'sys-green': '#10b981',
+                        'sys-rose': '#e11d48',
+                        'sys-gold': '#ffd700',
+                        'rank-a': '#b026ff', /* Rank A Color */
+                    },
+                    fontFamily: {
+                        'cairo': ['Cairo', 'sans-serif'],
+                        'orbitron': ['Orbitron', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --sys-cyan: #00f0ff;
+            --sys-purple: #b026ff;
+            --rank-a: #b026ff;
+            --sys-gold: #ffd700;
+            --sys-green: #10b981;
+            --sys-rose: #e11d48;
+        }
+
+        /* Scrollbar Fix */
+        html, body { scrollbar-width: thin; scrollbar-color: var(--rank-a) #000000; }
+        html::-webkit-scrollbar, body::-webkit-scrollbar { width: 6px; }
+        html::-webkit-scrollbar-track, body::-webkit-scrollbar-track { background: #000000; }
+        html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--rank-a), var(--sys-cyan)); border-radius: 3px; }
+
+        /* Hidden Utility Fix */
+        .hidden { display: none !important; }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--sys-bg-dark);
+            color: #e2e8f0;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .bg-grid-pattern {
+                    }
+
+        .scanline {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent 50%, rgba(255, 255, 255, 0.02) 50%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.5;
+        }
+
+        .neon-border-a {
+            border: 1px solid rgba(176, 38, 255, 0.3);
+            box-shadow: 0 0 20px rgba(176, 38, 255, 0.1), inset 0 0 20px rgba(176, 38, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        .neon-border-a:hover {
+            border-color: rgba(176, 38, 255, 0.8);
+            box-shadow: 0 0 30px rgba(176, 38, 255, 0.3), 0 0 60px rgba(176, 38, 255, 0.15), inset 0 0 30px rgba(176, 38, 255, 0.15);
+        }
+
+        .sys-btn {
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .sys-btn::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+        .sys-btn:hover::after { left: 100%; }
+
+        .glitch-text {
+            position: relative;
+            animation: glitch 3s infinite;
+        }
+        @keyframes glitch {
+            0%, 100% { text-shadow: 0 0 10px var(--rank-a), 0 0 20px var(--rank-a); }
+            50% { text-shadow: 0 0 20px var(--sys-cyan), 0 0 40px var(--sys-cyan), -2px 0 var(--rank-a), 2px 0 var(--sys-cyan); }
+        }
+
+        .particle-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .phase-transition {
+            animation: phaseIn 0.5s ease-out;
+        }
+        @keyframes phaseIn {
+            from { opacity: 0; transform: translateY(20px); filter: blur(5px); }
+            to { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+
+        /* Game Specific Styles */
+        .equation-box {
+            font-family: 'Orbitron', sans-serif;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(176, 38, 255, 0.4);
+            box-shadow: inset 0 0 30px rgba(176, 38, 255, 0.1), 0 0 20px rgba(176, 38, 255, 0.2);
+            border-radius: 16px;
+        }
+
+        .input-display {
+            font-family: 'Orbitron', sans-serif;
+            min-height: 80px;
+            border-bottom: 3px solid rgba(176, 38, 255, 0.5);
+            transition: all 0.2s ease;
+        }
+        .input-display.error {
+            border-bottom-color: var(--sys-rose);
+            color: var(--sys-rose);
+            text-shadow: 0 0 15px rgba(225, 29, 72, 0.6);
+            animation: shake 0.4s ease-in-out;
+        }
+        .input-display.success {
+            border-bottom-color: var(--sys-green);
+            color: var(--sys-green);
+            text-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+
+        .num-pad-btn {
+            font-family: 'Orbitron', sans-serif;
+            background: rgba(176, 38, 255, 0.05);
+            border: 1px solid rgba(176, 38, 255, 0.2);
+            transition: all 0.1s ease;
+            cursor: pointer;
+            user-select: none;
+        }
+        .num-pad-btn:hover {
+            background: rgba(176, 38, 255, 0.2);
+            border-color: rgba(176, 38, 255, 0.6);
+            box-shadow: 0 0 15px rgba(176, 38, 255, 0.3);
+            transform: scale(1.05);
+        }
+        .num-pad-btn:active { transform: scale(0.95); }
+
+        .btn-enter { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.4); color: var(--sys-green); }
+        .btn-enter:hover { background: rgba(16, 185, 129, 0.25); border-color: var(--sys-green); box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+        
+        .btn-del { background: rgba(225, 29, 72, 0.1); border-color: rgba(225, 29, 72, 0.4); color: var(--sys-rose); }
+        .btn-del:hover { background: rgba(225, 29, 72, 0.25); border-color: var(--sys-rose); box-shadow: 0 0 15px rgba(225, 29, 72, 0.4); }
+
+        .time-bar-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 999px;
+            overflow: hidden;
+            height: 12px;
+        }
+        .time-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--sys-cyan), var(--rank-a));
+            box-shadow: 0 0 10px var(--rank-a);
+            transition: width 0.1s linear, background-color 0.3s ease;
+        }
+        .time-bar-fill.warning {
+            background: linear-gradient(90deg, #ff9d00, var(--sys-rose));
+            box-shadow: 0 0 10px var(--sys-rose);
+        }
+
+        .stat-glow { text-shadow: 0 0 10px currentColor; }
+        
+        .floating-text {
+            position: absolute;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+            z-index: 50;
+        }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-40px) scale(1.2); }
+        }
+        /* ==========================================
+   SOVEREIGN VIDEO BACKGROUND SYSTEM
+   ========================================== */
+.sovereign-video-bg-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2; /* ليكون خلف جزيئات الـ Canvas وخلف كل محتوى المتجر */
+    overflow: hidden;
+    background-color: #000000; /* خلفية احتياطية سوداء في حال تأخر تحميل الفيديو */
+}
+
+.sovereign-video-element {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+    
+    /* ميزة التضبيب المطلوبة (مضببة قليلاً فقط لتمنح عمقاً بصرياً فخماً) */
+    filter: blur(0.1px) brightness(1); 
+    
+    /* نسبة شفافية متوازنة لكي لا تؤثر الحركة على تركيزك أثناء قراءة الألقاب والمخططات */
+    opacity: 1; 
+    transition: opacity 1s ease-in-out;
+}
+
+.sovereign-video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* تدرج ظلي يسحب الضوء نحو الأطراف ليعطي تأثير بوابات الزنازين Dark Rpg */
+    background: radial-gradient(circle, transparent 30%, rgba(0, 0, 0, 0.85) 100%);
+    pointer-events: none;
+}
+    </style>
+    <link rel="stylesheet" href="index11.css">
+    <script src="monarch-core.js"></script>
+</head>
+<body class="relative">
+<div class="sov-secondary-bg" aria-hidden="true"></div>
+    <canvas id="particles" class="particle-canvas"></canvas>
+    <div class="scanline"></div>
+<div class="fixed top-6 left-6 z-50 flex gap-4 items-center color: #dedede; /* لون أرجواني سيادي */
+    text-shadow: 0 0 8px rgb(133, 133, 133);
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-left: 10px;
+    padding: 3px 10px;
+    
+    
+    
+    letter-spacing: 1px;">
+    <button onclick="SoundEffects.toggleMusic(1)" class="w-10 h-10 flex items-center justify-center bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-[var(--sys-cyan)] rounded-full transition-all shadow-[0_0_10px_rgba(0,0,0,0.5)]">
+        <span id="musicIcon1" class="text-lg animate-pulse">🎵</span>
+    </button>
+    <button onclick="SoundEffects.toggleMusic(2)" class="w-10 h-10 flex items-center justify-center bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-[var(--sys-cyan)] rounded-full transition-all shadow-[0_0_10px_rgba(0,0,0,0.5)]">
+        <span id="musicIcon2" class="text-lg animate-pulse">🎼</span>
+    </button>
+    <a href="https://aissaouimohamad62-glitch.github.io/proto/" target="_blank" class="px-4 py-2 bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-white text-xs font-black uppercase tracking-widest rounded flex items-center gap-2 shadow-[0_0_10px_rgba(0,0,0,0.5)] transition-all">
+        <span>𝐏𝐎𝐑𝐓𝐅𝐎𝐋𝐈𝐎</span> <span class="text-[var(--sys-cyan)]">📍</span>
+    </a>
+    <a href="https://aissaouimohamad62-glitch.github.io/booksoverhaul.dz/" target="_blank" class="px-4 py-2 bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-white text-xs font-black uppercase tracking-widest rounded flex items-center gap-2 shadow-[0_0_10px_rgba(0,0,0,0.5)] transition-all">
+        <span>𝐋𝐈𝐁𝐑𝐀𝐑𝐘</span> <span class="text-[var(--sys-cyan)]">📒</span>
+    </a>
+    
+</div>
+    <header class="relative z-10 max-w-7xl mx-auto mb-4 p-4">
+        <div class="bg-black/80 backdrop-blur-xl border border-white/10 rounded-xl p-4 flex flex-wrap justify-between items-center gap-4 neon-border-a">
+            <div class="flex items-center gap-4">
+                <button onclick="window.location.href='dungeons.html'" class="sys-btn text-xs bg-black/80 px-4 py-2 border border-white/20 hover:border-rank-a hover:text-rank-a transition rounded-lg flex items-center gap-2 text-white/70">
+                    <span>↩</span> <span>العودة للزنازين</span>
+                </button>
+                <div class="flex flex-col">
+                    <span class="font-orbitron text-[10px] text-white/30 tracking-[0.3em] uppercase">Sovereign System</span>
+                    <h1 class="font-orbitron text-xl font-black tracking-widest text-rank-a uppercase glitch-text">⚡ QUANTUM MATH</h1>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-6 flex-wrap justify-center">
+                <div class="flex flex-col items-center min-w-[80px]">
+                    <span class="font-orbitron text-[10px] text-white/40 tracking-wider uppercase">Level</span>
+                    <span id="currentLevel" class="font-orbitron text-2xl font-bold text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">1</span>
+                </div>
+                <div class="flex flex-col items-center min-w-[100px]">
+                    <span class="font-orbitron text-[10px] text-white/40 tracking-wider uppercase">XP</span>
+                    <div class="flex items-center gap-2">
+                        <span id="currentXP" class="font-orbitron text-lg font-bold text-white/80">0</span>
+                        <span class="text-white/30 text-xs">/</span>
+                        <span id="xpNeeded" class="font-orbitron text-xs text-white/40">100</span>
+                    </div>
+                    <div class="w-20 h-1 bg-white/5 rounded-full overflow-hidden mt-1">
+                        <div id="xpBar" class="h-full bg-rank-a rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="flex flex-col items-center min-w-[60px]">
+                    <span class="font-orbitron text-[10px] text-white/40 tracking-wider uppercase">INT</span>
+                    <span id="stat-int" class="font-orbitron text-lg font-bold text-sys-purple drop-shadow-[0_0_8px_rgba(176,38,255,0.4)]">10</span>
+                </div>
+                <div class="flex flex-col items-center min-w-[60px]">
+                    <span class="font-orbitron text-[10px] text-white/40 tracking-wider uppercase">Gold</span>
+                    <span id="stat-gold" class="font-orbitron text-lg font-bold text-sys-gold drop-shadow-[0_0_8px_rgba(255,215,0,0.4)]">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="relative z-10 max-w-3xl mx-auto px-4 pb-10">
+
+        <div id="phase-menu" class="phase-transition">
+            <div class="text-center mb-8">
+                <div class="font-orbitron text-rank-a tracking-[0.4em] text-xs mb-3">RANK: A — MENTAL ACCELERATION</div>
+                <h2 class="font-orbitron text-4xl md:text-5xl font-black text-white mb-4 glitch-text">Quantum Math</h2>
+                <p class="font-cairo text-white/60 text-sm max-w-xl mx-auto leading-relaxed mb-4">
+                    قم بتنشيط معالجتك الكميّة. حل <span class="text-rank-a font-bold">10 معادلات رياضية</span> قبل نفاد الوقت المخصص. الصعوبة تتزايد مع كل إجابة صحيحة.
+                </p>
+                <div class="inline-flex gap-4 font-cairo text-xs text-white/40 bg-black/40 p-3 rounded-lg border border-white/10">
+                    <span><span class="text-sys-green">✓</span> إجابة صحيحة: +3 ثوانٍ</span>
+                    <span><span class="text-sys-rose">✗</span> إجابة خاطئة: -2 ثانية عقاب</span>
+                </div>
+            </div>
+
+            <div class="bg-black/60 border border-rank-a/20 rounded-2xl p-6 mb-8 max-w-md mx-auto neon-border-a">
+                <div class="font-orbitron text-[10px] text-rank-a/60 tracking-wider mb-4 text-center">المكافآت المتوقعة عند النصر</div>
+                <div class="flex justify-center gap-8">
+                    <div class="text-center">
+                        <div class="text-rank-a font-orbitron text-2xl font-bold stat-glow">+120</div>
+                        <div class="text-[10px] text-white/40 font-orbitron">XP</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-sys-purple font-orbitron text-2xl font-bold stat-glow">+3</div>
+                        <div class="text-[10px] text-white/40 font-orbitron">INT</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-sys-gold font-orbitron text-2xl font-bold stat-glow">+30</div>
+                        <div class="text-[10px] text-white/40 font-orbitron">GOLD</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button onclick="MathApp.startCountdown()" class="sys-btn px-12 py-5 bg-rank-a/10 border border-rank-a/50 text-rank-a hover:bg-rank-a hover:text-black transition rounded-xl text-lg font-bold shadow-[0_0_20px_rgba(176,38,255,0.2)]">
+                    INITIATE PROCESS
+                </button>
+            </div>
+        </div>
+
+        <div id="phase-countdown" class="hidden text-center py-32">
+            <div class="font-orbitron text-white/30 text-sm tracking-widest mb-8">CALIBRATING NEURAL SYNAPSES...</div>
+            <div id="countdown-number" class="font-orbitron text-8xl font-black text-rank-a drop-shadow-[0_0_40px_rgba(176,38,255,0.6)]">3</div>
+        </div>
+
+        <div id="phase-game" class="hidden max-w-md mx-auto">
+            
+            <div class="flex justify-between items-end mb-2 px-1">
+                <div class="font-orbitron">
+                    <span class="text-[10px] text-white/40 tracking-wider block mb-1">TARGET SECURED</span>
+                    <div class="text-2xl font-bold text-white"><span id="score-display" class="text-rank-a">0</span><span class="text-white/30 text-lg">/10</span></div>
+                </div>
+                <div class="font-orbitron text-right relative">
+                    <span class="text-[10px] text-white/40 tracking-wider block mb-1">TIME REMAINING</span>
+                    <div id="timer-text" class="text-3xl font-bold text-white">60.0</div>
+                    <div id="time-floating-container" class="absolute top-0 right-0 w-full h-full pointer-events-none"></div>
+                </div>
+            </div>
+
+            <div class="time-bar-container mb-6">
+                <div id="time-bar" class="time-bar-fill" style="width: 100%;"></div>
+            </div>
+
+            <div class="equation-box p-8 text-center mb-6 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-white/5 to-transparent pointer-events-none"></div>
+                <div id="equation-display" class="text-5xl md:text-6xl font-black text-white tracking-widest drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+                    ? + ?
+                </div>
+            </div>
+
+            <div class="bg-black/60 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
+                
+                <div class="flex justify-center items-center mb-6">
+                    <div id="player-input" class="input-display flex items-center justify-center text-4xl font-bold text-sys-cyan tracking-widest min-w-[150px]">
+                        </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                    <button onclick="MathApp.inputNum('7')" class="num-pad-btn h-14 rounded-xl text-white font-bold text-xl">7</button>
+                    <button onclick="MathApp.inputNum('8')" class="num-pad-btn h-14 rounded-xl text-white font-bold text-xl">8</button>
+                    <button onclick="MathApp.inputNum('9')" class="num-pad-btn h-14 rounded-xl text-white font-bold text-xl">9</button>
+                    
+                    <button onclick="MathApp.inputNum('4')" class="num-pad-btn h-14 rounded-xl text-white font-bold text-xl">4</button>
+                    <button onclick="MathApp.inputNum('5')" class="num-pad-btn h-14 rounded-xl text-white font-bold text-xl">5</button>
+                    <button onclick="MathApp.inputNum('6')" class="num-pad-btn h-14 rounded-xl text-white font-bold text-xl">6</button>
+                    
+                    <button onclick="MathApp.inputNum('1')" class="num-pad-btn h-14 rounded-xl text-white font-bold text-xl">1</button>
+                    <button onclick="MathApp.inputNum('2')" class="num-pad-btn h-14 rounded-xl text-white font-bold text-xl">2</button>
+                    <button onclick="MathApp.inputNum('3')" class="num-pad-btn h-14 rounded-xl text-white font-bold text-xl">3</button>
+                    
+                    <button onclick="MathApp.deleteNum()" class="num-pad-btn btn-del h-14 rounded-xl font-bold text-lg">DEL</button>
+                    <button onclick="MathApp.inputNum('0')" class="num-pad-btn h-14 rounded-xl text-white font-bold text-xl">0</button>
+                    <button onclick="MathApp.submitAnswer()" class="num-pad-btn btn-enter h-14 rounded-xl font-bold text-lg">ENT</button>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <p class="text-[10px] text-white/20 font-cairo">يمكنك استخدام لوحة المفاتيح والـ Enter للإدخال السريع</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="phase-results" class="hidden text-center py-10">
+            <div class="font-orbitron text-rank-a tracking-[0.4em] text-xs mb-4">DUNGEON CLEARED</div>
+            <h2 class="font-orbitron text-3xl font-black text-white mb-2 glitch-text">COMPUTATION COMPLETE</h2>
+            <p class="font-cairo text-white/50 text-sm mb-8">لقد عولجت البيانات الكميّة بنجاح فائق!</p>
+
+            <div class="bg-black/60 border border-rank-a/30 rounded-2xl p-6 max-w-md mx-auto mb-8 neon-border-a">
+                <div class="flex justify-center mb-6">
+                    <div class="bg-rank-a/20 text-rank-a font-orbitron text-lg px-8 py-2 border border-rank-a/50 shadow-[0_0_20px_rgba(176,38,255,0.4)] transform skew-x-12">
+                        <div class="-skew-x-12 font-bold tracking-widest">RANK: A</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-black/40 border border-white/5 rounded-xl p-3">
+                        <div class="font-orbitron text-[10px] text-rank-a mb-1">TIME LEFT</div>
+                        <div id="result-time" class="font-orbitron text-xl font-bold text-white">0.0s</div>
+                    </div>
+                    <div class="bg-black/40 border border-white/5 rounded-xl p-3">
+                        <div class="font-orbitron text-[10px] text-rank-a mb-1">EQUATIONS</div>
+                        <div class="font-orbitron text-xl font-bold text-sys-green">10/10</div>
+                    </div>
+                </div>
+
+                <div class="border-t border-white/10 pt-5">
+                    <div class="font-orbitron text-[10px] text-white/30 tracking-wider mb-4">REWARDS ACQUIRED</div>
+                    <div class="flex justify-center gap-8">
+                        <div class="text-center">
+                            <div class="text-rank-a font-orbitron text-3xl font-bold stat-glow">+120</div>
+                            <div class="text-[10px] text-white/40 font-orbitron">XP</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-sys-purple font-orbitron text-3xl font-bold stat-glow">+3</div>
+                            <div class="text-[10px] text-white/40 font-orbitron">INT</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-sys-gold font-orbitron text-3xl font-bold stat-glow">+30</div>
+                            <div class="text-[10px] text-white/40 font-orbitron">GOLD</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="level-up-banner" class="hidden mb-8">
+                <div class="bg-sys-gold/10 border border-sys-gold/40 rounded-xl p-4 max-w-md mx-auto shadow-[0_0_20px_rgba(255,215,0,0.2)]">
+                    <div class="font-orbitron text-sys-gold text-lg font-bold tracking-wider">⚡ LEVEL UP!</div>
+                    <div class="text-white/60 text-sm font-cairo mt-1">لقد ارتقيت إلى مستوى أعلى! +3 AP متاحة.</div>
+                </div>
+            </div>
+
+            <div class="flex justify-center gap-4">
+                <button onclick="window.location.href='dungeons.html'" class="sys-btn px-6 py-3 bg-black border border-white/20 text-white/70 hover:border-rank-a hover:text-rank-a transition rounded-lg text-sm">
+                    العودة للقائمة
+                </button>
+                <button onclick="MathApp.showMenu()" class="sys-btn px-8 py-3 bg-rank-a/10 border border-rank-a/50 text-rank-a hover:bg-rank-a hover:text-black transition rounded-lg text-sm shadow-[0_0_15px_rgba(176,38,255,0.2)]">
+                    إعادة المحاولة
+                </button>
+            </div>
+        </div>
+
+        <div id="phase-failure" class="hidden text-center py-10">
+            <div class="font-orbitron text-sys-rose tracking-[0.4em] text-xs mb-4">DUNGEON FAILED</div>
+            <h2 class="font-orbitron text-3xl font-black text-sys-rose mb-2">SYSTEM OVERLOAD</h2>
+            <p id="fail-reason" class="font-cairo text-white/50 text-sm mb-8">لقد نفد الوقت قبل إكمال المعادلات المطلوبة.</p>
+
+            <div class="bg-black/60 border border-sys-rose/20 rounded-2xl p-6 max-w-md mx-auto mb-8">
+                <div class="font-orbitron text-[10px] text-white/30 tracking-wider mb-4">PARTIAL DATA EXTRACTED</div>
+                <div class="flex justify-center gap-8">
+                    <div class="text-center">
+                        <div id="fail-xp" class="text-white/60 font-orbitron text-2xl font-bold">+20</div>
+                        <div class="text-[10px] text-white/40 font-orbitron">XP</div>
+                    </div>
+                    <div class="text-center">
+                        <div id="fail-score" class="text-sys-rose font-orbitron text-2xl font-bold">4/10</div>
+                        <div class="text-[10px] text-white/40 font-orbitron">SCORE</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-center gap-4">
+                <button onclick="window.location.href='dungeons.html'" class="sys-btn px-6 py-3 bg-black border border-white/20 text-white/70 hover:border-rank-a hover:text-rank-a transition rounded-lg text-sm">
+                    العودة للزنازين
+                </button>
+                <button onclick="MathApp.startCountdown()" class="sys-btn px-8 py-3 bg-sys-rose/10 border border-sys-rose/50 text-sys-rose hover:bg-sys-rose hover:text-white transition rounded-lg text-sm shadow-[0_0_15px_rgba(225,29,72,0.2)]">
+                    المحاولة مجدداً
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+<script>
+// ==========================================
+// BACKGROUND PARTICLES
+// ==========================================
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let particles = [];
+function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+class Particle {
+    constructor() { this.reset(); }
+    reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 0.5;
+        this.speedX = (Math.random() - 0.5) * 0.5;
+        this.speedY = (Math.random() - 0.5) * 0.5;
+        this.opacity = Math.random() * 0.5 + 0.1;
+        // Mix of Purple and Cyan
+        this.color = Math.random() > 0.5 ? '176, 38, 255' : '0, 240, 255'; 
+    }
+    update() {
+        this.x += this.speedX; this.y += this.speedY;
+        if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.reset();
+    }
+    draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`;
+        ctx.fill();
+    }
+}
+for (let i = 0; i < 50; i++) particles.push(new Particle());
+function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+// ==========================================
+// PLAYER STATE (RPG SYSTEM SYNC)
+// ==========================================
+const PlayerState = {
+    data: { level: 1, xp: 0, ap: 0, stats: { int: 10 }, gold: 0, clearedDungeons: {} },
+
+    init() {
+        const saved = localStorage.getItem('monarch_system_data');
+        if (saved) {
+            this.data = { ...this.data, ...JSON.parse(saved) };
+            if (!this.data.stats) this.data.stats = { int: 10 };
+            if (!this.data.clearedDungeons) this.data.clearedDungeons = {};
+        }
+        this.updateUI();
+    },
+    save() {
+        if (window.SovereignCore) {
+            SovereignCore.save(this.data);
+        } else {
+            localStorage.setItem('monarch_system_data', JSON.stringify(this.data));
+        }
+        this.updateUI();
+    },
+    updateUI() {
+        const lvl = this.data.level || 1;
+        const xp = this.data.xp || 0;
+        const need = lvl * 100;
+        const pct = Math.min((xp / need) * 100, 100);
+
+        document.getElementById('currentLevel').textContent = lvl;
+        document.getElementById('currentXP').textContent = xp;
+        document.getElementById('xpNeeded').textContent = need;
+        document.getElementById('xpBar').style.width = pct + '%';
+        document.getElementById('stat-int').textContent = this.data.stats?.int || 10;
+        document.getElementById('stat-gold').textContent = this.data.gold || 0;
+    },
+    reward(xp, int, gold) {
+        const oldLevel = this.data.level;
+        this.data.xp += xp;
+        this.data.stats.int += int;
+        this.data.gold += gold;
+        this.data.clearedDungeons.Math = (this.data.clearedDungeons.Math || 0) + 1;
+
+        let leveledUp = false;
+        while (this.data.xp >= this.data.level * 100) {
+            this.data.xp -= this.data.level * 100;
+            this.data.level++;
+            this.data.ap = (this.data.ap || 0) + 3;
+            leveledUp = true;
+        }
+        this.save();
+        return { leveledUp, oldLevel, newLevel: this.data.level };
+    },
+    partialReward(xp) {
+        this.data.xp += xp;
+        while (this.data.xp >= this.data.level * 100) {
+            this.data.xp -= this.data.level * 100;
+            this.data.level++;
+            this.data.ap = (this.data.ap || 0) + 3;
+        }
+        this.save();
+    }
+};
+
+// ==========================================
+// QUANTUM MATH ENGINE
+// ==========================================
+const MathApp = {
+    targetScore: 10,
+    score: 0,
+    timeLeft: 0,
+    maxTime: 60.0, // 60 seconds total
+    timerInterval: null,
+    isPlaying: false,
+    
+    currentAnswer: 0,
+    currentInput: "",
+    
+
+    showPhase(phase) {
+        ['menu', 'countdown', 'game', 'results', 'failure'].forEach(p => {
+            const el = document.getElementById('phase-' + p);
+            el.classList.add('hidden');
+            el.classList.remove('phase-transition');
+        });
+        const active = document.getElementById('phase-' + phase);
+        active.classList.remove('hidden');
+        // Small delay to trigger animation
+        setTimeout(() => active.classList.add('phase-transition'), 10);
+    },
+
+    showMenu() {
+        this.showPhase('menu');
+        if(this.timerInterval) clearInterval(this.timerInterval);
+    },
+
+    startCountdown() {
+        this.showPhase('countdown');
+        let count = 3;
+        const el = document.getElementById('countdown-number');
+        el.textContent = count;
+        
+        const interval = setInterval(() => {
+            count--;
+            if (count > 0) {
+                el.textContent = count;
+                this.playTone(400, 0.1);
+            } else {
+                clearInterval(interval);
+                this.playTone(800, 0.3, 'square');
+                this.startGame();
+            }
+        }, 1000);
+        this.playTone(400, 0.1);
+    },
+
+    startGame() {
+        this.score = 0;
+        this.timeLeft = this.maxTime;
+        this.currentInput = "";
+        this.isPlaying = true;
+        
+        this.updateHUD();
+        this.generateEquation();
+        this.showPhase('game');
+        
+        this.lastFrameTime = performance.now();
+        this.timerInterval = requestAnimationFrame((t) => this.gameLoop(t));
+    },
+
+    gameLoop(timestamp) {
+        if (!this.isPlaying) return;
+
+        const deltaTime = (timestamp - this.lastFrameTime) / 1000; // in seconds
+        this.lastFrameTime = timestamp;
+
+        this.timeLeft -= deltaTime;
+        if (this.timeLeft <= 0) {
+            this.timeLeft = 0;
+            this.updateTimerUI();
+            this.gameOver(false);
+            return;
+        }
+
+        this.updateTimerUI();
+        this.timerInterval = requestAnimationFrame((t) => this.gameLoop(t));
+    },
+
+    generateEquation() {
+        let a, b, operator, eqString;
+        
+        // Difficulty Scales with Score (0 to 10)
+        if (this.score < 3) {
+            // Level 1: Simple Addition/Subtraction (1 to 20)
+            a = Math.floor(Math.random() * 20) + 1;
+            b = Math.floor(Math.random() * 20) + 1;
+            if (Math.random() > 0.5) {
+                operator = '+';
+                this.currentAnswer = a + b;
+            } else {
+                operator = '-';
+                if (b > a) [a, b] = [b, a]; // Ensure positive result
+                this.currentAnswer = a - b;
+            }
+        } 
+        else if (this.score < 7) {
+            // Level 2: Multiplication (1-10) or Clean Division
+            if (Math.random() > 0.5) {
+                a = Math.floor(Math.random() * 10) + 2;
+                b = Math.floor(Math.random() * 10) + 2;
+                operator = '×';
+                this.currentAnswer = a * b;
+            } else {
+                b = Math.floor(Math.random() * 10) + 2;
+                this.currentAnswer = Math.floor(Math.random() * 10) + 2;
+                a = b * this.currentAnswer; // ensures exact division
+                operator = '÷';
+            }
+        } 
+        else {
+            // Level 3: Larger Addition/Subtraction or Harder Multiplication
+            const rand = Math.random();
+            if (rand < 0.4) {
+                a = Math.floor(Math.random() * 50) + 20;
+                b = Math.floor(Math.random() * 50) + 20;
+                operator = '+';
+                this.currentAnswer = a + b;
+            } else if (rand < 0.8) {
+                a = Math.floor(Math.random() * 80) + 20;
+                b = Math.floor(Math.random() * 80) + 20;
+                operator = '-';
+                if (b > a) [a, b] = [b, a];
+                this.currentAnswer = a - b;
+            } else {
+                a = Math.floor(Math.random() * 15) + 3;
+                b = Math.floor(Math.random() * 15) + 3;
+                operator = '×';
+                this.currentAnswer = a * b;
+            }
+        }
+
+        eqString = `${a} ${operator} ${b}`;
+        document.getElementById('equation-display').textContent = eqString;
+        this.currentInput = "";
+        this.updateInputUI();
+    },
+
+    inputNum(n) {
+        if (!this.isPlaying) return;
+        if (this.currentInput.length < 5) {
+            this.currentInput += n;
+            this.updateInputUI();
+            this.playTone(300 + (parseInt(n)*20), 0.05);
+        }
+    },
+
+    deleteNum() {
+        if (!this.isPlaying || this.currentInput.length === 0) return;
+        this.currentInput = this.currentInput.slice(0, -1);
+        this.updateInputUI();
+        this.playTone(200, 0.05);
+    },
+
+    submitAnswer() {
+        if (!this.isPlaying || this.currentInput === "") return;
+
+        const pInput = parseInt(this.currentInput);
+        const inputEl = document.getElementById('player-input');
+
+        if (pInput === this.currentAnswer) {
+            // Correct
+            this.score++;
+            this.timeLeft = Math.min(this.timeLeft + 3, this.maxTime); // Add 3 seconds, cap at max
+            this.showFloatingText('+3s', 'sys-green');
+            this.playTone(600, 0.1, 'sine');
+            
+            inputEl.classList.remove('error');
+            inputEl.classList.add('success');
+            
+            this.updateHUD();
+
+            if (this.score >= this.targetScore) {
+                setTimeout(() => this.gameOver(true), 300);
+            } else {
+                setTimeout(() => {
+                    inputEl.classList.remove('success');
+                    this.generateEquation();
+                }, 200);
+            }
+
+        } else {
+            // Wrong
+            this.timeLeft -= 2; // Penalty
+            this.showFloatingText('-2s', 'sys-rose');
+            this.playTone(150, 0.2, 'sawtooth');
+
+            inputEl.classList.remove('success');
+            inputEl.classList.add('error');
+            setTimeout(() => {
+                inputEl.classList.remove('error');
+                this.currentInput = "";
+                this.updateInputUI();
+            }, 400);
+        }
+    },
+
+    updateInputUI() {
+        document.getElementById('player-input').textContent = this.currentInput || "_";
+    },
+
+    updateHUD() {
+        document.getElementById('score-display').textContent = this.score;
+    },
+
+    updateTimerUI() {
+        document.getElementById('timer-text').textContent = this.timeLeft.toFixed(1);
+        const pct = (this.timeLeft / this.maxTime) * 100;
+        const bar = document.getElementById('time-bar');
+        bar.style.width = `${pct}%`;
+        
+        if (this.timeLeft <= 10) {
+            document.getElementById('timer-text').classList.add('text-sys-rose');
+            bar.classList.add('warning');
+        } else {
+            document.getElementById('timer-text').classList.remove('text-sys-rose');
+            bar.classList.remove('warning');
+        }
+    },
+
+    showFloatingText(text, colorClass) {
+        const container = document.getElementById('time-floating-container');
+        const el = document.createElement('div');
+        el.textContent = text;
+        el.className = `floating-text text-xl text-${colorClass}`;
+        
+        // Random slight offset
+        const offsetX = (Math.random() - 0.5) * 20;
+        el.style.right = `calc(50% + ${offsetX}px)`;
+        el.style.top = '100%';
+
+        container.appendChild(el);
+        setTimeout(() => el.remove(), 1000);
+    },
+
+    gameOver(won) {
+        this.isPlaying = false;
+        cancelAnimationFrame(this.timerInterval);
+
+        if (won) {
+            const xpReward = 120;
+            const intReward = 3;
+            const goldReward = 30;
+
+            const result = PlayerState.reward(xpReward, intReward, goldReward);
+
+            document.getElementById('result-time').textContent = this.timeLeft.toFixed(1) + 's';
+            
+            if (result.leveledUp) {
+                const banner = document.getElementById('level-up-banner');
+                banner.classList.remove('hidden');
+                banner.querySelector('.font-orbitron').textContent = `⚡ LEVEL UP! ${result.oldLevel} → ${result.newLevel}`;
+            } else {
+                document.getElementById('level-up-banner').classList.add('hidden');
+            }
+
+            this.showPhase('results');
+            this.playTone(523.25, 0.1); setTimeout(() => this.playTone(659.25, 0.1), 100); setTimeout(() => this.playTone(783.99, 0.3), 200);
+            // استدعاء نظام المزامنة لمنح اللاعب الجوائز وتحديث المستوى
+            confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: ['#b026ff', '#00f0ff', '#ffffff'] });
+        } else {
+            // Partial rewards based on score
+            const partialXP = this.score * 5;
+            PlayerState.partialReward(partialXP);
+
+            document.getElementById('fail-score').textContent = `${this.score}/10`;
+            document.getElementById('fail-xp').textContent = `+${partialXP}`;
+            this.showPhase('failure');
+            // استدعاء نظام المزامنة لمنح اللاعب الجوائز وتحديث المستوى
+        }
+    },
+ 
+
+    // Audio Context for UI Sounds
+    audioCtx: null,
+    playTone(freq, duration, type='sine') {
+        if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
+        const osc = this.audioCtx.createOscillator();
+        const gain = this.audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(this.audioCtx.destination);
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, this.audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.05, this.audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + duration);
+        osc.start(this.audioCtx.currentTime);
+        osc.stop(this.audioCtx.currentTime + duration);
+    }
+};
+
+// ==========================================
+// KEYBOARD LISTENER
+// ==========================================
+document.addEventListener('keydown', (e) => {
+    if (!MathApp.isPlaying) return;
+    
+    if (e.key >= '0' && e.key <= '9') {
+        MathApp.inputNum(e.key);
+    } else if (e.key === 'Backspace' || e.key === 'Delete') {
+        MathApp.deleteNum();
+    } else if (e.key === 'Enter') {
+        MathApp.submitAnswer();
+    }
+});
+
+// Initialization
+window.addEventListener('DOMContentLoaded', () => {
+    PlayerState.init();
+});
+const QuestSystem = {
+    tasks: [],
+    filter: 'all', // 'all' | 'active'
+    init() {
+        const saved = localStorage.getItem('SL_QUESTS');
+        this.tasks = saved ? JSON.parse(saved) : [];
+        this.render();
+    },
+    setFilter(mode) {
+        this.filter = mode;
+        this.render();
+    },
+    addTask() {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        const inp = document.getElementById('taskInput');
+        const prio = document.getElementById('prioritySelect').value;
+        const statSelect = document.getElementById('statSelect').value;
+        if(!inp || !inp.value.trim()) return;
+        const task = { id: Date.now(), text: inp.value.trim(), priority: prio, completed: false, stat: statSelect, createdAt: new Date().toISOString() };
+        this.tasks.unshift(task);
+        inp.value = '';
+        this.save();
+        this.render();
+        Toast.show('Quest deployed to system window', 'success');
+    },
+    toggleTask(id) {
+        const taskIndex = this.tasks.findIndex(t => t.id === id);
+        if (taskIndex === -1) return;
+        const task = this.tasks[taskIndex];
+        let xpReward = task.priority === 'high' ? 100 : task.priority === 'medium' ? 50 : 20;
+        let goldReward = task.priority === 'high' ? 30 : task.priority === 'medium' ? 15 : 5;
+        let authorityReward = task.priority === 'high' ? 10 : task.priority === 'medium' ? 5 : 2;
+
+        if (!task.completed) {
+            task.completed = true;
+            if(window.PlayerState) {
+                PlayerState.data.authority = (PlayerState.data.authority || 0) + authorityReward;
+                PlayerState.addXP(xpReward);
+                PlayerState.addGold(goldReward);
+                PlayerState.addStat(task.stat || 'int', 1);
+            }
+            Toast.show(`Quest Cleared! +${xpReward} EXP`, 'success');
+            if(window.SoundEffects) SoundEffects.playSuccess();
+            if(typeof confetti === 'function') confetti({particleCount: 80, spread: 60, origin: {y: 0.7}, colors: ['#00f0ff','#9d4edd']});
+        } else {
+            task.completed = false;
+            if(window.PlayerState) {
+                PlayerState.data.authority = Math.max(0, (PlayerState.data.authority || 0) - authorityReward);
+                PlayerState.addXP(-xpReward);
+                PlayerState.addGold(-goldReward);
+                if (PlayerState.data.gold < 0) PlayerState.data.gold = 0;
+                PlayerState.addStat(task.stat || 'int', -1);
+            }
+            Toast.show(`Quest Reversed! Rewards Deducted.`, 'error');
+            if(window.SoundEffects) SoundEffects.playSystemClick();
+        }
+        this.save();
+        this.render();
+    },
+    deleteTask(id) {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        this.tasks = this.tasks.filter(t => t.id !== id);
+        this.save();
+        this.render();
+    },
+    render() {
+        const container = document.getElementById('taskContainer');
+        const titleEl = document.getElementById('taskListTitle');
+        const backBtn = document.getElementById('backToAllBtn');
+        if(!container) return;
+        container.innerHTML = '';
+
+        // Update title and back button based on filter
+        if (titleEl) {
+            titleEl.textContent = this.filter === 'active' ? '⚔️ ACTIVE ENGAGEMENTS (Incomplete)' : '⚔️ Active Directives Log';
+            titleEl.className = this.filter === 'active' 
+                ? 'font-black text-sm text-amber-400 tracking-wide uppercase sys-font' 
+                : 'font-black text-sm text-[var(--sys-cyan)] tracking-wide uppercase sys-font';
+        }
+        if (backBtn) {
+            backBtn.classList.toggle('hidden', this.filter !== 'active');
+        }
+
+        let activeCount = 0; let completedCount = 0;
+
+        // Filter tasks
+        const displayTasks = this.filter === 'active' 
+            ? this.tasks.filter(t => !t.completed) 
+            : this.tasks;
+
+        if (displayTasks.length === 0) {
+            const emptyMsg = this.filter === 'active' 
+                ? '<p>[NO INCOMPLETE ENGAGEMENTS DETECTED]</p><p class="text-[10px] mt-2">All directives have been cleared.</p>'
+                : '<p>[NO ACTIVE QUESTS DETECTED]</p>';
+            container.innerHTML = `<div class="text-center py-10 opacity-30 sys-font">${emptyMsg}</div>`;
+            this.updateStatsUI(0, 0, 0);
+            return;
+        }
+        const statColors = { 'int': 'text-[var(--sys-cyan)]', 'str': 'text-rose-500', 'vit': 'text-emerald-500', 'agi': 'text-sky-400', 'sen': 'text-[var(--sys-purple)]' };
+        displayTasks.forEach(task => {
+            task.completed ? completedCount++ : activeCount++;
+            const escapedText = task.text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            const div = document.createElement('div');
+            div.className = `task-card flex items-center justify-between p-4 bg-slate-900/80 backdrop-blur-sm border-y border-y-slate-800 transition-all ${task.completed ? 'completed opacity-50' : ''}`;
+            div.innerHTML = `
+                <div class="flex items-center gap-4">
+                    <button onclick="QuestSystem.toggleTask(${task.id})" class="w-6 h-6 rounded border-2 border-[var(--sys-cyan)] flex items-center justify-center hover:bg-[var(--sys-cyan)] hover:bg-opacity-20 transition-colors ${task.completed ? 'bg-[var(--sys-cyan)]' : ''}">
+                        ${task.completed ? '<span class="text-black text-xs font-black">✓</span>' : ''}
+                    </button>
+                    <div>
+                        <div class="font-bold text-white text-sm ${task.completed ? 'line-through text-slate-500' : ''}">${escapedText}</div>
+                        <div class="flex gap-2 mt-1">
+                            <span class="sys-font text-[10px] px-2 py-0.5 border border-slate-700 bg-black/50 ${statColors[task.stat || 'int']} uppercase tracking-widest">+1 ${(task.stat || 'int').toUpperCase()}</span>
+                            <span class="sys-font text-[10px] px-2 py-0.5 border border-slate-700 bg-black/50 text-amber-400 uppercase tracking-widest">RANK: ${(task.priority || 'medium').toUpperCase()}</span>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="QuestSystem.deleteTask(${task.id})" class="text-slate-600 hover:text-rose-500 transition-colors p-2">🗑️</button>
+            `;
+            container.appendChild(div);
+        });
+        const lethalityRate = Math.round((completedCount / this.tasks.length) * 100);
+        if(window.PlayerState) {
+            PlayerState.data.lethality = lethalityRate;
+            PlayerState.save();
+        }
+        this.updateStatsUI(activeCount, this.tasks.length, lethalityRate);
+    },
+    updateStatsUI(active, all, lethality) {
+        if(document.getElementById('cnt-active-val')) document.getElementById('cnt-active-val').textContent = active;
+        if(document.getElementById('stat-lethality')) document.getElementById('stat-lethality').textContent = `${lethality}%`;
+    },
+    save() { localStorage.setItem('SL_QUESTS', JSON.stringify(this.tasks)); }
+};
+
+// ==========================================
+// POMODORO TIMER
+// ==========================================
+const Pomodoro = {
+    defaultTime: parseInt(localStorage.getItem('SL_SYS_TIMER')) || (5 * 3600),
+    timeLeft: 0, timer: null, isRunning: false,
+    init() { this.timeLeft = this.defaultTime; this.updateUI(); },
+    saveSettings() {
+        const h = parseInt(document.getElementById('inputHours').value) || 0;
+        const m = parseInt(document.getElementById('inputMinutes').value) || 0;
+        const tot = (h * 3600) + (m * 60);
+        if (tot > 0) {
+            this.defaultTime = tot;
+            localStorage.setItem('SL_SYS_TIMER', this.defaultTime.toString());
+            document.getElementById('timerModal').classList.add('hidden');
+            clearInterval(this.timer); this.timeLeft = this.defaultTime; this.isRunning = false;
+            this.toggle();
+        }
+    },
+    toggle() {
+        if(typeof SoundEffects !== 'undefined') SoundEffects.playSystemClick();
+        const btn = document.getElementById('timerBtn');
+        const st = document.getElementById('timerStatus');
+        if (this.isRunning) {
+            clearInterval(this.timer);
+            btn.textContent = 'START'; btn.classList.remove('bg-rose-600/30');
+            st.textContent = 'PAUSED'; st.className = 'sys-font text-[9px] px-2 py-0.5 bg-amber-900 border border-amber-600 text-amber-300 uppercase';
+        } else {
+            if (this.timeLeft <= 0) this.timeLeft = this.defaultTime;
+            this.timer = setInterval(() => { if (this.timeLeft > 0) { this.timeLeft--; this.updateUI(); } else { this.finish(); } }, 1000);
+            btn.textContent = '⏸️'; btn.classList.add('bg-rose-600/30');
+            st.textContent = 'IN COMBAT'; st.className = 'sys-font text-[9px] px-2 py-0.5 bg-rose-900 border border-rose-600 text-rose-300 uppercase animate-pulse';
+        }
+        this.isRunning = !this.isRunning;
+    },
+    reset() {
+        if(typeof SoundEffects !== 'undefined') SoundEffects.playSystemClick();
+        clearInterval(this.timer);
+        this.timeLeft = this.defaultTime; this.isRunning = false;
+        const btn = document.getElementById('timerBtn'); btn.textContent = 'START'; btn.classList.remove('bg-rose-600/30');
+        const st = document.getElementById('timerStatus');
+        st.textContent = 'IDLE'; st.className = 'sys-font text-[9px] px-2 py-0.5 bg-slate-800 border border-slate-600 text-slate-300 uppercase';
+        this.updateUI();
+    },
+    finish() {
+        clearInterval(this.timer);
+        if(typeof SoundEffects !== 'undefined') SoundEffects.playSuccess();
+        if (typeof confetti !== 'undefined') confetti({ particleCount: 100, colors: ['#00f0ff'] });
+        this.reset();
+    },
+    updateUI() {
+        const h = Math.floor(this.timeLeft / 3600).toString().padStart(2, '0');
+        const m = Math.floor((this.timeLeft % 3600) / 60).toString().padStart(2, '0');
+        const s = (this.timeLeft % 60).toString().padStart(2, '0');
+        if(document.getElementById('timerDisplay')) document.getElementById('timerDisplay').textContent = `${h}:${m}:${s}`;
+    }
+};
+
+const Milestone = {
+    hide() {
+        document.getElementById('milestoneModal').classList.add('hidden');
+        if(typeof SoundEffects !== 'undefined') SoundEffects.playSystemClick();
+    }
+};
+const UI = {
+    toggleTimerSettings() {
+        if (typeof SoundEffects !== 'undefined') SoundEffects.playSystemClick();
+        document.getElementById('timerModal').classList.toggle('hidden');
+    }
+};
+
+const Toast = {
+    show(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+        const toast = document.createElement('div');
+        const colors = {
+            success: 'border-emerald-500 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)]',
+            error: 'border-rose-500 text-rose-400 shadow-[0_0_15px_rgba(225,29,72,0.3)]',
+            info: 'border-[var(--sys-cyan)] text-[var(--sys-cyan)] shadow-[0_0_15px_rgba(0,240,255,0.3)]'
+        };
+        toast.className = `pointer-events-auto px-5 py-3 bg-[#02040a]/95 border backdrop-blur-md text-sm font-bold sys-font tracking-wide animate-system-pop ${colors[type] || colors.info}`;
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 4000);
+    }
+};
+    // ==========================================
+// SYSTEM RESET ENGINE (HARD RESET)
+// ==========================================
+const SystemReset = {
+    confirmAndReset() {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        
+        // رسالة التحذير الأولى
+        const firstConfirm = confirm("⚠️ تحذير أمني سيادي: هل أنت متأكد أنك تريد مسح جميع البيانات؟\n(سيعود المستوى إلى 1، وتفقد كل الذهب، الخبرة، المهام، والسجلات ولن يمكنك استرجاعها).");
+        if (!firstConfirm) return;
+
+        // رسالة التأكيد النهائية
+        const secondConfirm = confirm("‼️ تأكيد نهائي: هذه العملية ستعيد النظام إلى نقطة الصفر. هل تريد تنفيذ 'مسح الذاكرة'؟");
+        if (!secondConfirm) return;
+
+        // قائمة المفاتيح المخزنة في النظام لمسحها
+        const keysToReset = [
+            'monarch_system_data', 
+            'sovereign_active_quest', 
+            'directive_start_time', 
+            'sovereign_active_program', 
+            'SL_QUESTS', 
+            'sovereign_system_logs',
+            'sovereign_titles_index'
+        ];
+
+        // تنفيذ المسح
+        keysToReset.forEach(key => localStorage.removeItem(key));
+
+        // مسح أي تخزين مؤقت للألقاب والمقايضات
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('title_cache_')) {
+                localStorage.removeItem(key);
+            }
+        });
+
+        alert("🔄 تم مسح الذاكرة وإعادة ضبط النظام بالكامل. سيتم إعادة تشغيل الواجهة.");
+        
+        // إعادة تحميل الصفحة لتطبيق حالة الصفر
+        window.location.reload();
+    }
+};
+
+// ==========================================
+// SOUND EFFECTS
+// ==========================================
+const SoundEffects = {
+    track1: new Audio('SHADOWBORN.mp3'),
+    track2: new Audio('Kingdom_of_Iron.mp3'),
+    currentTrackNumber: null,
+    isMusicPlaying: false,
+
+    init() {
+        this.track1.loop = true;
+        this.track2.loop = true;
+    },
+
+    toggleMusic(trackNumber) {
+        const icon1 = document.getElementById('musicIcon1');
+        const icon2 = document.getElementById('musicIcon2');
+
+        if (this.isMusicPlaying && this.currentTrackNumber === trackNumber) {
+            this.stopAllAudio();
+            return;
+        }
+        if (this.isMusicPlaying) this.stopAllAudio();
+
+        this.isMusicPlaying = true;
+        this.currentTrackNumber = trackNumber;
+
+        if (trackNumber === 1) {
+            this.track1.play().catch(err => console.log("Auto-play blocked:", err));
+            if (icon1) icon1.textContent = '⏸️';
+            if (icon2) icon2.textContent = '🎼';
+        } else if (trackNumber === 2) {
+            this.track2.play().catch(err => console.log("Auto-play blocked:", err));
+            if (icon1) icon1.textContent = '🎵';
+            if (icon2) icon2.textContent = '⏸️';
+        }
+    },
+
+    stopAllAudio() {
+        this.track1.pause(); this.track1.currentTime = 0;
+        this.track2.pause(); this.track2.currentTime = 0;
+        const icon1 = document.getElementById('musicIcon1');
+        const icon2 = document.getElementById('musicIcon2');
+        if (icon1) icon1.textContent = '🎵';
+        if (icon2) icon2.textContent = '🎼';
+        this.isMusicPlaying = false;
+        this.currentTrackNumber = null;
+    },
+
+    playSystemClick() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            gain.gain.setValueAtTime(0.05, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.start(); osc.stop(ctx.currentTime + 0.1);
+        } catch(e) {}
+    },
+
+    playSuccess() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((freq, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.1);
+                gain.gain.setValueAtTime(0.1, ctx.currentTime + i * 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.1 + 0.3);
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.start(ctx.currentTime + i * 0.1);
+                osc.stop(ctx.currentTime + i * 0.1 + 0.3);
+            });
+        } catch(e) {}
+    },
+
+    playLevelUp() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const notes = [440, 554, 659, 880, 1108];
+            notes.forEach((freq, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.15);
+                gain.gain.setValueAtTime(0.08, ctx.currentTime + i * 0.15);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.15 + 0.4);
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.start(ctx.currentTime + i * 0.15);
+                osc.stop(ctx.currentTime + i * 0.15 + 0.4);
+            });
+        } catch(e) {}
+    }
+};
+SoundEffects.init();
+
+// ==========================================
+// DIRECTIVE TIMER ENGINE
+// ==========================================
+const DirectiveTimer = {
+    startTime: null,
+    timerInterval: null,
+    isRunning: false,
+
+    start(savedStartTime) {
+        if (this.isRunning) return;
+        this.startTime = savedStartTime || Date.now();
+        this.isRunning = true;
+        localStorage.setItem('directive_start_time', this.startTime.toString());
+        this.update();
+        this.timerInterval = setInterval(() => this.update(), 1000);
+    },
+
+    stop() {
+        clearInterval(this.timerInterval);
+        this.isRunning = false;
+        this.startTime = null;
+        localStorage.removeItem('directive_start_time');
+    },
+
+    update() {
+        if (!this.startTime) return;
+        const elapsed = Date.now() - this.startTime;
+        const timerEl = document.getElementById('directiveTimer');
+        const progressEl = document.getElementById('directiveProgressBar');
+        if (timerEl) timerEl.textContent = this.formatTime(elapsed);
+        if (progressEl) {
+            const progress = Math.min((elapsed / (25 * 60 * 1000)) * 100, 100);
+            progressEl.style.width = `${progress}%`;
+        }
+    },
+
+    formatTime(ms) {
+        const totalSeconds = Math.floor(ms / 1000);
+        const hours = Math.floor(totalSeconds / 3600).toString().padStart(2, '0');
+        const minutes = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
+        const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+        return `${hours}:${minutes}:${seconds}`;
+    },
+
+    reset() {
+        this.stop();
+        const timerEl = document.getElementById('directiveTimer');
+        const progressEl = document.getElementById('directiveProgressBar');
+        if (timerEl) timerEl.textContent = '00:00:00';
+        if (progressEl) progressEl.style.width = '0%';
+    }
+};
+
+// ==========================================
+// ANIME POPUP ENGINE
+// ==========================================
+const AnimePopup = {
+    currentQuest: null,
+    questStartTime: null,
+    playerLevel: 1,
+    playerXP: 0,
+    playerGold: 0,
+
+    show(title, description, timeLimit, rewardXP) {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        this.syncPlayerState();
+
+        this.currentQuest = { 
+            title: title, 
+            rewardXP: rewardXP || 10, 
+            timeLimit: timeLimit || "25:00",
+            type: this.inferQuestType(title),
+            details: description,
+            acceptedAt: null,
+            active: false
+        };
+
+        document.getElementById('animePopupTitle').textContent = title;
+        document.getElementById('animePopupDesc').innerHTML = description;
+        document.getElementById('animePopupTime').textContent = `TIME: ${this.currentQuest.timeLimit}`;
+        document.getElementById('animePopupReward').textContent = `REWARD: +${this.currentQuest.rewardXP} EXP`;
+        document.getElementById('directiveTargetTime').textContent = this.currentQuest.timeLimit;
+
+        const modal = document.getElementById('animeSystemPopup');
+        modal.classList.remove('hidden');
+    },
+
+    inferQuestType(title) {
+        const t = title.toLowerCase();
+        if (t.match(/برمج|code|هندس|ai|تطوير|برمجية/)) return 'coding_ai';
+        if (t.match(/رياض|بدني|ppl|جري|تدريب|قتال/)) return 'sports';
+        if (t.match(/لغة|إنجليز|english|كتاب|قرآن|روح|شرع/)) return 'languages_books';
+        if (t.match(/زنزان|dungeon|ذهن|شطرنج|سودوكو|ذاكرة/)) return 'dungeons';
+        return 'coding_ai';
+    },
+
+    syncPlayerState() {
+        try {
+            const coreData = JSON.parse(localStorage.getItem('monarch_system_data')) || {};
+            this.playerLevel = coreData.level || 1;
+            this.playerXP = coreData.xp || 0;
+            this.playerGold = coreData.gold || 0;
+        } catch(e) {}
+    },
+
+    acceptQuest() {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        document.getElementById('animeSystemPopup').classList.add('hidden');
+        if(this.currentQuest) {
+            this.currentQuest.acceptedAt = Date.now();
+            this.currentQuest.active = true;
+            localStorage.setItem('sovereign_active_quest', JSON.stringify(this.currentQuest));
+
+            document.getElementById('activeDirectiveText').textContent = this.currentQuest.title;
+            document.getElementById('activeDirectiveBar').classList.remove('hidden');
+            DirectiveTimer.start(this.currentQuest.acceptedAt);
+
+            if(window.SovereignEngine) SovereignEngine.state.activeQuest = this.currentQuest;
+            if(window.Toast) Toast.show('تم تفعيل المهمة: ' + this.currentQuest.title, 'success');
+        }
+    },
+
+  completeQuest() {
+        let quest = this.currentQuest || (window.SovereignEngine ? SovereignEngine.state.activeQuest : null);
+        if (!quest) {
+            try { quest = JSON.parse(localStorage.getItem('sovereign_active_quest')); } catch(e){}
+        }
+        if (!quest) {
+            document.getElementById('activeDirectiveBar').classList.add('hidden');
+            if (window.DirectiveTimer) DirectiveTimer.stop();
+            return;
+        }
+
+        const questType = quest.type || 'coding_ai';
+        const baseReward = (window.SovereignEngine ? SovereignEngine.config.weights[questType] : null) || 10;
+        const acceptedAt = quest.acceptedAt || Date.now();
+        const elapsedMinutes = Math.floor((Date.now() - acceptedAt) / 60000);
+
+        let timeBonus = 0;
+        if (elapsedMinutes >= 25) timeBonus = 10;
+        if (elapsedMinutes >= 60) timeBonus = 25;
+
+        const totalXP = baseReward + timeBonus;
+        const goldReward = totalXP * 2;
+
+        if(window.PlayerState) {
+            PlayerState.addXP(totalXP);
+            PlayerState.addGold(goldReward);
+        }
+
+        if(window.SovereignEngine) {
+            SovereignEngine.logToSystem('quest', `تصفية مهمة: [${quest.title}] | +${totalXP} XP`);
+        }
+
+    
+        document.getElementById('activeDirectiveBar').classList.add('hidden');
+        if (window.DirectiveTimer) DirectiveTimer.stop();
+        localStorage.removeItem('sovereign_active_quest');
+        localStorage.removeItem('directive_start_time');
+        if(window.SovereignEngine) SovereignEngine.state.activeQuest = null;
+        this.currentQuest = null;
+
+  
+        if (typeof confetti === 'function') {
+            
+            confetti({
+                particleCount: 140,
+                spread: 80,
+                origin: { y: 0.5 },
+                colors: ['#00f0ff', '#7000ff', '#120024'], 
+                scalar: 0.5,     
+                gravity: 0.8,     
+                startVelocity: 45, 
+                ticks: 80
+            });
+
+            // النبضة الثانية: هالة ذهبية ناعمة تطفو بعد ربع ثانية (ترمز للمكافأة العاهلية)
+            setTimeout(() => {
+                confetti({
+                    particleCount: 40,
+                    spread: 360,
+                    origin: { y: 0.45 },
+                    colors: ['#ffb700', '#ffffff'], // ذهبي ملكي وأبيض ناصع
+                    scalar: 0.4,
+                    gravity: 0.2,       // جاذبية خفيفة جداً تجعل الذهب يطفو كالغبار السحري
+                    startVelocity: 15,  // حركة هادئة
+                    ticks: 120
+                });
+            }, 250);
+        }
+
+        // إشعار النظام الصارم (System Notification)
+        if(window.Toast) {
+        
+            Toast.show(systemMessage, 'success');
+        }
+    },
+
+    cancelQuest() {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        let questToCancel = this.currentQuest || (window.SovereignEngine ? SovereignEngine.state.activeQuest : null);
+        if (!questToCancel) {
+            try { questToCancel = JSON.parse(localStorage.getItem('sovereign_active_quest')); } catch(e){}
+        }
+
+        DirectiveTimer.stop();
+        document.getElementById('activeDirectiveBar').classList.add('hidden');
+
+        if(questToCancel && window.PlayerState) {
+            PlayerState.addXP(-10);
+            if(window.SovereignEngine) SovereignEngine.logToSystem('penalty', `إلغاء مهمة: [${questToCancel.title}] | -10 XP`);
+            if(window.Toast) Toast.show('تم إلغاء المهمة! عقوبة: -10 XP', 'error');
+        }
+
+        localStorage.removeItem('sovereign_active_quest');
+        localStorage.removeItem('directive_start_time');
+        if(window.SovereignEngine) SovereignEngine.state.activeQuest = null;
+        this.currentQuest = null;
+    }
+};
+
+
+
+
+
+
+</script>
+</body>
+</html>

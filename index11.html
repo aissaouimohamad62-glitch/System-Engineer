@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solo Leveling System | لوحة عاهل الظلال</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <link rel="stylesheet" href="index11.css">
+    
+    <base target="_blank">
+</head>
+
+<body class="p-2 md:p-6 relative text-slate-200">
+
+<div id="loadingScreen" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#02040a]">
+    <div class="sys-font text-3xl font-black text-[var(--sys-cyan)] animate-pulse mb-6 tracking-widest uppercase">
+        SYNCHRONIZING MONARCH DATA...
+    </div>
+    <div class="w-64 h-1.5 bg-slate-800 rounded-full overflow-hidden border border-slate-700">
+        <div id="loadProgress" class="h-full bg-[var(--sys-cyan)] w-0 transition-all duration-300"></div>
+    </div>
+</div>
+
+<div class="fixed top-6 left-6 z-50 flex gap-4 items-center color: #dedede; text-shadow: 0 0 8px rgb(133, 133, 133); font-size: 0.85rem; font-weight: bold; margin-left: 10px; padding: 3px 10px; letter-spacing: 1px;">
+    <button onclick="SoundEffects.toggleMusic(1)" class="w-10 h-10 flex items-center justify-center bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-[var(--sys-cyan)] rounded-full transition-all shadow-[0_0_10px_rgba(0,0,0,0.5)]">
+        <span id="musicIcon1" class="text-lg animate-pulse">🎵</span>
+    </button>
+    <button onclick="SoundEffects.toggleMusic(2)" class="w-10 h-10 flex items-center justify-center bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-[var(--sys-cyan)] rounded-full transition-all shadow-[0_0_10px_rgba(0,0,0,0.5)]">
+        <span id="musicIcon2" class="text-lg animate-pulse">🎼</span>
+    </button>
+    <a href="https://aissaouimohamad62-glitch.github.io/proto/" target="_blank" class="px-4 py-2 bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-white text-xs font-black uppercase tracking-widest rounded flex items-center gap-2 shadow-[0_0_10px_rgba(0,0,0,0.5)] transition-all">
+        <span>𝐏𝐎𝐑𝐓𝐅𝐎𝐋𝐈𝐎</span> <span class="text-[var(--sys-cyan)]">📍</span>
+    </a>
+    <a href="https://aissaouimohamad62-glitch.github.io/booksoverhaul.dz/" target="_blank" class="px-4 py-2 bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-white text-xs font-black uppercase tracking-widest rounded flex items-center gap-2 shadow-[0_0_10px_rgba(0,0,0,0.5)] transition-all">
+        <span>𝐋𝐈𝐁𝐑𝐀𝐑𝐘</span> <span class="text-[var(--sys-cyan)]">📒</span>
+    </a>
+</div>
+
+<div class="max-w-[1400px] mx-auto grid grid-cols-1 xl:grid-cols-12 gap-6 relative z-10 mt-16" dir="ltr">
+
+    <aside class="xl:col-span-4 space-y-6">
+        <div class="sl-panel p-0 animate-system-pop overflow-hidden relative" style="border-color: rgba(157, 78, 221, 0.6); box-shadow: 0 0 30px rgba(157, 78, 221, 0.2), inset 0 0 20px rgba(0, 240, 255, 0.05);">
+            <div class="absolute inset-0 pointer-events-none" style="border: 1px solid rgba(0, 240, 255, 0.3); box-shadow: inset 0 0 40px rgba(0, 240, 255, 0.05);"></div>
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[var(--sys-cyan)] to-transparent opacity-60"></div>
+            <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[var(--sys-purple)] to-transparent opacity-60"></div>
+
+            <div class="relative z-10 p-6">
+                <div class="flex justify-center mb-4">
+                    <div class="px-8 py-1 border border-[var(--sys-cyan)] bg-[var(--sys-cyan)]/5 relative">
+                        <div class="absolute -top-1 left-2 right-2 h-[1px] bg-[var(--sys-cyan)] shadow-[0_0_8px_var(--sys-cyan)]"></div>
+                        <div class="absolute -bottom-1 left-2 right-2 h-[1px] bg-[var(--sys-cyan)] shadow-[0_0_8px_var(--sys-cyan)]"></div>
+                        <h2 class="sys-font text-lg font-black tracking-[0.3em] text-[var(--sys-cyan)] uppercase text-center">STATUS</h2>
+                    </div>
+                </div>
+<div class="monarch-profile-card rounded-xl p-5 mb-6 relative overflow-hidden" dir="rtl">
+    
+    <div class="flex items-center justify-between gap-4 border-b border-[var(--sys-cyan)]/10 pb-4 mb-4">
+        <div class="flex items-center gap-4">
+            <div id="avatar-container" class="relative w-26 h-26 rounded-full p-1 transition-all duration-500">
+    
+
+            <div class="avatar-wrapper flex-shrink-0">
+                <img id="monarch-avatar-display" class="avatar-image" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300f0ff'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="Monarch Avatar">
+                <label for="avatar-file-input" class="avatar-uploader-overlay">
+                    <span>⚡</span>
+                    <span>دمج الهالة</span>
+                </label>
+                <input type="file" id="avatar-file-input" accept="image/*" class="hidden" onchange="PlayerState.updateAvatar(event)">
+            </div>
+</div>
+            <div class="space-y-1">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="sys-font text-[10px] text-[var(--sys-purple)] font-bold uppercase tracking-wider">JOB :</span>
+                    <span id="monarch-active-title" class="monarch-title-badge px-2 py-0.5 text-[10px] bg-purple-950/40 border border-purple-500/50 text-purple-300 rounded font-black"></span>
+                </div>
+                <h2 id="playerNameDisplay" class="sys-font text-[14px] tracking-wider text-[var(--sys-cyan)] font-bold uppercase">AISSAOUI MOHAMED ABDALLAH</h2>
+                <div  class="monarch-title-badgi"></div>
+            </div>
+        </div>
+
+        <div class="text-center bg-black/40 border border-slate-800 rounded-lg px-4 py-2 min-w-[75px]">
+            <div class="sys-font text-3xl font-black text-white leading-none drop-shadow-[0_0_12px_rgba(0,240,255,0.6)]" id="currentLevel">1</div>
+            <div class="sys-font text-[9px] tracking-[0.1em] text-[var(--sys-cyan)] font-bold mt-1 uppercase">LEVEL</div>
+        </div>
+    </div>
+
+    <div class="space-y-2.5 mb-5 px-1">
+        <div class="flex items-center gap-3">
+            <span class="sys-font text-[10px] font-black text-red-400 w-12 text-left tracking-wider">HP</span>
+            <div class="flex-1 h-3 bg-slate-900/80 border border-slate-700 relative overflow-hidden rounded-sm">
+                <div id="hpBar" class="absolute inset-y-0 left-0 bg-gradient-to-r from-red-900 to-red-600 w-[85%] shadow-[0_0_10px_rgba(220,38,38,0.4)] transition-all duration-700"></div>
+                <span id="hpText" class="absolute inset-0 flex items-center justify-center sys-font text-[9px] font-bold text-white/90 tracking-wider">4320/5100</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="sys-font text-[10px] font-black text-[var(--sys-cyan)] w-12 text-left tracking-wider">MP</span>
+            <div class="flex-1 h-3 bg-slate-900/80 border border-slate-700 relative overflow-hidden rounded-sm">
+                <div id="mpBar" class="absolute inset-y-0 left-0 bg-gradient-to-r from-cyan-900 to-[var(--sys-cyan)] w-[72%] shadow-[0_0_10px_rgba(0,240,255,0.4)] transition-all duration-700"></div>
+                <span id="mpText" class="absolute inset-0 flex items-center justify-center sys-font text-[9px] font-bold text-white/90 tracking-wider">840/1170</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="sys-font text-[10px] font-black text-emerald-400 w-12 text-left tracking-wider">XP</span>
+            <div class="flex-1 h-3 bg-slate-900/80 border border-slate-700 relative overflow-hidden rounded-sm">
+                <div id="xpBar" class="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-900 to-emerald-500 w-[0%] shadow-[0_0_10px_rgba(16,185,129,0.4)] transition-all duration-700"></div>
+                <span id="xpText" class="absolute inset-0 flex items-center justify-center sys-font text-[9px] font-bold text-white/90 tracking-wider">0 / 100</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="sys-font text-[10px] font-black text-yellow-500 w-12 text-left tracking-wider">FATIGUE</span>
+            <div class="flex-1 h-3 bg-slate-900/80 border border-slate-700 relative overflow-hidden rounded-sm">
+                <div id="fatigueBar" class="absolute inset-y-0 left-0 bg-gradient-to-r from-yellow-900 to-yellow-600 w-[15%] shadow-[0_0_10px_rgba(202,138,4,0.4)] transition-all duration-700"></div>
+                <span id="fatigueText" class="absolute inset-0 flex items-center justify-center sys-font text-[9px] font-bold text-white/90 tracking-wider">0</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="border border-[var(--sys-purple)]/30 bg-black/40 p-4 relative rounded-md mb-4">
+        <div class="absolute -top-2.5 left-4 bg-[#02040a] px-2 border-x border-[var(--sys-purple)]/30">
+            <span class="sys-font text-[9px] text-[var(--sys-purple)] font-bold tracking-widest uppercase">ATTRIBUTES</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-x-6 gap-y-2.5">
+            <div class="flex items-center justify-between group cursor-pointer" onclick="PlayerState.spendAP('str')">
+                <div class="flex items-center gap-2">
+                    <span class="text-red-400 text-xs">⚔️</span>
+                    <span class="monarch-title-badgie font-bold text-xs text-slate-300">STR</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="stat-str" class="monarch-title-badgiex font-mono text-sm text-white font-bold">10</span>
+                    <span class="ap-btn hidden sys-font text-[10px] font-bold text-emerald-400 group-hover:inline-block">+5</span>
+                </div>
+            </div>
+            <div class="flex items-center justify-between group cursor-pointer" onclick="PlayerState.spendAP('vit')">
+                <div class="flex items-center gap-2">
+                    <span class="text-emerald-400 text-xs">🛡️</span>
+                    <span class="monarch-title-badgie font-bold text-xs text-slate-300">VIT</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="stat-vit" class="monarch-title-badgiex font-mono text-sm text-white font-bold">10</span>
+                    <span class="ap-btn hidden sys-font text-[10px] font-bold text-emerald-400 group-hover:inline-block">+5</span>
+                </div>
+            </div>
+            <div class="flex items-center justify-between group cursor-pointer" onclick="PlayerState.spendAP('agi')">
+                <div class="flex items-center gap-2">
+                    <span class="text-sky-400 text-xs">⚡</span>
+                    <span class="monarch-title-badgie font-bold text-xs text-slate-300">AGI</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="stat-agi" class="monarch-title-badgiex font-mono text-sm text-white font-bold">10</span>
+                    <span class="ap-btn hidden sys-font text-[10px] font-bold text-emerald-400 group-hover:inline-block">+7</span>
+                </div>
+            </div>
+            <div class="flex items-center justify-between group cursor-pointer" onclick="PlayerState.spendAP('int')">
+                <div class="flex items-center gap-2">
+                    <span class="text-[var(--sys-cyan)] text-xs">🧠</span>
+                    <span class="monarch-title-badgie font-bold text-xs text-slate-300">INT</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="stat-int" class="monarch-title-badgiex font-mono text-sm text-white font-bold">10</span>
+                    <span class="ap-btn hidden sys-font text-[10px] font-bold text-emerald-400 group-hover:inline-block">+5</span>
+                </div>
+            </div>
+            <div class="flex items-center justify-between group cursor-pointer" onclick="PlayerState.spendAP('sen')">
+                <div class="flex items-center gap-2">
+                    <span class="text-[var(--sys-purple)] text-xs">👁️</span>
+                    <span class="monarch-title-badgie font-bold text-xs text-slate-300">PER</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="stat-sen" class="monarch-title-badgiex font-mono text-sm text-white font-bold">10</span>
+                    <span class="ap-btn hidden sys-font text-[10px] font-bold text-emerald-400 group-hover:inline-block">+5</span>
+                </div>
+            </div>
+            <div class="flex items-center justify-between border-t border-slate-800 pt-2 mt-1 col-span-2">
+                <span class="sys-font text-[10px] text-[var(--sys-purple)] font-bold tracking-widest uppercase">AVAILABLE AP</span>
+                <span id="availablePoints" class="sys-font text-2xl font-black text-[var(--sys-cyan)] drop-shadow-[0_0_8px_rgba(0,240,255,0.5)]">0</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex justify-between items-center px-1 bg-black/20 p-2.5 rounded border border-slate-900">
+        <div class="text-center">
+            <div class="sys-font text-[9px] text-slate-500 uppercase tracking-widest mb-0.5">GOLD</div>
+            <div class="flex items-center justify-center gap-1">
+                <span class="text-yellow-500 text-xs">🪙</span>
+                <span id="playerGold" class="sys-font text-base font-bold text-yellow-400">0</span>
+            </div>
+        </div>
+        <div class="text-center">
+            <div class="sys-font text-[9px] text-slate-500 uppercase tracking-widest mb-0.5">AUTHORITY</div>
+            <div class="sys-font text-base font-bold text-[var(--sys-purple)]" id="stat-authority">0</div>
+        </div>
+        <div class="text-center">
+            <div class="sys-font text-[9px] text-slate-500 uppercase tracking-widest mb-0.5">LETHALITY</div>
+            <div class="sys-font text-base font-bold text-rose-400" id="stat-lethality">0%</div>
+        </div>
+    </div>
+
+</div>
+               
+
+        <div class="sl-panel p-4 animate-system-pop" style="animation-delay: 0.1s;">
+            <div class="sys-font text-[10px] text-slate-400 uppercase tracking-widest mb-3 border-b border-slate-800 pb-2">
+                System Directory
+            </div>
+            <nav class="grid grid-cols-1 gap-2">
+                <button onclick="window.location.href='operational-charter.html'" class="sl-btn w-full text-left p-3 rounded-sm flex justify-between items-center group border-[var(--sys-cyan)]">
+                    <span class="sys-font text-sm font-black text-white group-hover:text-[var(--sys-cyan)]">📜 𝐒𝐎𝐕𝐄𝐑𝐄𝐈𝐆𝐍 𝐂𝐇𝐀𝐑𝐓𝐄𝐑</span>
+                    <span class="sys-font text-[10px] bg-cyan-950 text-[var(--sys-cyan)] px-2 py-0.5 border border-[var(--sys-cyan)]">SCHEDULE</span>
+                </button>
+                <button onclick="window.location.href='active-quests.html'" class="sl-btn w-full text-left p-3 rounded-sm flex justify-between items-center group">
+                    <span class="sys-font text-sm font-black text-white group-hover:text-[var(--sys-cyan)]">⚔️ 𝐀𝐂𝐓𝐈𝐕𝐄 𝐐𝐔𝐄𝐒𝐓𝐒</span>
+                    <span class="sys-font text-lg font-black text-[var(--sys-purple)]" id="cnt-active-val">0</span>
+                </button>
+                <button onclick="window.location.href='brain-stats.html'" class="sl-btn w-full text-left p-3 rounded-sm flex justify-between items-center group">
+                    <span class="sys-font text-sm font-black text-white group-hover:text-[var(--sys-purple)]">🧠 𝐁𝐑𝐀𝐈𝐍 𝐒𝐓𝐀𝐓𝐒</span>
+                    <span class="sys-font text-[10px] bg-purple-950 text-[var(--sys-purple)] px-2 py-0.5 border border-[var(--sys-purple)]">ANALYTICS</span>
+                </button>
+                <button onclick="window.location.href='monarch-ai.html'" class="sl-btn w-full text-left p-3 rounded-sm flex justify-between items-center group">
+                    <span class="sys-font text-sm font-black text-white group-hover:text-[var(--sys-cyan)]">🤖 𝐀𝐈 𝐀𝐃𝐕𝐈𝐒𝐎𝐑</span>
+                    <span class="sys-font text-[10px] bg-cyan-950 text-[var(--sys-cyan)] px-2 py-0.5 border border-cyan-500">ONLINE</span>
+                </button>
+                <button onclick="Router.navigate('active')" id="nav-active" class="sl-btn w-full text-left p-3 rounded-sm flex justify-between items-center group">
+                    <span class="sys-font text-sm font-black text-white group-hover:text-slate-300">‼️ 𝐀𝐂𝐓𝐈𝐕𝐄 𝐄𝐍𝐆𝐀𝐆𝐄𝐌𝐄𝐍𝐓𝐒</span>
+                    <span class="sys-font text-lg font-black text-[var(--sys-purple)]" id="cnt-active-val">0</span>
+                    <span class="sys-font text-[10px] text-slate-500">WITHOUT COMPLETE</span>
+                </button>
+                <button onclick="window.location.href='system-logs.html'" class="sl-btn w-full text-left p-3 rounded-sm flex justify-between items-center group">
+                    <span class="sys-font text-sm font-black text-white group-hover:text-slate-300">📂 𝐒𝐘𝐒𝐓𝐄𝐌 𝐋𝐎𝐆𝐒</span>
+                    <span class="sys-font text-[10px] text-slate-500">ARCHIVE</span>
+                </button>
+                <button onclick="window.location.href='sovereign-shop.html'" class="sl-btn w-full text-left p-3 rounded-sm flex justify-between items-center group">
+                    <span class="sys-font">🛒​ 𝐒𝐎𝐕𝐄𝐑𝐄𝐈𝐆𝐍 𝐒𝐇𝐎𝐏</span>
+                <span class="sys-font text-[9px] px-1.5 py-0.5 bg-purple-950 border border-purple-500 text-[var(--sys-purple)] uppercase animate-pulse">S-Rank</span>
+                </button>
+                <button onclick="window.location.href='dungeons.html'" class="sl-btn w-full text-left p-3 rounded-sm flex justify-between items-center group">
+                    <span class="sys-font">🌋 𝐌𝐄𝐍𝐓𝐀𝐋 𝐓𝐑𝐀𝐈𝐍𝐈𝐍𝐆 𝐃𝐔𝐍𝐆𝐄𝐎𝐍𝐒</span>
+                <span class="sys-font text-[9px] px-1.5 py-0.5 bg-purple-950 border border-purple-500 text-[var(--sys-purple)] uppercase animate-pulse">S-Rank</span>
+                </button>
+                <button onclick="window.location.href='ifortress_muslim.html'" class="sl-btn w-full text-left p-3 rounded-sm flex justify-between items-center group">
+                    <span class="sys-font">🛡️​​ 𝐢𝐟𝐨𝐫𝐭𝐫𝐞𝐬𝐬_𝐦𝐮𝐬𝐥𝐢𝐦</span>
+                <span class="sys-font text-[9px] px-1.5 py-0.5 bg-purple-950 border border-purple-500 text-[var(--sys-purple)] uppercase animate-pulse">S-Rank</span>
+                </button>
+                <button onclick="window.location.href='index99.html'" class="sl-btn w-full text-left p-3 rounded-sm flex justify-between items-center group">
+                    <span class="sys-font">🕋​ 𝐏𝐫𝐚𝐲𝐞𝐫 𝐭𝐢𝐦𝐞𝐬 𝐝𝐚𝐬𝐡𝐛𝐨𝐚𝐫𝐝 𝐚𝐧𝐝 𝐬𝐦𝐚𝐫𝐭 𝐐𝐢𝐛𝐥𝐚 𝐟𝐢𝐧𝐝𝐞𝐫</span>
+                <span class="sys-font text-[9px] px-1.5 py-0.5 bg-purple-950 border border-purple-500 text-[var(--sys-purple)] uppercase animate-pulse">S-Rank</span>
+                </button>
+                  <button onclick="window.location.href='solo_leveling_quran.html'" class="sl-btn w-full text-left p-3 rounded-sm flex justify-between items-center group">
+                    <span class="sys-font">​📙​​​ 𝐈𝐧𝐭𝐞𝐫𝐚𝐜𝐭𝐢𝐯𝐞 𝐃𝐢𝐠𝐢𝐭𝐚𝐥 𝐐𝐮𝐫𝐚𝐧 01 </span>
+                <span class="sys-font text-[9px] px-1.5 py-0.5 bg-purple-950 border border-purple-500 text-[var(--sys-purple)] uppercase animate-pulse">S-Rank</span>
+                </button>
+                <button onclick="window.location.href='ppo.html'" class="sl-btn w-full text-left p-3 rounded-sm flex justify-between items-center group">
+                    <span class="sys-font">📘​​​ 𝐈𝐧𝐭𝐞𝐫𝐚𝐜𝐭𝐢𝐯𝐞 𝐃𝐢𝐠𝐢𝐭𝐚𝐥 𝐐𝐮𝐫𝐚𝐧 02 </span>
+                <span class="sys-font text-[9px] px-1.5 py-0.5 bg-purple-950 border border-purple-500 text-[var(--sys-purple)] uppercase animate-pulse">S-Rank</span>
+                </button>
+                <button onclick="window.location.href='football.html'" class="sl-btn w-full text-left p-3 rounded-sm flex justify-between items-center group border-[var(--neon-green)]" style="border-color: rgba(0, 255, 102, 0.4);">
+                    <span class="sys-font text-sm font-black text-white group-hover:text-[#00ff66]">⚽ 𝐅𝐎𝐎𝐓𝐁𝐀𝐋𝐋 𝐌𝐎𝐍𝐀𝐑𝐂𝐇</span>
+                    <span class="sys-font text-[10px] bg-green-950 text-[#00ff66] px-2 py-0.5 border border-[#00ff66]">EXPANSION</span>
+                </button>
+                 <button onclick="window.location.href='Basketball.html'" class="sl-btn w-full text-left p-3 rounded-sm flex justify-between items-center group border-[var(--neon-yellow)]" style="border-color: rgb(255, 157, 0);">
+                    <span class="sys-font text-sm font-black text-white group-hover:text-[]">🏀​ 𝐁𝐚𝐬𝐤𝐞𝐭𝐛𝐚𝐥𝐥</span>
+                    <span class="sys-font text-[10px] bg--950 text-[] px-2 py-0.5 border border-[]">EXPANSION</span>
+                </button>
+                 <button onclick="window.location.href='jojout.html'" class="sl-btn w-full text-left p-3 rounded-sm flex justify-between items-center group border-[var(--neon-white)]" style="border-color: rgba(255, 255, 255, 0.58);">
+                    <span class="sys-font text-sm font-black text-white group-hover:text-[]">🥋​ 𝐣𝐮-𝐣𝐮𝐭𝐬𝐮</span>
+                    <span class="sys-font text-[10px] bg--950 text-[] px-2 py-0.5 border border-[]">EXPANSION</span>
+                </button>
+                <button onclick="window.location.href='Muay Thai.html'" class="sl-btn w-full text-left p-3 rounded-sm flex justify-between items-center group border-[var(--neon-red)]" style="border-color: rgb(255, 0, 0);">
+                    <span class="sys-font text-sm font-black text-white group-hover:text-[]">🥊​​ 𝐌𝐮𝐚𝐲 𝐓𝐡𝐚𝐢</span>
+                    <span class="sys-font text-[10px] bg--950 text-[] px-2 py-0.5 border border-[]">EXPANSION</span>
+                </button>
+                <button onclick="window.location.href='swimming.html'" class="sl-btn w-full text-left p-3 rounded-sm flex justify-between items-center group border-[var(--neon-blue)]" style="border-color: rgba(13, 188, 231, 0.644);">
+                    <span class="sys-font text-sm font-black text-white group-hover:text-[]">🤿​​​ 𝐬𝐰𝐢𝐦𝐦𝐢𝐧𝐠</span>
+                    <span class="sys-font text-[10px] bg--950 text-[] px-2 py-0.5 border border-[]">EXPANSION</span>
+                </button>
+                <button onclick="SystemReset.confirmAndReset()" class="sl-btn w-full text-left p-3 rounded-sm flex justify-between items-center group !border-rose-500 hover:!bg-rose-950/30 mt-4">
+                    <span class="sys-font text-sm font-black text-rose-500 group-hover:text-rose-400" style="color: red;">⚠️ 𝐒𝐘𝐒𝐓𝐄𝐌 𝐇𝐀𝐑𝐃 𝐑𝐄𝐒𝐄𝐓</span>
+                    <span class="sys-font text-[10px] bg-rose-950 text-rose-500 px-2 py-0.5 border border-rose-500 animate-pulse">DANGER</span>
+                </button>
+            </nav>
+        </div>
+    </aside>
+
+    <main class="xl:col-span-8 flex flex-col gap-6">
+
+        <div class="sl-panel p-4 flex flex-wrap justify-between items-center gap-4 bg-slate-950/80 animate-system-pop" style="animation-delay: 0.2s;">
+            <div class="flex items-center gap-4 text-white font-mono text-xs">
+                <span class="w-2 h-2 rounded-full bg-[var(--sys-cyan)] animate-ping"></span>
+                <span id="sysClock" class="font-black text-sm text-[var(--sys-cyan)] tracking-wider">00:00:00</span>
+                <div class="h-4 w-[1px] bg-slate-700"></div>
+                <span id="sysLocation" class="text-slate-400 font-bold">📍 Scanning Coordinates...</span>
+            </div>
+            <div class="flex items-center gap-4 text-xs font-bold">
+                <span id="sysTemp" class="text-[var(--sys-cyan)] font-black">--°C</span>
+                <div class="h-4 w-[1px] bg-slate-700"></div>
+                <span id="sysHumidity" class="text-[var(--sys-purple)] font-bold">--% Hum</span>
+            </div>
+        </div>
+
+        <div class="sl-panel p-6 border-r-4 border-r-[var(--sys-cyan)] flex flex-col md:flex-row justify-between items-center gap-4 animate-system-pop" style="animation-delay: 0.3s;">
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="sys-font text-xs text-[var(--sys-cyan)] font-bold tracking-widest uppercase">[ CURRENT DIRECTIVE TIMER ]</span>
+                    <span id="timerStatus" class="sys-font text-[9px] px-2 py-0.5 bg-slate-800 border border-slate-600 text-slate-300 uppercase">Idle</span>
+                </div>
+                <h3 id="timerDisplay" class="text-5xl font-black font-mono tracking-widest text-white drop-shadow-[0_0_10px_rgba(0,240,255,0.4)]">05:00:00</h3>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="Pomodoro.toggle()" id="timerBtn" class="px-6 py-3 bg-[var(--sys-cyan)] text-black font-black text-sm uppercase tracking-wider transition-all hover:shadow-[0_0_15px_var(--sys-cyan)]">START</button>
+                <button onclick="Pomodoro.reset()" class="px-4 py-3 bg-slate-900 border border-slate-700 text-white font-bold hover:border-white transition-all">🔄</button>
+                <button onclick="UI.toggleTimerSettings()" class="px-4 py-3 bg-slate-900 border border-slate-700 text-white font-bold hover:border-[var(--sys-cyan)] transition-all">⚙️</button>
+            </div>
+        </div>
+
+        <div class="sl-panel p-5 border-l-4 border-l-[var(--sys-purple)] relative overflow-hidden animate-system-pop" style="animation-delay: 0.4s;">
+            <div class="absolute right-0 top-0 w-32 h-32 bg-[var(--sys-purple)] opacity-10 blur-[50px] rounded-full pointer-events-none"></div>
+            <div class="sys-font text-[10px] text-[var(--sys-purple)] mb-2 uppercase flex items-center gap-2 font-bold tracking-widest">
+                <span class="w-1.5 h-1.5 bg-[var(--sys-purple)] rounded-full"></span> SYSTEM MESSAGE
+            </div>
+            <p id="motivationalQuote" class="sys-font text-base text-slate-200 font-medium tracking-wide">
+                [Analyzing Operational Charter...]
+            </p>
+        </div>
+
+        <div id="tasksView" class="flex flex-col flex-grow space-y-4 animate-system-pop" style="animation-delay: 0.5s;">
+            <section id="taskInputSection" class="sl-panel p-3 flex flex-wrap gap-2 items-center focus-within:border-[var(--sys-cyan)] transition-colors relative">
+                <div class="sys-font text-[10px] text-[var(--sys-cyan)] absolute -top-2 left-4 bg-[var(--sys-bg-dark)] px-2">NEW INSTANT QUEST</div>
+                <input type="text" id="taskInput" placeholder="Deploy new custom directive..." class="flex-grow bg-transparent border-none outline-none px-4 py-3 text-sm font-medium placeholder:text-slate-600 text-white">
+                <div class="flex gap-2 p-2 w-full md:w-auto">
+                    <select id="prioritySelect" class="bg-[var(--sys-bg-dark)] sys-font font-bold px-3 py-2 border border-[var(--sys-cyan)] border-opacity-30 text-[var(--sys-cyan)] text-xs outline-none">
+                        <option value="high">S-RANK</option>
+                        <option value="medium" selected>A-RANK</option>
+                        <option value="low">C-RANK</option>
+                    </select>
+                    <select id="statSelect" class="bg-[var(--sys-bg-dark)] sys-font font-bold px-3 py-2 border border-[var(--sys-purple)] border-opacity-30 text-[var(--sys-purple)] text-xs outline-none">
+                        <option value="int">🧠 INT</option>
+                        <option value="str">💪 STR</option>
+                        <option value="vit">🛡️ VIT</option>
+                        <option value="agi">⚡ AGI</option>
+                        <option value="sen">👁️ SEN</option>
+                    </select>
+                    <button onclick="QuestSystem.addTask()" class="sl-btn px-6 py-2 font-black text-xs text-white uppercase tracking-widest">ADD</button>
+                </div>
+            </section>
+
+            <div class="sl-panel p-4 flex-grow">
+                <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-2">
+                    <h4 id="taskListTitle" class="font-black text-sm text-[var(--sys-cyan)] tracking-wide uppercase sys-font">⚔️ Active Directives Log</h4>
+                    <button onclick="Router.navigate('all')" id="backToAllBtn" class="hidden sys-font text-[10px] font-bold text-[var(--sys-purple)] hover:text-white transition-colors tracking-widest uppercase border border-[var(--sys-purple)] px-3 py-1 hover:bg-[var(--sys-purple)]">
+                        ← ALL DIRECTIVES
+                    </button>
+                </div>
+                <div id="taskContainer" class="space-y-2 min-h-[250px] overflow-y-auto pr-2"></div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div id="timerModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden bg-black/80 backdrop-blur-sm transition-opacity">
+    <div class="sl-panel p-8 w-full max-w-sm mx-4">
+        <h3 class="sys-font text-xl font-black text-[var(--sys-cyan)] mb-6 text-center uppercase tracking-widest border-b border-white/10 pb-4">Set Quest Timer</h3>
+        <div class="flex justify-center gap-6 mb-8 text-center">
+            <div>
+                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Hours</label>
+                <input type="number" id="inputHours" min="0" max="23" value="5" class="w-20 bg-black/50 border border-[var(--sys-cyan)] py-3 text-center text-2xl sys-font text-white outline-none focus:shadow-[0_0_15px_var(--sys-cyan)]">
+            </div>
+            <div class="text-3xl text-[var(--sys-cyan)] font-bold self-center pt-4">:</div>
+            <div>
+                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Minutes</label>
+                <input type="number" id="inputMinutes" min="0" max="59" value="0" class="w-20 bg-black/50 border border-[var(--sys-cyan)] py-3 text-center text-2xl sys-font text-white outline-none focus:shadow-[0_0_15px_var(--sys-cyan)]">
+            </div>
+        </div>
+        <div class="flex gap-3">
+            <button onclick="Pomodoro.saveSettings()" class="flex-1 sl-btn text-white font-bold py-3 uppercase sys-font tracking-widest">Confirm</button>
+            <button onclick="UI.toggleTimerSettings()" class="flex-1 bg-transparent border border-rose-500 text-rose-500 hover:bg-rose-500 hover:text-white font-bold py-3 transition-colors uppercase sys-font">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<div id="milestoneModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden bg-black/90 backdrop-blur-md transition-opacity">
+    <div class="sl-panel p-1 border-2 border-[var(--sys-cyan)] w-full max-w-2xl mx-4 text-center animate-system-pop overflow-hidden shadow-[0_0_50px_rgba(0,240,255,0.4)]">
+        <div class="border border-[var(--sys-purple)] p-10">
+            <div class="sys-font text-[var(--sys-cyan)] tracking-[0.5em] mb-2 font-bold drop-shadow-[0_0_5px_var(--sys-cyan)]">SYSTEM NOTIFICATION</div>
+            <h2 class="sys-font text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-[var(--sys-cyan)] mb-1 drop-shadow-[0_0_15px_rgba(0,240,255,0.8)]">
+                LEVEL UP
+            </h2>
+            <div class="text-white font-bold mb-8 tracking-widest text-lg">You have leveled up!</div>
+            <div class="flex justify-center items-center gap-6 mb-8">
+                <div class="sys-font text-4xl text-slate-500 line-through decoration-[var(--sys-purple)]" id="milestoneOldLevel">1</div>
+                <span class="text-3xl text-[var(--sys-cyan)]">➤</span>
+                <div class="sys-font text-6xl text-[var(--sys-cyan)] sl-glow-text font-black" id="milestoneLevelText">2</div>
+            </div>
+            <div class="bg-black/50 border-l-4 border-[var(--sys-purple)] p-4 text-left mb-8">
+                <p id="milestoneMessage" class="text-[var(--sys-cyan)] text-lg leading-relaxed font-bold">State recovered. All stats increased.</p>
+            </div>
+            <button onclick="Milestone.hide()" class="sl-btn text-white font-black py-4 px-16 text-lg tracking-widest uppercase sys-font border-2">ACCEPT</button>
+        </div>
+    </div>
+</div>
+
+<div id="animeSystemPopup" class="fixed inset-0 z-[10000] hidden flex items-center justify-center bg-black/85 backdrop-blur-sm transition-opacity duration-300">
+    <div class="relative bg-[#02040a]/95 border-2 border-[var(--sys-cyan)] shadow-[0_0_40px_rgba(0,240,255,0.2),inset_0_0_20px_rgba(0,240,255,0.1)] p-8 max-w-lg w-full mx-4 text-center animate-system-pop overflow-hidden">
+        <div class="sys-font text-[var(--sys-cyan)] tracking-[0.6em] text-[10px] mb-3 font-black animate-pulse">[ SYSTEM DIRECTIVE ]</div>
+        <h2 id="animePopupTitle" class="text-2xl md:text-3xl font-black text-white mb-4 drop-shadow-[0_0_8px_var(--sys-cyan)]">عنوان المهمة</h2>
+        <div class="bg-black/60 border-y border-[var(--sys-cyan)]/30 py-5 mb-6 relative">
+            <p id="animePopupDesc" class="text-sm md:text-base text-slate-200 leading-relaxed font-bold">وصف المهمة التفصيلي سيظهر هنا بأسلوب الأنمي.</p>
+        </div>
+        <div class="flex justify-between items-center text-xs sys-font text-amber-400 mb-6 font-black tracking-widest bg-amber-900/20 px-4 py-2 border border-amber-500/30">
+            <span id="animePopupTime">TIME: --:--</span>
+            <span id="animePopupReward">REWARD: +?? EXP</span>
+        </div>
+        <button onclick="AnimePopup.acceptQuest()" class="w-full py-4 bg-gradient-to-r from-[var(--sys-cyan)]/10 via-[var(--sys-cyan)]/20 to-[var(--sys-cyan)]/10 border border-[var(--sys-cyan)] text-[var(--sys-cyan)] font-black tracking-[0.2em] uppercase hover:bg-[var(--sys-cyan)] hover:text-black transition-all shadow-[0_0_15px_rgba(0,240,255,0.3)]">
+            ACCEPT QUEST (قبول)
+        </button>
+    </div>
+</div>
+
+
+<div id="toastContainer" class="fixed top-5 right-5 z-[10000] flex flex-col gap-3 pointer-events-none"></div>
+
+<div id="live-shadow-container" class="fixed bottom-4 left-4 z-40 hidden md:flex flex-col items-center pointer-events-none group select-none">
+    <div class="bg-black/90 border border-sys-purple/40 text-[10px] text-slate-300 font-cairo px-3 py-1.5 rounded-lg mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-auto shadow-[0_0_15px_rgba(176,38,255,0.2)]">
+        🔒 حارس النظام في وضع الاستعداد...
+    </div>
+    <div class="w-36 h-48 flex items-end justify-center">
+        <img id="live-shadow-img" src="" alt="" 
+     class="max-w-full max-h-full object-contain" 
+     style="filter: brightness(0.9) contrast(1.2); mix-blend-mode: screen;">
+    </div>
+</div>
+
+<script src="monarch-core.js"></script>
+<script src="index11.js"></script>
+
+</body>
+</html>

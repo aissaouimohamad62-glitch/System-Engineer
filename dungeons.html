@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sovereign System | Brain Training Dungeons</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'sys-dark': '#000000',
+                        'sys-cyan': '#00f0ff',
+                        'sys-purple': '#b026ff',
+                        'sys-white': '#ffffff',
+                        'sys-gold': '#ffd700',
+                        'sys-rose': '#e11d48',
+                        'sys-orange': '#f97316',
+                        'sys-green': '#10b981',
+                    },
+                    fontFamily: {
+                        'cairo': ['Cairo', 'sans-serif'],
+                        'orbitron': ['Orbitron', 'sans-serif'],
+                        'rajdhani': ['Rajdhani', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --sys-cyan: #00f0ff;
+            --sys-purple: #b026ff;
+            --sys-white: #ffffff;
+            --sys-gold: #ffd700;
+            --sys-rose: #e11d48;
+            --sys-orange: #f97316;
+            --sys-green: #10b981;
+            --sys-bg: #000000;
+        }
+
+        * { scrollbar-width: thin; scrollbar-color: var(--sys-purple) #000000; }
+        *::-webkit-scrollbar { width: 6px; }
+        *::-webkit-scrollbar-track { background: #000000; }
+        *::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--sys-cyan), var(--sys-purple)); border-radius: 3px; }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: #000000;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        .bg-grid-pattern {
+            background-image: 
+                linear-gradient(rgba(0, 240, 255, 0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(176, 38, 255, 0.015) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        .bg-radial-glow {
+            background: 
+                radial-gradient(ellipse at 50% 0%, rgba(0, 240, 255, 0.06) 0%, transparent 55%),
+                radial-gradient(ellipse at 20% 80%, rgba(176, 38, 255, 0.04) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(255, 255, 255, 0.02) 0%, transparent 40%);
+        }
+
+        .scanline {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent 50%, rgba(255, 255, 255, 0.02) 50%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.5;
+        }
+
+        .neon-border {
+            border: 1px solid rgba(0, 240, 255, 0.12);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.04), inset 0 0 15px rgba(0, 240, 255, 0.02);
+            transition: all 0.3s ease;
+        }
+        .neon-border:hover {
+            border-color: rgba(0, 240, 255, 0.5);
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.15), 0 0 50px rgba(0, 240, 255, 0.05), inset 0 0 20px rgba(0, 240, 255, 0.08);
+        }
+
+        .neon-border-purple {
+            border: 1px solid rgba(176, 38, 255, 0.12);
+            box-shadow: 0 0 15px rgba(176, 38, 255, 0.04), inset 0 0 15px rgba(176, 38, 255, 0.02);
+            transition: all 0.3s ease;
+        }
+        .neon-border-purple:hover {
+            border-color: rgba(176, 38, 255, 0.5);
+            box-shadow: 0 0 25px rgba(176, 38, 255, 0.15), 0 0 50px rgba(176, 38, 255, 0.05), inset 0 0 20px rgba(176, 38, 255, 0.08);
+        }
+
+        .neon-border-white {
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.04), inset 0 0 15px rgba(255, 255, 255, 0.02);
+            transition: all 0.3s ease;
+        }
+        .neon-border-white:hover {
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.15), 0 0 50px rgba(255, 255, 255, 0.05), inset 0 0 20px rgba(255, 255, 255, 0.08);
+        }
+
+        .neon-border-s {
+            border: 1px solid rgba(176, 38, 255, 0.2);
+            box-shadow: 0 0 20px rgba(176, 38, 255, 0.06), inset 0 0 20px rgba(176, 38, 255, 0.03);
+            transition: all 0.3s ease;
+        }
+        .neon-border-s:hover {
+            border-color: rgba(176, 38, 255, 0.6);
+            box-shadow: 0 0 30px rgba(176, 38, 255, 0.2), 0 0 60px rgba(0, 240, 255, 0.08), inset 0 0 30px rgba(176, 38, 255, 0.1);
+        }
+
+        .rank-badge {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            clip-path: polygon(10% 0, 100% 0, 100% 100%, 0 100%, 0 30%);
+        }
+
+        .dungeon-card {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(5, 5, 10, 0.98) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .dungeon-card::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(0, 240, 255, 0.02), rgba(176, 38, 255, 0.02), transparent 30%);
+            animation: rotate 8s linear infinite;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        .dungeon-card:hover::before { opacity: 1; }
+        @keyframes rotate { 100% { transform: rotate(360deg); } }
+
+        .sys-btn {
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .sys-btn::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+        .sys-btn:hover::after { left: 100%; }
+        .sys-btn:hover { box-shadow: 0 0 20px rgba(0, 240, 255, 0.2); }
+
+        .stat-bar {
+            height: 4px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .stat-bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+        }
+
+        .glitch-text {
+            position: relative;
+            animation: glitch 3s infinite;
+        }
+        @keyframes glitch {
+            0%, 100% { text-shadow: 0 0 10px var(--sys-cyan), 0 0 20px var(--sys-cyan); }
+            50% { text-shadow: 0 0 20px var(--sys-purple), 0 0 40px var(--sys-purple), -2px 0 var(--sys-purple), 2px 0 var(--sys-cyan); }
+        }
+
+        .particle-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.5s ease-in-out;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .dungeon-link {
+            text-decoration: none;
+            display: block;
+        }
+        /* ==========================================
+   SOVEREIGN VIDEO BACKGROUND SYSTEM
+   ========================================== */
+.sovereign-video-bg-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2; /* ليكون خلف جزيئات الـ Canvas وخلف كل محتوى المتجر */
+    overflow: hidden;
+    background-color: #000000; /* خلفية احتياطية سوداء في حال تأخر تحميل الفيديو */
+}
+
+.sovereign-video-element {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+    
+    /* ميزة التضبيب المطلوبة (مضببة قليلاً فقط لتمنح عمقاً بصرياً فخماً) */
+    filter: blur(0.1px) brightness(1); 
+    
+    /* نسبة شفافية متوازنة لكي لا تؤثر الحركة على تركيزك أثناء قراءة الألقاب والمخططات */
+    opacity: 1; 
+    transition: opacity 1s ease-in-out;
+}
+
+.sovereign-video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* تدرج ظلي يسحب الضوء نحو الأطراف ليعطي تأثير بوابات الزنازين Dark Rpg */
+    background: radial-gradient(circle, transparent 30%, rgba(0, 0, 0, 0.85) 100%);
+    pointer-events: none;
+}
+.monarch-title-badgi {
+    color: #bb86fc; /* لون أرجواني سيادي */
+    text-shadow: 0 0 8px rgba(187, 134, 252, 0.8);
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-left: 10px;
+    padding: 3px 10px;
+    
+    
+    
+    letter-spacing: 1px;
+    
+    
+}
+    </style>
+<link rel="stylesheet" href="index11.css">
+    <script src="monarch-core.js"></script>
+</head>
+<body class="relative">
+<div class="sov-secondary-bg" aria-hidden="true"></div>
+    <canvas id="particles" class="particle-canvas"></canvas>
+    <div class="scanline"></div>
+<div class="fixed top-6 left-6 z-50 flex gap-4 items-center z-50">
+    <button onclick="SoundEffects.toggleMusic(1)" class="w-10 h-10 flex items-center justify-center bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-[var(--sys-cyan)] rounded-full transition-all shadow-[0_0_10px_rgba(0,0,0,0.5)]">
+        <span id="musicIcon1" class="text-lg animate-pulse">🎵</span>
+    </button>
+    <button onclick="SoundEffects.toggleMusic(2)" class="w-10 h-10 flex items-center justify-center bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-[var(--sys-cyan)] rounded-full transition-all shadow-[0_0_10px_rgba(0,0,0,0.5)]">
+        <span id="musicIcon2" class="text-lg animate-pulse">🎼</span>
+    </button>
+    <a href="https://aissaouimohamad62-glitch.github.io/proto/" target="_blank" class="px-4 py-2 bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-white text-xs font-black uppercase tracking-widest rounded flex items-center gap-2 shadow-[0_0_10px_rgba(0,0,0,0.5)] transition-all">
+        <span>𝐏𝐎𝐑𝐓𝐅𝐎𝐋𝐈𝐎</span> <span class="text-[var(--sys-cyan)]">📍</span>
+    </a>
+    <a href="https://aissaouimohamad62-glitch.github.io/booksoverhaul.dz/" target="_blank" class="px-4 py-2 bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-white text-xs font-black uppercase tracking-widest rounded flex items-center gap-2 shadow-[0_0_10px_rgba(0,0,0,0.5)] transition-all">
+        <span>𝐋𝐈𝐁𝐑𝐀𝐑𝐘</span> <span class="text-[var(--sys-cyan)]">📒</span>
+    </a>
+    
+</div>
+    <!-- Header -->
+    <header class="relative z-10 max-w-7xl mx-auto mb-8 p-4">
+        <div class="bg-black/80 backdrop-blur-xl border border-white/10 rounded-xl p-4 flex flex-wrap justify-between items-center gap-4 neon-border">
+            <div class="flex items-center gap-4">
+                
+                <div class="flex flex-col">
+                    <span class="font-orbitron text-[10px] text-white/30 tracking-[0.3em] uppercase">Sovereign System</span>
+                    <h1 class="font-orbitron text-xl font-black tracking-widest text-sys-cyan uppercase glitch-text">🧠 BRAIN DUNGEONS</h1>
+                </div>
+            </div>
+           <nav id="sovereign-nav" class="flex flex-wrap gap-3 justify-center md:justify-start items-center p-4 bg-slate-950/60 border border-slate-850/50 backdrop-blur-md rounded-lg shadow-[inset_0_0_15px_rgba(0,0,0,0.8)] my-4 select-none">
+    
+    <a href="index11.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>🏠</span> <span>DASHBOARD</span>
+    </a>
+
+    <a href="active-quests.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>⚔️</span> <span>ACTIVE QUESTS</span>
+    </a>
+
+    <a href="brain-stats.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>🧠</span> <span>BRAIN STATS</span>
+    </a>
+
+    <a href="dungeons.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>🌋</span> <span>DUNGEONS</span>
+    </a>
+
+    
+    <a href="index99.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>🕋</span> <span>PRAYER REWARDS</span>
+    </a>
+
+    <a href="ppo.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>📖</span> <span>CELESTIAL QURAN</span>
+    </a>
+
+    <a href="sovereign-shop.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>🛒</span> <span>SOVEREIGN SHOP</span>
+    </a>
+
+    <a href="operational-charter.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>📜</span> <span>CHARTER</span>
+    </a>
+
+    <a href="monarch-ai.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>🤖</span> <span>MONARCH AI</span>
+    </a>
+
+    <a href="system-logs.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>📊</span> <span>SYSTEM LOGS</span>
+    </a>
+</nav>
+
+
+           <div class="w-full max-w-7xl mx-auto px-4 mt-4 grid grid-cols-3 gap-4 z-50 relative">
+    <!-- لوحة المستوى -->
+    <div class="bg-slate-900/60 backdrop-blur border border-slate-800/80 p-3 rounded flex flex-col justify-center">
+        <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Player Level</span>
+        <span id="player-level-display" class="text-xl font-black text-[var(--sys-purple)] dynamic-glow">LVL --</span>
+    </div>
+    <!-- لوحة الذهب -->
+    <div class="bg-slate-900/60 backdrop-blur border border-slate-800/80 p-3 rounded flex flex-col justify-center">
+        <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Sovereign Gold</span>
+        <span id="player-gold-display" class="text-xl font-black text-amber-500">0 <span class="text-xs text-amber-600/70">G</span></span>
+    </div>
+    <!-- لوحة الخبرة -->
+    <div class="bg-slate-900/60 backdrop-blur border border-slate-800/80 p-3 rounded flex flex-col justify-center">
+        <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Experience Points</span>
+        <div class="flex items-center gap-2 mt-1">
+            <div class="w-full bg-slate-950 h-2 rounded overflow-hidden border border-slate-800">
+                <div id="player-xp-bar" class="bg-gradient-to-r from-[var(--sys-purple)] to-indigo-500 h-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <span id="player-xp-text" class="text-xs font-bold text-slate-400 whitespace-nowrap">0/0</span>
+        </div>
+    </div>
+</div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="relative z-10 max-w-7xl mx-auto px-4 pb-20">
+        <!-- Intro Text -->
+        <div class="text-center mb-10">
+            <p class="font-cairo text-white/50 text-sm max-w-2xl mx-auto leading-relaxed">
+                <span class="text-sys-cyan font-bold drop-shadow-[0_0_8px_rgba(0,240,255,0.5)]">[System]</span> تم اكتشاف 6 زنازين ذكاء عالية الخطورة. 
+                كل زنزانة تختبر قدرات عقلية مختلفة. اجتاز التحديات لرفع إحصائيات INT وكسب Gold وAuthority.
+            </p>
+        </div>
+
+        <!-- Dungeons Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="dungeonsGrid">
+
+            <!-- Dungeon 1: Memory Matrix (Rank C) -->
+            <a href="dungeon-memory.html" class="dungeon-link">
+                <div class="dungeon-card rounded-xl p-6 neon-border flex flex-col justify-between min-h-[280px] group cursor-pointer">
+                    <div class="absolute top-0 right-0 rank-badge bg-white/10 text-white text-[10px] px-4 py-1.5 border-l border-b border-white/20">RANK: C</div>
+                    <div class="mt-2">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="text-3xl">🎯</span>
+                            <h2 class="text-lg font-black text-white font-cairo">مصفوفة الذاكرة</h2>
+                        </div>
+                        <p class="font-orbitron text-[10px] text-sys-cyan tracking-wider mb-1 uppercase">Memory Matrix</p>
+                        <p class="text-xs text-white/50 leading-relaxed mb-4">
+                            اختبار الذاكرة البصرية قصيرة المدى. تذكر مواقع المربعات المضيئة واكررها بالترتيب. 
+                            يطور منطقة الحصين في الدماغ.
+                        </p>
+                        <div class="flex gap-2 mb-4 flex-wrap">
+                            <span class="text-[10px] bg-black/80 px-2 py-1 rounded border border-white/10 text-white/60">ذاكرة بصرية</span>
+                            <span class="text-[10px] bg-black/80 px-2 py-1 rounded border border-white/10 text-white/60">تركيز</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-[10px] text-white/30 font-orbitron">
+                            <span>DIFFICULTY</span>
+                            <span class="text-sys-cyan drop-shadow-[0_0_5px_rgba(0,240,255,0.4)]">EASY</span>
+                        </div>
+                        <div class="stat-bar"><div class="stat-bar-fill bg-sys-cyan" style="width: 30%; box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);"></div></div>
+                        <div class="flex justify-between items-center mt-3 pt-3 border-t border-white/5">
+                            <div class="flex gap-3 text-[10px] font-orbitron">
+                                <span class="text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]">+50 XP</span>
+                                <span class="text-sys-purple drop-shadow-[0_0_5px_rgba(176,38,255,0.3)]">+1 INT</span>
+                                <span class="text-sys-cyan drop-shadow-[0_0_5px_rgba(0,240,255,0.3)]">+10 Gold</span>
+                            </div>
+                            <span class="text-[10px] text-white/30 font-orbitron">Cleared: <span id="cleared-Memory">0</span></span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Dungeon 2: Tower of Hanoi (Rank B) -->
+            <a href="dungeon-hanoi.html" class="dungeon-link">
+                <div class="dungeon-card rounded-xl p-6 neon-border-purple flex flex-col justify-between min-h-[280px] group cursor-pointer">
+                    <div class="absolute top-0 right-0 rank-badge bg-sys-purple/20 text-sys-purple text-[10px] px-4 py-1.5 border-l border-b border-sys-purple/30 shadow-[0_0_10px_rgba(176,38,255,0.2)]">RANK: B</div>
+                    <div class="mt-2">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="text-3xl">🏗️</span>
+                            <h2 class="text-lg font-black text-white font-cairo">برج هانوي</h2>
+                        </div>
+                        <p class="font-orbitron text-[10px] text-sys-purple tracking-wider mb-1 uppercase">Tower of Hanoi</p>
+                        <p class="text-xs text-white/50 leading-relaxed mb-4">
+                            لعبة المنطق الكلاسيكية. انقل الأقراص من البرج الأول إلى الثالث بأقل عدد من الحركات.
+                            يطور التخطيط الاستراتيجي والتفكير التكراري.
+                        </p>
+                        <div class="flex gap-2 mb-4 flex-wrap">
+                            <span class="text-[10px] bg-black/80 px-2 py-1 rounded border border-white/10 text-white/60">تخطيط</span>
+                            <span class="text-[10px] bg-black/80 px-2 py-1 rounded border border-white/10 text-white/60">خوارزميات</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-[10px] text-white/30 font-orbitron">
+                            <span>DIFFICULTY</span>
+                            <span class="text-sys-purple drop-shadow-[0_0_5px_rgba(176,38,255,0.4)]">MEDIUM</span>
+                        </div>
+                        <div class="stat-bar"><div class="stat-bar-fill bg-sys-purple" style="width: 55%; box-shadow: 0 0 10px rgba(176, 38, 255, 0.5);"></div></div>
+                        <div class="flex justify-between items-center mt-3 pt-3 border-t border-white/5">
+                            <div class="flex gap-3 text-[10px] font-orbitron">
+                                <span class="text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]">+80 XP</span>
+                                <span class="text-sys-purple drop-shadow-[0_0_5px_rgba(176,38,255,0.3)]">+2 INT</span>
+                                <span class="text-sys-cyan drop-shadow-[0_0_5px_rgba(0,240,255,0.3)]">+20 Gold</span>
+                            </div>
+                            <span class="text-[10px] text-white/30 font-orbitron">Cleared: <span id="cleared-Hanoi">0</span></span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+
+            
+
+            <!-- Dungeon 4: Speed Math (Rank A) -->
+            <a href="dungeon-math.html" class="dungeon-link">
+                <div class="dungeon-card rounded-xl p-6 neon-border-white flex flex-col justify-between min-h-[280px] group cursor-pointer">
+                    <div class="absolute top-0 right-0 rank-badge bg-white/10 text-white text-[10px] px-4 py-1.5 border-l border-b border-white/30 shadow-[0_0_10px_rgba(255,255,255,0.15)]">RANK: A</div>
+                    <div class="mt-2">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="text-3xl">⚡</span>
+                            <h2 class="text-lg font-black text-white font-cairo">الرياضيات الكمية</h2>
+                        </div>
+                        <p class="font-orbitron text-[10px] text-white tracking-wider mb-1 uppercase">Quantum Math</p>
+                        <p class="text-xs text-white/50 leading-relaxed mb-4">
+                            اختبار السرعة الحسابية والمعالجة الذهنية. حل مسائل رياضية معقدة تحت ضغط الوقت.
+                            يطور سرعة المعالجة والدقة الحسابية.
+                        </p>
+                        <div class="flex gap-2 mb-4 flex-wrap">
+                            <span class="text-[10px] bg-black/80 px-2 py-1 rounded border border-white/10 text-white/60">سرعة</span>
+                            <span class="text-[10px] bg-black/80 px-2 py-1 rounded border border-white/10 text-white/60">دقة</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-[10px] text-white/30 font-orbitron">
+                            <span>DIFFICULTY</span>
+                            <span class="text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.4)]">HARD</span>
+                        </div>
+                        <div class="stat-bar"><div class="stat-bar-fill bg-white" style="width: 75%; box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);"></div></div>
+                        <div class="flex justify-between items-center mt-3 pt-3 border-t border-white/5">
+                            <div class="flex gap-3 text-[10px] font-orbitron">
+                                <span class="text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]">+120 XP</span>
+                                <span class="text-sys-purple drop-shadow-[0_0_5px_rgba(176,38,255,0.3)]">+3 INT</span>
+                                <span class="text-sys-cyan drop-shadow-[0_0_5px_rgba(0,240,255,0.3)]">+30 Gold</span>
+                            </div>
+                            <span class="text-[10px] text-white/30 font-orbitron">Cleared: <span id="cleared-Math">0</span></span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            <a href="dungeon-islamic.html" class="dungeon-link">
+    <div class="dungeon-card rounded-xl p-6 neon-border flex flex-col justify-between min-h-[280px] group cursor-pointer" style="border-color: rgba(0, 240, 255, 0.4);">
+        <div class="absolute top-0 right-0 rank-badge bg-sys-cyan/20 text-sys-cyan text-[10px] px-4 py-1.5 border-l border-b border-sys-cyan/40 shadow-[0_0_15px_rgba(0,240,255,0.3)]">RANK: A</div>
+        <div class="mt-2">
+            <div class="flex items-center gap-2 mb-3">
+                <span class="text-3xl">🕌</span>
+                <h2 class="text-lg font-black text-white font-cairo">الثقافة الإسلامية</h2>
+            </div>
+            <p class="font-orbitron text-[10px] text-sys-cyan tracking-wider mb-1 uppercase">Islamic Knowledge Matrix</p>
+            <p class="text-xs text-white/50 leading-relaxed mb-4">
+                تحدي عالي الضغط في السيرة النبوية والفقه. 
+                أجب بسرعة ودقة لاختراق المصفوفة وكسب الغنائم السيادية.
+            </p>
+            <div class="flex gap-2 mb-4 flex-wrap">
+                <span class="text-[10px] bg-black/80 px-2 py-1 rounded border border-white/10 text-white/60">سيرة</span>
+                <span class="text-[10px] bg-black/80 px-2 py-1 rounded border border-white/10 text-white/60">فقه</span>
+                <span class="text-[10px] bg-black/80 px-2 py-1 rounded border border-white/10 text-white/60">سرعة بديهة</span>
+            </div>
+        </div>
+        <div class="space-y-2">
+            <div class="flex justify-between text-[10px] text-white/30 font-orbitron">
+                <span>DIFFICULTY</span>
+                <span class="text-sys-cyan drop-shadow-[0_0_8px_rgba(0,240,255,0.5)]">HARD</span>
+            </div>
+            <div class="stat-bar"><div class="stat-bar-fill bg-sys-cyan" style="width: 70%; box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);"></div></div>
+            <div class="flex justify-between items-center mt-3 pt-3 border-t border-white/5">
+                <div class="flex gap-3 text-[10px] font-orbitron">
+                    <span class="text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]">+200 XP</span>
+                    <span class="text-sys-cyan drop-shadow-[0_0_5px_rgba(0,240,255,0.3)]">+3 INT</span>
+                    <span class="text-yellow-500 drop-shadow-[0_0_5px_rgba(234,179,8,0.3)]">+50 Gold</span>
+                </div>
+                <span class="text-[10px] text-white/30 font-orbitron">Cleared: <span id="cleared-Islamic">0</span></span>
+            </div>
+        </div>
+    </div>
+</a>
+
+            <!-- Dungeon 5: Chess (Rank A) -->
+            <a href="https://www.chess.com/ar" class="dungeon-link">
+                <div class="dungeon-card rounded-xl p-6 neon-border-purple flex flex-col justify-between min-h-[280px] group cursor-pointer">
+                    <div class="absolute top-0 right-0 rank-badge bg-sys-purple/20 text-sys-purple text-[10px] px-4 py-1.5 border-l border-b border-sys-purple/30 shadow-[0_0_10px_rgba(176,38,255,0.2)]">RANK: A</div>
+                    <div class="mt-2">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="text-3xl">♟️</span>
+                            <h2 class="text-lg font-black text-white font-cairo">تكتيكات الشطرنج</h2>
+                        </div>
+                        <p class="font-orbitron text-[10px] text-sys-purple tracking-wider mb-1 uppercase">Grandmaster's Maze</p>
+                        <p class="text-xs text-white/50 leading-relaxed mb-4">
+                            مواجهة ذكاء اصطناعي متطور في لعبة الشطرنج. محرك Minimax مع Alpha-Beta Pruning.
+                            طور رؤيتك المكانية والتفكير الاستباقي.
+                        </p>
+                        <div class="flex gap-2 mb-4 flex-wrap">
+                            <span class="text-[10px] bg-black/80 px-2 py-1 rounded border border-white/10 text-white/60">استراتيجية</span>
+                            <span class="text-[10px] bg-black/80 px-2 py-1 rounded border border-white/10 text-white/60">تخطيط</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-[10px] text-white/30 font-orbitron">
+                            <span>DIFFICULTY</span>
+                            <span class="text-sys-purple drop-shadow-[0_0_5px_rgba(176,38,255,0.4)]">HARD</span>
+                        </div>
+                        <div class="stat-bar"><div class="stat-bar-fill bg-sys-purple" style="width: 85%; box-shadow: 0 0 10px rgba(176, 38, 255, 0.5);"></div></div>
+                        <div class="flex justify-between items-center mt-3 pt-3 border-t border-white/5">
+                            <div class="flex gap-3 text-[10px] font-orbitron">
+                                <span class="text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]">+150 XP</span>
+                                <span class="text-sys-purple drop-shadow-[0_0_5px_rgba(176,38,255,0.3)]">+3 INT</span>
+                                <span class="text-sys-cyan drop-shadow-[0_0_5px_rgba(0,240,255,0.3)]">+40 Gold</span>
+                            </div>
+                            <span class="text-[10px] text-white/30 font-orbitron">Cleared: <span id="cleared-Chess">0</span></span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Dungeon 6: Dual N-Back (Rank S) -->
+            <a href="https://dual-n-back.io/" class="dungeon-link">
+                <div class="dungeon-card rounded-xl p-6 neon-border-s flex flex-col justify-between min-h-[280px] group cursor-pointer">
+                    <div class="absolute top-0 right-0 rank-badge bg-sys-purple/30 text-sys-purple text-[10px] px-4 py-1.5 border-l border-b border-sys-purple/40 shadow-[0_0_15px_rgba(176,38,255,0.3)]">RANK: S</div>
+                    <div class="mt-2">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="text-3xl">🌀</span>
+                            <h2 class="text-lg font-black text-white font-cairo">الذاكرة العاملة</h2>
+                        </div>
+                        <p class="font-orbitron text-[10px] text-sys-purple tracking-wider mb-1 uppercase">Dual N-Back Vortex</p>
+                        <p class="text-xs text-white/50 leading-relaxed mb-4">
+                            التدريب العلمي الصارم المعتمد عالمياً لتوسيع الذاكرة قصيرة المدى وزيادة الذكاء السائل.
+                            يعالج محفزين في نفس الوقت: بصري وسمعي.
+                        </p>
+                        <div class="flex gap-2 mb-4 flex-wrap">
+                            <span class="text-[10px] bg-black/80 px-2 py-1 rounded border border-white/10 text-white/60">ذاكرة عاملة</span>
+                            <span class="text-[10px] bg-black/80 px-2 py-1 rounded border border-white/10 text-white/60">ذكاء سائل</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-[10px] text-white/30 font-orbitron">
+                            <span>DIFFICULTY</span>
+                            <span class="text-sys-purple drop-shadow-[0_0_8px_rgba(176,38,255,0.5)]">EXTREME</span>
+                        </div>
+                        <div class="stat-bar"><div class="stat-bar-fill bg-gradient-to-r from-sys-cyan via-sys-purple to-white" style="width: 100%; box-shadow: 0 0 15px rgba(176, 38, 255, 0.5);"></div></div>
+                        <div class="flex justify-between items-center mt-3 pt-3 border-t border-white/5">
+                            <div class="flex gap-3 text-[10px] font-orbitron">
+                                <span class="text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]">+200 XP</span>
+                                <span class="text-sys-purple drop-shadow-[0_0_5px_rgba(176,38,255,0.3)]">+5 INT</span>
+                                <span class="text-sys-cyan drop-shadow-[0_0_5px_rgba(0,240,255,0.3)]">+50 Gold</span>
+                            </div>
+                            <span class="text-[10px] text-white/30 font-orbitron">Cleared: <span id="cleared-NBack">0</span></span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+
+        <a href="https://sudoku.com/ar/mtwst/" class="dungeon-link">
+    <div class="dungeon-card rounded-xl p-6 neon-border-s flex flex-col justify-between min-h-[280px] group cursor-pointer">
+        <div class="absolute top-0 right-0 rank-badge bg-sys-purple/30 text-sys-purple text-[10px] px-4 py-1.5 border-l border-b border-sys-purple/40 shadow-[0_0_15px_rgba(176,38,255,0.3)]">RANK: S</div>
+        
+        <div class="mt-2">
+            <div class="flex items-center gap-2 mb-3">
+                <span class="text-3xl">🔢</span>
+                <h2 class="text-lg font-black text-white font-cairo">المنطق التحليلي</h2>
+            </div>
+            <p class="font-orbitron text-[10px] text-sys-purple tracking-wider mb-1 uppercase">Sudoku Logic Matrix</p>
+            <p class="text-xs text-white/50 leading-relaxed mb-4">
+                التحدي الرقمي الأسطوري لتنشيط خلايا الفص الجبهي وتطوير مهارات الاستنتاج الصارم. 
+                قم بحل مصفوفة 9x9 المعقدة واكسر الشفرة دون تكرار أي رقم.
+            </p>
+            <div class="flex gap-2 mb-4 flex-wrap">
+                <span class="text-[10px] bg-black/80 px-2 py-1 rounded border border-white/10 text-white/60">تفكير منطقي</span>
+                <span class="text-[10px] bg-black/80 px-2 py-1 rounded border border-white/10 text-white/60">تحليل رقمي</span>
+            </div>
+        </div>
+
+        <div class="space-y-2">
+            <div class="flex justify-between text-[10px] text-white/30 font-orbitron">
+                <span>DIFFICULTY</span>
+                <span class="text-sys-purple drop-shadow-[0_0_8px_rgba(176,38,255,0.5)]">EXTREME</span>
+            </div>
+            <div class="stat-bar"><div class="stat-bar-fill bg-gradient-to-r from-sys-cyan via-sys-purple to-white" style="width: 100%; box-shadow: 0 0 15px rgba(176, 38, 255, 0.5);"></div></div>
+            
+            <div class="flex justify-between items-center mt-3 pt-3 border-t border-white/5">
+                <div class="flex gap-3 text-[10px] font-orbitron">
+                    <span class="text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]">+250 XP</span>
+                    <span class="text-sys-purple drop-shadow-[0_0_5px_rgba(176,38,255,0.3)]">+6 INT</span>
+                    <span class="text-sys-cyan drop-shadow-[0_0_5px_rgba(0,240,255,0.3)]">+60 Gold</span>
+                </div>
+                <span class="text-[10px] text-white/30 font-orbitron">Cleared: <span id="cleared-Sudoku">0</span></span>
+            </div>
+        </div>
+    </div>
+</a>
+
+        </div>
+    </main>
+
+<script>
+// ==========================================
+// PARTICLE SYSTEM
+// ==========================================
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+class Particle {
+    constructor() {
+        this.reset();
+    }
+    reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 0.5;
+        this.speedX = (Math.random() - 0.5) * 0.3;
+        this.speedY = (Math.random() - 0.5) * 0.3;
+        this.opacity = Math.random() * 0.5 + 0.1;
+        this.color = Math.random() > 0.6 ? '0, 240, 255' : (Math.random() > 0.5 ? '176, 38, 255' : '255, 255, 255');
+    }
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.reset();
+    }
+    draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`;
+        ctx.fill();
+    }
+}
+
+for (let i = 0; i < 60; i++) particles.push(new Particle());
+
+function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+// ==========================================
+// PLAYER STATE SYSTEM
+// ==========================================
+const PlayerState = {
+    data: {
+        level: 1,
+        xp: 0,
+        ap: 0,
+        stats: { str: 10, agi: 10, vit: 10, int: 10, sen: 10 },
+        gold: 0,
+        authority: 0,
+        clearedDungeons: { Memory: 0, Hanoi: 0, Sudoku: 0, Math: 0, Chess: 0, NBack: 0, Fortress: 0 }
+    },
+
+    init() {
+        const saved = localStorage.getItem('monarch_system_data');
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            this.data = { ...this.data, ...parsed };
+            if (!this.data.clearedDungeons) this.data.clearedDungeons = { Memory: 0, Hanoi: 0, Sudoku: 0, Math: 0, Chess: 0, NBack: 0, Fortress: 0 };
+        }
+        this.updateUI();
+    },
+
+    save() {
+        if (window.SovereignCore) {
+            SovereignCore.save(this.data);
+        } else {
+            localStorage.setItem('monarch_system_data', JSON.stringify(this.data));
+        }
+        this.updateUI();
+    },
+
+    updateUI() {
+        const lvl = this.data.level || 1;
+        const xp = this.data.xp || 0;
+        const need = lvl * 100;
+        const pct = Math.min((xp / need) * 100, 100);
+
+        const lvlEl = document.getElementById('player-level-display');
+        const goldEl = document.getElementById('player-gold-display');
+        const xpTxt = document.getElementById('player-xp-text');
+        const xpBar = document.getElementById('player-xp-bar');
+        if (lvlEl) lvlEl.textContent = `LVL ${lvl}`;
+        if (goldEl) goldEl.innerHTML = `${(this.data.gold || 0).toLocaleString()} <span class="text-xs text-amber-600/70">G</span>`;
+        if (xpTxt) xpTxt.textContent = `${xp}/${need} XP`;
+        if (xpBar) xpBar.style.width = `${pct}%`;
+
+        Object.keys(this.data.clearedDungeons || {}).forEach(key => {
+            const el = document.getElementById(`cleared-${key}`);
+            if (el) el.textContent = this.data.clearedDungeons[key] || 0;
+        });
+    },
+
+    addXP(amount) {
+        this.data.xp = (this.data.xp || 0) + amount;
+        const need = (this.data.level || 1) * 100;
+        if (this.data.xp >= need) {
+            this.data.xp -= need;
+            this.data.level = (this.data.level || 1) + 1;
+        }
+        this.save();
+    },
+
+    addGold(amount) {
+        this.data.gold = Math.max(0, (this.data.gold || 0) + amount);
+        this.save();
+    },
+
+    addStat(statName, amount) {
+        if (this.data.stats && this.data.stats[statName] !== undefined) {
+            this.data.stats[statName] += amount;
+            this.save();
+        }
+    }
+};
+
+window.addEventListener('DOMContentLoaded', () => {
+    PlayerState.init();
+    if (window.SovereignCore) {
+        SovereignCore.onChange(() => { PlayerState.data = { ...PlayerState.data, ...SovereignCore.data }; PlayerState.updateUI(); });
+    }
+    window.PlayerState = PlayerState;
+});
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // دالة جلب وتحديث البيانات في الواجهة
+        function updateDungeonInterfaceStats() {
+            const defaultData = { level: 1, xp: 0, gold: 0 };
+            const localData = localStorage.getItem('monarch_system_data');
+            const data = localData ? JSON.parse(localData) : defaultData;
+
+            // حساب متطلبات الخبرة بناءً على مستوى اللاعب (المستوى * 100)
+            const currentLevel = data.level || 1;
+            const currentXP = data.xp || 0;
+            const currentGold = data.gold || 0;
+            const xpNeeded = currentLevel * 100;
+            const xpPercentage = Math.min((currentXP / xpNeeded) * 100, 100);
+
+            // حقن البيانات في عناصر HTML
+            document.getElementById('player-level-display').innerText = `LVL ${currentLevel}`;
+            document.getElementById('player-gold-display').innerHTML = `${currentGold.toLocaleString()} <span class="text-xs text-amber-600/70">G</span>`;
+            document.getElementById('player-xp-text').innerText = `${currentXP}/${xpNeeded} XP`;
+            document.getElementById('player-xp-bar').style.width = `${xpPercentage}%`;
+        }
+
+        // تشغيل التحديث فوراً عند فتح الصفحة
+        updateDungeonInterfaceStats();
+    });
+    const UI = {
+    toggleTimerSettings() {
+        if (typeof SoundEffects !== 'undefined') SoundEffects.playSystemClick();
+        document.getElementById('timerModal').classList.toggle('hidden');
+    }
+};
+
+const Toast = {
+    show(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+        const toast = document.createElement('div');
+        const colors = {
+            success: 'border-emerald-500 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)]',
+            error: 'border-rose-500 text-rose-400 shadow-[0_0_15px_rgba(225,29,72,0.3)]',
+            info: 'border-[var(--sys-cyan)] text-[var(--sys-cyan)] shadow-[0_0_15px_rgba(0,240,255,0.3)]'
+        };
+        toast.className = `pointer-events-auto px-5 py-3 bg-[#02040a]/95 border backdrop-blur-md text-sm font-bold sys-font tracking-wide animate-system-pop ${colors[type] || colors.info}`;
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 4000);
+    }
+};
+    // ==========================================
+// SYSTEM RESET ENGINE (HARD RESET)
+// ==========================================
+const SystemReset = {
+    confirmAndReset() {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        
+        // رسالة التحذير الأولى
+        const firstConfirm = confirm("⚠️ تحذير أمني سيادي: هل أنت متأكد أنك تريد مسح جميع البيانات؟\n(سيعود المستوى إلى 1، وتفقد كل الذهب، الخبرة، المهام، والسجلات ولن يمكنك استرجاعها).");
+        if (!firstConfirm) return;
+
+        // رسالة التأكيد النهائية
+        const secondConfirm = confirm("‼️ تأكيد نهائي: هذه العملية ستعيد النظام إلى نقطة الصفر. هل تريد تنفيذ 'مسح الذاكرة'؟");
+        if (!secondConfirm) return;
+
+        // قائمة المفاتيح المخزنة في النظام لمسحها
+        const keysToReset = [
+            'monarch_system_data', 
+            'sovereign_active_quest', 
+            'directive_start_time', 
+            'sovereign_active_program', 
+            'SL_QUESTS', 
+            'sovereign_system_logs',
+            'sovereign_titles_index'
+        ];
+
+        // تنفيذ المسح
+        keysToReset.forEach(key => localStorage.removeItem(key));
+
+        // مسح أي تخزين مؤقت للألقاب والمقايضات
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('title_cache_')) {
+                localStorage.removeItem(key);
+            }
+        });
+
+        alert("🔄 تم مسح الذاكرة وإعادة ضبط النظام بالكامل. سيتم إعادة تشغيل الواجهة.");
+        
+        // إعادة تحميل الصفحة لتطبيق حالة الصفر
+        window.location.reload();
+    }
+};
+
+// ==========================================
+// SOUND EFFECTS
+// ==========================================
+const SoundEffects = {
+    track1: new Audio('SHADOWBORN.mp3'),
+    track2: new Audio('Kingdom_of_Iron.mp3'),
+    currentTrackNumber: null,
+    isMusicPlaying: false,
+
+    init() {
+        this.track1.loop = true;
+        this.track2.loop = true;
+    },
+
+    toggleMusic(trackNumber) {
+        const icon1 = document.getElementById('musicIcon1');
+        const icon2 = document.getElementById('musicIcon2');
+
+        if (this.isMusicPlaying && this.currentTrackNumber === trackNumber) {
+            this.stopAllAudio();
+            return;
+        }
+        if (this.isMusicPlaying) this.stopAllAudio();
+
+        this.isMusicPlaying = true;
+        this.currentTrackNumber = trackNumber;
+
+        if (trackNumber === 1) {
+            this.track1.play().catch(err => console.log("Auto-play blocked:", err));
+            if (icon1) icon1.textContent = '⏸️';
+            if (icon2) icon2.textContent = '🎼';
+        } else if (trackNumber === 2) {
+            this.track2.play().catch(err => console.log("Auto-play blocked:", err));
+            if (icon1) icon1.textContent = '🎵';
+            if (icon2) icon2.textContent = '⏸️';
+        }
+    },
+
+    stopAllAudio() {
+        this.track1.pause(); this.track1.currentTime = 0;
+        this.track2.pause(); this.track2.currentTime = 0;
+        const icon1 = document.getElementById('musicIcon1');
+        const icon2 = document.getElementById('musicIcon2');
+        if (icon1) icon1.textContent = '🎵';
+        if (icon2) icon2.textContent = '🎼';
+        this.isMusicPlaying = false;
+        this.currentTrackNumber = null;
+    },
+
+    playSystemClick() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            gain.gain.setValueAtTime(0.05, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.start(); osc.stop(ctx.currentTime + 0.1);
+        } catch(e) {}
+    },
+
+    playSuccess() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((freq, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.1);
+                gain.gain.setValueAtTime(0.1, ctx.currentTime + i * 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.1 + 0.3);
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.start(ctx.currentTime + i * 0.1);
+                osc.stop(ctx.currentTime + i * 0.1 + 0.3);
+            });
+        } catch(e) {}
+    },
+
+    playLevelUp() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const notes = [440, 554, 659, 880, 1108];
+            notes.forEach((freq, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.15);
+                gain.gain.setValueAtTime(0.08, ctx.currentTime + i * 0.15);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.15 + 0.4);
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.start(ctx.currentTime + i * 0.15);
+                osc.stop(ctx.currentTime + i * 0.15 + 0.4);
+            });
+        } catch(e) {}
+    }
+};
+SoundEffects.init();
+
+// ==========================================
+// DIRECTIVE TIMER ENGINE
+// ==========================================
+const DirectiveTimer = {
+    startTime: null,
+    timerInterval: null,
+    isRunning: false,
+
+    start(savedStartTime) {
+        if (this.isRunning) return;
+        this.startTime = savedStartTime || Date.now();
+        this.isRunning = true;
+        localStorage.setItem('directive_start_time', this.startTime.toString());
+        this.update();
+        this.timerInterval = setInterval(() => this.update(), 1000);
+    },
+
+    stop() {
+        clearInterval(this.timerInterval);
+        this.isRunning = false;
+        this.startTime = null;
+        localStorage.removeItem('directive_start_time');
+    },
+
+    update() {
+        if (!this.startTime) return;
+        const elapsed = Date.now() - this.startTime;
+        const timerEl = document.getElementById('directiveTimer');
+        const progressEl = document.getElementById('directiveProgressBar');
+        if (timerEl) timerEl.textContent = this.formatTime(elapsed);
+        if (progressEl) {
+            const progress = Math.min((elapsed / (25 * 60 * 1000)) * 100, 100);
+            progressEl.style.width = `${progress}%`;
+        }
+    },
+
+    formatTime(ms) {
+        const totalSeconds = Math.floor(ms / 1000);
+        const hours = Math.floor(totalSeconds / 3600).toString().padStart(2, '0');
+        const minutes = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
+        const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+        return `${hours}:${minutes}:${seconds}`;
+    },
+
+    reset() {
+        this.stop();
+        const timerEl = document.getElementById('directiveTimer');
+        const progressEl = document.getElementById('directiveProgressBar');
+        if (timerEl) timerEl.textContent = '00:00:00';
+        if (progressEl) progressEl.style.width = '0%';
+    }
+};
+
+// ==========================================
+// ANIME POPUP ENGINE
+// ==========================================
+const AnimePopup = {
+    currentQuest: null,
+    questStartTime: null,
+    playerLevel: 1,
+    playerXP: 0,
+    playerGold: 0,
+
+    show(title, description, timeLimit, rewardXP) {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        this.syncPlayerState();
+
+        this.currentQuest = { 
+            title: title, 
+            rewardXP: rewardXP || 10, 
+            timeLimit: timeLimit || "25:00",
+            type: this.inferQuestType(title),
+            details: description,
+            acceptedAt: null,
+            active: false
+        };
+
+        document.getElementById('animePopupTitle').textContent = title;
+        document.getElementById('animePopupDesc').innerHTML = description;
+        document.getElementById('animePopupTime').textContent = `TIME: ${this.currentQuest.timeLimit}`;
+        document.getElementById('animePopupReward').textContent = `REWARD: +${this.currentQuest.rewardXP} EXP`;
+        document.getElementById('directiveTargetTime').textContent = this.currentQuest.timeLimit;
+
+        const modal = document.getElementById('animeSystemPopup');
+        modal.classList.remove('hidden');
+    },
+
+    inferQuestType(title) {
+        const t = title.toLowerCase();
+        if (t.match(/برمج|code|هندس|ai|تطوير|برمجية/)) return 'coding_ai';
+        if (t.match(/رياض|بدني|ppl|جري|تدريب|قتال/)) return 'sports';
+        if (t.match(/لغة|إنجليز|english|كتاب|قرآن|روح|شرع/)) return 'languages_books';
+        if (t.match(/زنزان|dungeon|ذهن|شطرنج|سودوكو|ذاكرة/)) return 'dungeons';
+        return 'coding_ai';
+    },
+
+    syncPlayerState() {
+        try {
+            const coreData = JSON.parse(localStorage.getItem('monarch_system_data')) || {};
+            this.playerLevel = coreData.level || 1;
+            this.playerXP = coreData.xp || 0;
+            this.playerGold = coreData.gold || 0;
+        } catch(e) {}
+    },
+
+    acceptQuest() {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        document.getElementById('animeSystemPopup').classList.add('hidden');
+        if(this.currentQuest) {
+            this.currentQuest.acceptedAt = Date.now();
+            this.currentQuest.active = true;
+            localStorage.setItem('sovereign_active_quest', JSON.stringify(this.currentQuest));
+
+            document.getElementById('activeDirectiveText').textContent = this.currentQuest.title;
+            document.getElementById('activeDirectiveBar').classList.remove('hidden');
+            DirectiveTimer.start(this.currentQuest.acceptedAt);
+
+            if(window.SovereignEngine) SovereignEngine.state.activeQuest = this.currentQuest;
+            if(window.Toast) Toast.show('تم تفعيل المهمة: ' + this.currentQuest.title, 'success');
+        }
+    },
+
+  completeQuest() {
+        let quest = this.currentQuest || (window.SovereignEngine ? SovereignEngine.state.activeQuest : null);
+        if (!quest) {
+            try { quest = JSON.parse(localStorage.getItem('sovereign_active_quest')); } catch(e){}
+        }
+        if (!quest) {
+            document.getElementById('activeDirectiveBar').classList.add('hidden');
+            if (window.DirectiveTimer) DirectiveTimer.stop();
+            return;
+        }
+
+        const questType = quest.type || 'coding_ai';
+        const baseReward = (window.SovereignEngine ? SovereignEngine.config.weights[questType] : null) || 10;
+        const acceptedAt = quest.acceptedAt || Date.now();
+        const elapsedMinutes = Math.floor((Date.now() - acceptedAt) / 60000);
+
+        let timeBonus = 0;
+        if (elapsedMinutes >= 25) timeBonus = 10;
+        if (elapsedMinutes >= 60) timeBonus = 25;
+
+        const totalXP = baseReward + timeBonus;
+        const goldReward = totalXP * 2;
+
+        if(window.PlayerState) {
+            PlayerState.addXP(totalXP);
+            PlayerState.addGold(goldReward);
+        }
+
+        if(window.SovereignEngine) {
+            SovereignEngine.logToSystem('quest', `تصفية مهمة: [${quest.title}] | +${totalXP} XP`);
+        }
+
+    
+        document.getElementById('activeDirectiveBar').classList.add('hidden');
+        if (window.DirectiveTimer) DirectiveTimer.stop();
+        localStorage.removeItem('sovereign_active_quest');
+        localStorage.removeItem('directive_start_time');
+        if(window.SovereignEngine) SovereignEngine.state.activeQuest = null;
+        this.currentQuest = null;
+
+  
+        if (typeof confetti === 'function') {
+            
+            confetti({
+                particleCount: 140,
+                spread: 80,
+                origin: { y: 0.5 },
+                colors: ['#00f0ff', '#7000ff', '#120024'], 
+                scalar: 0.5,     
+                gravity: 0.8,     
+                startVelocity: 45, 
+                ticks: 80
+            });
+
+            // النبضة الثانية: هالة ذهبية ناعمة تطفو بعد ربع ثانية (ترمز للمكافأة العاهلية)
+            setTimeout(() => {
+                confetti({
+                    particleCount: 40,
+                    spread: 360,
+                    origin: { y: 0.45 },
+                    colors: ['#ffb700', '#ffffff'], // ذهبي ملكي وأبيض ناصع
+                    scalar: 0.4,
+                    gravity: 0.2,       // جاذبية خفيفة جداً تجعل الذهب يطفو كالغبار السحري
+                    startVelocity: 15,  // حركة هادئة
+                    ticks: 120
+                });
+            }, 250);
+        }
+
+        // إشعار النظام الصارم (System Notification)
+        if(window.Toast) {
+        
+            Toast.show(systemMessage, 'success');
+        }
+    },
+
+    cancelQuest() {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        let questToCancel = this.currentQuest || (window.SovereignEngine ? SovereignEngine.state.activeQuest : null);
+        if (!questToCancel) {
+            try { questToCancel = JSON.parse(localStorage.getItem('sovereign_active_quest')); } catch(e){}
+        }
+
+        DirectiveTimer.stop();
+        document.getElementById('activeDirectiveBar').classList.add('hidden');
+
+        if(questToCancel && window.PlayerState) {
+            PlayerState.addXP(-10);
+            if(window.SovereignEngine) SovereignEngine.logToSystem('penalty', `إلغاء مهمة: [${questToCancel.title}] | -10 XP`);
+            if(window.Toast) Toast.show('تم إلغاء المهمة! عقوبة: -10 XP', 'error');
+        }
+
+        localStorage.removeItem('sovereign_active_quest');
+        localStorage.removeItem('directive_start_time');
+        if(window.SovereignEngine) SovereignEngine.state.activeQuest = null;
+        this.currentQuest = null;
+    }
+};
+
+// ==========================================
+// PLAYER STATE (RPG MECHANICS - DATA OVERWRITE SHIELD APPLIED)
+// ==========================================
+
+
+
+
+// ==========================================
+// QUEST SYSTEM
+// ==========================================
+const QuestSystem = {
+    tasks: [],
+    filter: 'all', // 'all' | 'active'
+    init() {
+        const saved = localStorage.getItem('SL_QUESTS');
+        this.tasks = saved ? JSON.parse(saved) : [];
+        this.render();
+    },
+    setFilter(mode) {
+        this.filter = mode;
+        this.render();
+    },
+    addTask() {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        const inp = document.getElementById('taskInput');
+        const prio = document.getElementById('prioritySelect').value;
+        const statSelect = document.getElementById('statSelect').value;
+        if(!inp || !inp.value.trim()) return;
+        const task = { id: Date.now(), text: inp.value.trim(), priority: prio, completed: false, stat: statSelect, createdAt: new Date().toISOString() };
+        this.tasks.unshift(task);
+        inp.value = '';
+        this.save();
+        this.render();
+        Toast.show('Quest deployed to system window', 'success');
+    },
+    toggleTask(id) {
+        const taskIndex = this.tasks.findIndex(t => t.id === id);
+        if (taskIndex === -1) return;
+        const task = this.tasks[taskIndex];
+        let xpReward = task.priority === 'high' ? 100 : task.priority === 'medium' ? 50 : 20;
+        let goldReward = task.priority === 'high' ? 30 : task.priority === 'medium' ? 15 : 5;
+        let authorityReward = task.priority === 'high' ? 10 : task.priority === 'medium' ? 5 : 2;
+
+        if (!task.completed) {
+            task.completed = true;
+            if(window.PlayerState) {
+                PlayerState.data.authority = (PlayerState.data.authority || 0) + authorityReward;
+                PlayerState.addXP(xpReward);
+                PlayerState.addGold(goldReward);
+                PlayerState.addStat(task.stat || 'int', 1);
+            }
+            Toast.show(`Quest Cleared! +${xpReward} EXP`, 'success');
+            if(window.SoundEffects) SoundEffects.playSuccess();
+            if(typeof confetti === 'function') confetti({particleCount: 80, spread: 60, origin: {y: 0.7}, colors: ['#00f0ff','#9d4edd']});
+        } else {
+            task.completed = false;
+            if(window.PlayerState) {
+                PlayerState.data.authority = Math.max(0, (PlayerState.data.authority || 0) - authorityReward);
+                PlayerState.addXP(-xpReward);
+                PlayerState.addGold(-goldReward);
+                if (PlayerState.data.gold < 0) PlayerState.data.gold = 0;
+                PlayerState.addStat(task.stat || 'int', -1);
+            }
+            Toast.show(`Quest Reversed! Rewards Deducted.`, 'error');
+            if(window.SoundEffects) SoundEffects.playSystemClick();
+        }
+        this.save();
+        this.render();
+    },
+    deleteTask(id) {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        this.tasks = this.tasks.filter(t => t.id !== id);
+        this.save();
+        this.render();
+    },
+    render() {
+        const container = document.getElementById('taskContainer');
+        const titleEl = document.getElementById('taskListTitle');
+        const backBtn = document.getElementById('backToAllBtn');
+        if(!container) return;
+        container.innerHTML = '';
+
+        // Update title and back button based on filter
+        if (titleEl) {
+            titleEl.textContent = this.filter === 'active' ? '⚔️ ACTIVE ENGAGEMENTS (Incomplete)' : '⚔️ Active Directives Log';
+            titleEl.className = this.filter === 'active' 
+                ? 'font-black text-sm text-amber-400 tracking-wide uppercase sys-font' 
+                : 'font-black text-sm text-[var(--sys-cyan)] tracking-wide uppercase sys-font';
+        }
+        if (backBtn) {
+            backBtn.classList.toggle('hidden', this.filter !== 'active');
+        }
+
+        let activeCount = 0; let completedCount = 0;
+
+        // Filter tasks
+        const displayTasks = this.filter === 'active' 
+            ? this.tasks.filter(t => !t.completed) 
+            : this.tasks;
+
+        if (displayTasks.length === 0) {
+            const emptyMsg = this.filter === 'active' 
+                ? '<p>[NO INCOMPLETE ENGAGEMENTS DETECTED]</p><p class="text-[10px] mt-2">All directives have been cleared.</p>'
+                : '<p>[NO ACTIVE QUESTS DETECTED]</p>';
+            container.innerHTML = `<div class="text-center py-10 opacity-30 sys-font">${emptyMsg}</div>`;
+            this.updateStatsUI(0, 0, 0);
+            return;
+        }
+        const statColors = { 'int': 'text-[var(--sys-cyan)]', 'str': 'text-rose-500', 'vit': 'text-emerald-500', 'agi': 'text-sky-400', 'sen': 'text-[var(--sys-purple)]' };
+        displayTasks.forEach(task => {
+            task.completed ? completedCount++ : activeCount++;
+            const escapedText = task.text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            const div = document.createElement('div');
+            div.className = `task-card flex items-center justify-between p-4 bg-slate-900/80 backdrop-blur-sm border-y border-y-slate-800 transition-all ${task.completed ? 'completed opacity-50' : ''}`;
+            div.innerHTML = `
+                <div class="flex items-center gap-4">
+                    <button onclick="QuestSystem.toggleTask(${task.id})" class="w-6 h-6 rounded border-2 border-[var(--sys-cyan)] flex items-center justify-center hover:bg-[var(--sys-cyan)] hover:bg-opacity-20 transition-colors ${task.completed ? 'bg-[var(--sys-cyan)]' : ''}">
+                        ${task.completed ? '<span class="text-black text-xs font-black">✓</span>' : ''}
+                    </button>
+                    <div>
+                        <div class="font-bold text-white text-sm ${task.completed ? 'line-through text-slate-500' : ''}">${escapedText}</div>
+                        <div class="flex gap-2 mt-1">
+                            <span class="sys-font text-[10px] px-2 py-0.5 border border-slate-700 bg-black/50 ${statColors[task.stat || 'int']} uppercase tracking-widest">+1 ${(task.stat || 'int').toUpperCase()}</span>
+                            <span class="sys-font text-[10px] px-2 py-0.5 border border-slate-700 bg-black/50 text-amber-400 uppercase tracking-widest">RANK: ${(task.priority || 'medium').toUpperCase()}</span>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="QuestSystem.deleteTask(${task.id})" class="text-slate-600 hover:text-rose-500 transition-colors p-2">🗑️</button>
+            `;
+            container.appendChild(div);
+        });
+        const lethalityRate = Math.round((completedCount / this.tasks.length) * 100);
+        if(window.PlayerState) {
+            PlayerState.data.lethality = lethalityRate;
+            PlayerState.save();
+        }
+        this.updateStatsUI(activeCount, this.tasks.length, lethalityRate);
+    },
+    updateStatsUI(active, all, lethality) {
+        if(document.getElementById('cnt-active-val')) document.getElementById('cnt-active-val').textContent = active;
+        if(document.getElementById('stat-lethality')) document.getElementById('stat-lethality').textContent = `${lethality}%`;
+    },
+    save() { localStorage.setItem('SL_QUESTS', JSON.stringify(this.tasks)); }
+};
+
+// ==========================================
+// POMODORO TIMER
+// ==========================================
+const Pomodoro = {
+    defaultTime: parseInt(localStorage.getItem('SL_SYS_TIMER')) || (5 * 3600),
+    timeLeft: 0, timer: null, isRunning: false,
+    init() { this.timeLeft = this.defaultTime; this.updateUI(); },
+    saveSettings() {
+        const h = parseInt(document.getElementById('inputHours').value) || 0;
+        const m = parseInt(document.getElementById('inputMinutes').value) || 0;
+        const tot = (h * 3600) + (m * 60);
+        if (tot > 0) {
+            this.defaultTime = tot;
+            localStorage.setItem('SL_SYS_TIMER', this.defaultTime.toString());
+            document.getElementById('timerModal').classList.add('hidden');
+            clearInterval(this.timer); this.timeLeft = this.defaultTime; this.isRunning = false;
+            this.toggle();
+        }
+    },
+    toggle() {
+        if(typeof SoundEffects !== 'undefined') SoundEffects.playSystemClick();
+        const btn = document.getElementById('timerBtn');
+        const st = document.getElementById('timerStatus');
+        if (this.isRunning) {
+            clearInterval(this.timer);
+            btn.textContent = 'START'; btn.classList.remove('bg-rose-600/30');
+            st.textContent = 'PAUSED'; st.className = 'sys-font text-[9px] px-2 py-0.5 bg-amber-900 border border-amber-600 text-amber-300 uppercase';
+        } else {
+            if (this.timeLeft <= 0) this.timeLeft = this.defaultTime;
+            this.timer = setInterval(() => { if (this.timeLeft > 0) { this.timeLeft--; this.updateUI(); } else { this.finish(); } }, 1000);
+            btn.textContent = '⏸️'; btn.classList.add('bg-rose-600/30');
+            st.textContent = 'IN COMBAT'; st.className = 'sys-font text-[9px] px-2 py-0.5 bg-rose-900 border border-rose-600 text-rose-300 uppercase animate-pulse';
+        }
+        this.isRunning = !this.isRunning;
+    },
+    reset() {
+        if(typeof SoundEffects !== 'undefined') SoundEffects.playSystemClick();
+        clearInterval(this.timer);
+        this.timeLeft = this.defaultTime; this.isRunning = false;
+        const btn = document.getElementById('timerBtn'); btn.textContent = 'START'; btn.classList.remove('bg-rose-600/30');
+        const st = document.getElementById('timerStatus');
+        st.textContent = 'IDLE'; st.className = 'sys-font text-[9px] px-2 py-0.5 bg-slate-800 border border-slate-600 text-slate-300 uppercase';
+        this.updateUI();
+    },
+    finish() {
+        clearInterval(this.timer);
+        if(typeof SoundEffects !== 'undefined') SoundEffects.playSuccess();
+        if (typeof confetti !== 'undefined') confetti({ particleCount: 100, colors: ['#00f0ff'] });
+        this.reset();
+    },
+    updateUI() {
+        const h = Math.floor(this.timeLeft / 3600).toString().padStart(2, '0');
+        const m = Math.floor((this.timeLeft % 3600) / 60).toString().padStart(2, '0');
+        const s = (this.timeLeft % 60).toString().padStart(2, '0');
+        if(document.getElementById('timerDisplay')) document.getElementById('timerDisplay').textContent = `${h}:${m}:${s}`;
+    }
+};
+
+const Milestone = {
+    hide() {
+        document.getElementById('milestoneModal').classList.add('hidden');
+        if(typeof SoundEffects !== 'undefined') SoundEffects.playSystemClick();
+    }
+};
+</script>
+</body>
+</html>

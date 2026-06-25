@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚔️ الأسبوع 10 | مخطط الأداء والتحسين</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #dc2626;
+            --primary-dark: #7f1d1d;
+            --primary-glow: rgba(220, 38, 38, 0.4);
+            --white: #f8fafc;
+            --white-soft: #e2e8f0;
+            --gray: #94a3b8;
+            --dark: #0a0a0f;
+            --gold: #fbbf24;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--dark);
+            color: var(--white-soft);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.7;
+        }
+
+        .bg-layer {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none;
+        }
+
+        .bg-grid {
+            background-image: 
+                linear-gradient(rgba(220, 38, 38, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(220, 38, 38, 0.04) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        .bg-glow {
+            background: radial-gradient(ellipse at 50% 50%, rgba(220, 38, 38, 0.12) 0%, transparent 60%);
+            animation: breathe 6s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.15); }
+        }
+
+        .particles {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none; z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px; height: 3px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 6px var(--primary);
+            animation: floatUp linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .main-card {
+            background: linear-gradient(145deg, rgba(17,17,24,0.95) 0%, rgba(13,13,20,0.98) 100%);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 
+                0 25px 50px -12px rgba(0,0,0,0.5),
+                0 0 60px rgba(220, 38, 38, 0.08),
+                inset 0 1px 0 rgba(255,255,255,0.03);
+            backdrop-filter: blur(10px);
+            animation: cardEnter 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        @keyframes cardEnter {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(220, 38, 38, 0.15);
+        }
+
+        .badge-week {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 12px;
+            font-weight: 900;
+            font-size: 0.9rem;
+            box-shadow: 0 0 20px rgba(220, 38, 38, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .badge-week::before {
+            content: "";
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .level-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--gold);
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .level-icon {
+            font-size: 1.3rem;
+            animation: swordPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes swordPulse {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.2) rotate(-5deg); }
+        }
+
+        .title-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .main-title {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--white);
+            margin-bottom: 8px;
+            text-shadow: 0 0 30px rgba(220, 38, 38, 0.3);
+            letter-spacing: -0.5px;
+        }
+
+        .sub-title {
+            color: var(--gray);
+            font-size: 1rem;
+            font-weight: 400;
+        }
+
+        .progress-section {
+            margin-bottom: 30px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 10%;
+            background: linear-gradient(90deg, var(--primary), #dc2626cc);
+            border-radius: 4px;
+            box-shadow: 0 0 10px var(--primary-glow);
+            animation: progressGrow 2s ease-out 0.5s forwards;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: "";
+            position: absolute;
+            top: 0; right: 0;
+            width: 20px; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+            animation: progressShine 2s infinite;
+        }
+
+        @keyframes progressGrow {
+            to { width: 10%; }
+        }
+
+        @keyframes progressShine {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(100px); }
+        }
+
+        .desc-main {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.06), rgba(220, 38, 38, 0.02));
+            border-right: 4px solid var(--primary);
+            padding: 20px 24px;
+            border-radius: 0 16px 16px 0;
+            margin-bottom: 30px;
+            font-size: 1.05rem;
+            color: var(--white-soft);
+            line-height: 1.9;
+        }
+
+        .content-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: var(--white);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(220, 38, 38, 0.15);
+        }
+
+        .section-icon {
+            font-size: 1.4rem;
+        }
+
+        .lesson-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .lesson-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(220, 38, 38, 0.1);
+            border-radius: 14px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lesson-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0;
+            width: 3px; height: 100%;
+            background: var(--primary);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .lesson-card:hover {
+            border-color: rgba(220, 38, 38, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(220, 38, 38, 0.1);
+        }
+
+        .lesson-card:hover::before {
+            opacity: 1;
+        }
+
+        .lesson-number {
+            display: inline-block;
+            background: var(--primary);
+            color: #fff;
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 28px;
+            font-size: 0.8rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+        }
+
+        .lesson-title {
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .lesson-desc {
+            font-size: 0.85rem;
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        .skills-section {
+            margin-bottom: 30px;
+        }
+
+        .skills-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .skill-tag {
+            background: rgba(220, 38, 38, 0.08);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+            color: var(--white-soft);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .skill-tag:hover {
+            background: var(--primary);
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        .resources-section {
+            margin-bottom: 30px;
+        }
+
+        .resource-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255,255,255,0.03);
+            transition: all 0.3s;
+        }
+
+        .resource-item:hover {
+            background: rgba(220, 38, 38, 0.05);
+            border-color: rgba(220, 38, 38, 0.15);
+            padding-right: 24px;
+        }
+
+        .resource-icon {
+            font-size: 1.3rem;
+        }
+
+        .resource-text {
+            flex: 1;
+        }
+
+        .resource-name {
+            font-weight: 700;
+            color: var(--white);
+            font-size: 0.9rem;
+        }
+
+        .resource-url {
+            font-size: 0.75rem;
+            color: var(--gray);
+            direction: ltr;
+            text-align: right;
+        }
+
+        .price-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .price-card {
+            text-align: center;
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .price-card.base {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.08), rgba(220, 38, 38, 0.02));
+            border-color: rgba(220, 38, 38, 0.2);
+        }
+
+        .price-card.disc {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.08), rgba(34, 197, 94, 0.02));
+            border-color: rgba(34, 197, 94, 0.2);
+        }
+
+        .price-label {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-bottom: 6px;
+        }
+
+        .price-value {
+            font-size: 1.6rem;
+            font-weight: 900;
+        }
+
+        .price-card.base .price-value { color: var(--primary); }
+        .price-card.disc .price-value { color: #22c55e; }
+
+        .price-xp {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-top: 4px;
+        }
+
+        .cta-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            border: none;
+            border-radius: 16px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 900;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 
+                0 0 30px rgba(220, 38, 38, 0.3),
+                0 10px 20px rgba(220, 38, 38, 0.2);
+            transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 
+                0 0 50px rgba(220, 38, 38, 0.5),
+                0 15px 30px rgba(220, 38, 38, 0.3);
+        }
+
+        .cta-btn::before {
+            content: "";
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            transition: left 0.6s;
+        }
+
+        .cta-btn:hover::before {
+            left: 100%;
+        }
+
+        .cta-icon {
+            font-size: 1.4rem;
+            animation: gatePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes gatePulse {
+            0%, 100% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.2); filter: brightness(1.3); }
+        }
+
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(220, 38, 38, 0.1);
+        }
+
+        .day-info {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(251, 191, 36, 0.08);
+            border: 1px solid rgba(251, 191, 36, 0.15);
+            color: var(--gold);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .copyright {
+            font-size: 0.75rem;
+            color: #475569;
+        }
+
+        .system-name {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(220, 38, 38, 0.2), transparent);
+            margin: 24px 0;
+        }
+
+        @media (max-width: 600px) {
+            .main-card { padding: 24px; }
+            .main-title { font-size: 1.5rem; }
+            .header-bar { flex-direction: column; text-align: center; }
+            .price-section { grid-template-columns: 1fr; }
+            .lesson-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-layer bg-grid"></div>
+    <div class="bg-layer bg-glow"></div>
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <div class="main-card">
+            <div class="header-bar">
+                <div class="badge-week">📅 الأسبوع 10</div>
+                <div class="level-info">
+                    <span class="level-icon">⚔️</span>
+                    <span>المستوى المطلوب: 10</span>
+                </div>
+            </div>
+
+            <div class="title-section">
+                <h1 class="main-title">مخطط الأداء والتحسين</h1>
+                <div class="sub-title">Performance Tuning — أدوات تقنية لرفع سرعة تطبيقاتك وجعلها تعمل كالبرق....</div>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-header">
+                    <span>🎯 تقدم الأسبوع</span>
+                    <span>10 / 100 أسبوع</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+            </div>
+
+            <div class="desc-main">
+                <strong>🎯 الهدف:</strong> أدوات تقنية لرفع سرعة تطبيقاتك وجعلها تعمل كالبرق.
+            </div>
+
+            <div class="content-section">
+                <div class="section-title">
+                    <span class="section-icon">📚</span>
+                    <span>الدروس التعليمية</span>
+                </div>
+                <div class="lesson-grid">
+                    <div class="lesson-card">
+                        <div class="lesson-number">1</div>
+                        <div class="lesson-title">المفاهيم الأساسية</div>
+                        <div class="lesson-desc">تعلم الأساسيات والمبادئ الأولية لهذا المجال بعمق وإتقان.</div>
+                    </div>
+                    <div class="lesson-card">
+                        <div class="lesson-number">2</div>
+                        <div class="lesson-title">التطبيق العملي</div>
+                        <div class="lesson-desc">تطبيق النظريات على مشاريع واقعية لبناء الخبرة العملية.</div>
+                    </div>
+                    <div class="lesson-card">
+                        <div class="lesson-number">3</div>
+                        <div class="lesson-title">التقنيات المتقدمة</div>
+                        <div class="lesson-desc">إتقان الأدوات والتقنيات المتقدمة للارتقاء بمستوى المهارة.</div>
+                    </div>
+                    <div class="lesson-card">
+                        <div class="lesson-number">4</div>
+                        <div class="lesson-title">حل المشكلات</div>
+                        <div class="lesson-desc">تطوير مهارة تحليل وحل المشكلات المعقدة في هذا المجال.</div>
+                    </div>
+                    <div class="lesson-card">
+                        <div class="lesson-number">5</div>
+                        <div class="lesson-title">المشاريع الكبرى</div>
+                        <div class="lesson-desc">بناء مشاريع شاملة تجمع كل ما تم تعلمه في أسبوع واحد.</div>
+                    </div>
+                    <div class="lesson-card">
+                        <div class="lesson-number">6</div>
+                        <div class="lesson-title">الإتقان والتخصص</div>
+                        <div class="lesson-desc">الوصول إلى مستوى الاحترافية والتفوق في هذا المجال.</div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="skills-section">
+                <div class="section-title">
+                    <span class="section-icon">💎</span>
+                    <span>المهارات المكتسبة</span>
+                </div>
+                <div class="skills-grid">
+                    <span class="skill-tag">🎯 التركيز</span>
+                    <span class="skill-tag">💪 الإرادة</span>
+                    <span class="skill-tag">🧠 الذكاء</span>
+                    <span class="skill-tag">⚡ السرعة</span>
+                    <span class="skill-tag">🔥 الشغف</span>
+                    <span class="skill-tag">🛡️ الصبر</span>
+                    <span class="skill-tag">⚔️ القوة</span>
+                    <span class="skill-tag">👁️ البصيرة</span>
+
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="resources-section">
+                <div class="section-title">
+                    <span class="section-icon">🔗</span>
+                    <span>الموارد الأساسية</span>
+                </div>
+                <div class="resource-item">
+                    <span class="resource-icon">📖</span>
+                    <div class="resource-text">
+                        <div class="resource-name">المرجع الرئيسي</div>
+                        <div class="resource-url">example.com</div>
+                    </div>
+                </div>
+                <div class="resource-item">
+                    <span class="resource-icon">🎓</span>
+                    <div class="resource-text">
+                        <div class="resource-name">دورة تعليمية</div>
+                        <div class="resource-url">course.example.com</div>
+                    </div>
+                </div>
+                <div class="resource-item">
+                    <span class="resource-icon">🎨</span>
+                    <div class="resource-text">
+                        <div class="resource-name">أدوات مساعدة</div>
+                        <div class="resource-url">tools.example.com</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="price-section">
+                <div class="price-card base">
+                    <div class="price-label">💰 السعر الأصلي</div>
+                    <div class="price-value">6,000</div>
+                    <div class="price-xp">XP نقطة خبرة</div>
+                </div>
+                <div class="price-card disc">
+                    <div class="price-label">🔥 السعر المخفض</div>
+                    <div class="price-value">600</div>
+                    <div class="price-xp">XP نقطة خبرة</div>
+                </div>
+            </div>
+
+            <div class="cta-section">
+                <a href="https://web.dev/fast" class="cta-btn" target="_blank">
+                    <span class="cta-icon">🚪</span>
+                    <span>فتح بوابة الأسبوع 10</span>
+                </a>
+            </div>
+
+            <div class="footer">
+                <div class="day-info">
+                    <span>📅</span>
+                    <span>يوم الاثنين (Day 1)</span>
+                </div>
+                <div class="copyright">
+                    <span class="system-name">Solo Leveling RPG System</span> © Week 10 — ارفع مستواك
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 30; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = Math.random() * 100 + '%';
+            p.style.animationDuration = (8 + Math.random() * 12) + 's';
+            p.style.animationDelay = Math.random() * 10 + 's';
+            p.style.width = (2 + Math.random() * 3) + 'px';
+            p.style.height = p.style.width;
+            particlesContainer.appendChild(p);
+        }
+    </script>
+</body>
+</html>

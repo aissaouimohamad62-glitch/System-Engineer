@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sovereign System | زنزانة الثقافة الإسلامية المظلمة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'sys-dark': '#000000',
+                        'sys-cyan': '#00f0ff',
+                        'sys-purple': '#b026ff',
+                        'sys-gold': '#ffd700',
+                        'sys-rose': '#e11d48',
+                        'sys-green': '#10b981',
+                    },
+                    fontFamily: {
+                        'cairo': ['Cairo', 'sans-serif'],
+                        'orbitron': ['Orbitron', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --sys-cyan: #00f0ff;
+            --sys-purple: #b026ff;
+            --danger: #e11d48;
+            --success: #10b981;
+            --bg-dark: #05050a;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg-dark);
+            color: #e2e8f0;
+                    }
+
+        .neon-border {
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.1), inset 0 0 15px rgba(0, 240, 255, 0.05);
+            background: rgba(5, 10, 20, 0.85);
+            backdrop-filter: blur(10px);
+        }
+
+        .sys-btn {
+            background: linear-gradient(180deg, rgba(0, 240, 255, 0.05) 0%, rgba(5, 10, 25, 0.8) 100%);
+            border: 1px solid var(--sys-cyan);
+            color: var(--sys-cyan);
+            transition: all 0.3s;
+        }
+
+        .sys-btn:hover:not(:disabled) {
+            box-shadow: 0 0 20px rgba(0,240,255,0.4);
+            background: rgba(0,240,255,0.15);
+            transform: translateY(-1px);
+        }
+
+        .btn-correct { background: var(--success) !important; color: white !important; border-color: var(--success) !important; box-shadow: 0 0 20px rgba(16, 185, 129, 0.5) !important; }
+        .btn-wrong { background: var(--danger) !important; color: white !important; border-color: var(--danger) !important; box-shadow: 0 0 20px rgba(225, 29, 72, 0.5) !important; }
+
+        .timer-bar-container { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+        .timer-bar-fill { height: 100%; width: 100%; background: var(--sys-cyan); transition: width 0.1s linear, background-color 0.3s; box-shadow: 0 0 10px var(--sys-cyan); }
+        
+        .nav-btn {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            transition: all 0.3s;
+        }
+        .nav-btn:hover { border-color: var(--sys-cyan); box-shadow: 0 0 15px rgba(0, 240, 255, 0.4); }
+
+        .floor-glow {
+            text-shadow: 0 0 15px var(--sys-purple), 0 0 30px var(--sys-purple);
+        }
+    </style>
+    <link rel="stylesheet" href="index11.css">
+    <script src="monarch-core.js"></script>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-x-hidden">
+<div class="sov-secondary-bg" aria-hidden="true"></div>
+<div class="fixed top-6 left-6 z-50 flex gap-4 items-center color: #dedede; /* لون أرجواني سيادي */
+    text-shadow: 0 0 8px rgb(133, 133, 133);
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-left: 10px;
+    padding: 3px 10px;
+    
+    
+    
+    letter-spacing: 1px;">
+    <button onclick="SoundEffects.toggleMusic(1)" class="w-10 h-10 flex items-center justify-center bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-[var(--sys-cyan)] rounded-full transition-all shadow-[0_0_10px_rgba(0,0,0,0.5)]">
+        <span id="musicIcon1" class="text-lg animate-pulse">🎵</span>
+    </button>
+    <button onclick="SoundEffects.toggleMusic(2)" class="w-10 h-10 flex items-center justify-center bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-[var(--sys-cyan)] rounded-full transition-all shadow-[0_0_10px_rgba(0,0,0,0.5)]">
+        <span id="musicIcon2" class="text-lg animate-pulse">🎼</span>
+    </button>
+    <a href="https://aissaouimohamad62-glitch.github.io/proto/" target="_blank" class="px-4 py-2 bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-white text-xs font-black uppercase tracking-widest rounded flex items-center gap-2 shadow-[0_0_10px_rgba(0,0,0,0.5)] transition-all">
+        <span>𝐏𝐎𝐑𝐓𝐅𝐎𝐋𝐈𝐎</span> <span class="text-[var(--sys-cyan)]">📍</span>
+    </a>
+    <a href="https://aissaouimohamad62-glitch.github.io/booksoverhaul.dz/" target="_blank" class="px-4 py-2 bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-white text-xs font-black uppercase tracking-widest rounded flex items-center gap-2 shadow-[0_0_10px_rgba(0,0,0,0.5)] transition-all">
+        <span>𝐋𝐈𝐁𝐑𝐀𝐑𝐘</span> <span class="text-[var(--sys-cyan)]">📒</span>
+    </a>
+    
+</div>
+    <nav class="absolute top-4 left-1/2 transform -translate-x-1/2 flex flex-wrap gap-3 w-full max-w-4xl px-4 justify-center z-50">
+        <button onclick="window.location.href='index11.html'" class="nav-btn px-4 py-2 text-xs md:text-sm text-slate-300 rounded font-bold font-orbitron flex items-center gap-2">
+            <span class="text-sys-cyan">↩</span> <span>🏠 DASHBOARD العودة للرئيسية</span>
+        </button>
+        <button onclick="window.location.href='dungeons.html'" class="nav-btn px-4 py-2 text-xs md:text-sm text-sys-purple rounded font-bold font-orbitron flex items-center gap-2 hover:border-sys-purple shadow-[0_0_10px_rgba(176,38,255,0.1)]">
+            <span>⛩️</span> <span>العودة لصفحة الزنازن</span>
+        </button>
+    </nav>
+
+    <header class="absolute top-20 left-1/2 transform -translate-x-1/2 w-full max-w-4xl px-4 z-40">
+        <div class="grid grid-cols-3 gap-2 md:gap-4 bg-black/60 border border-sys-cyan/30 rounded-lg p-3 backdrop-blur-md shadow-[0_0_20px_rgba(0,240,255,0.1)]">
+            <div class="text-center border-l border-white/10">
+                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest block">Player Level</span>
+                <span id="global-level" class="text-lg md:text-xl font-black text-sys-purple drop-shadow-[0_0_5px_rgba(176,38,255,0.5)]">LVL --</span>
+            </div>
+            <div class="text-center border-l border-white/10">
+                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest block">Gold</span>
+                <span id="global-gold" class="text-lg md:text-xl font-black text-amber-500 drop-shadow-[0_0_5px_rgba(245,158,11,0.5)]">0 G</span>
+            </div>
+            <div class="text-center flex flex-col justify-center px-2">
+                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest block mb-1">XP Progress</span>
+                <div class="w-full bg-slate-900 h-2 md:h-3 rounded overflow-hidden border border-slate-700 relative">
+                    <div id="global-xp-bar" class="bg-gradient-to-r from-sys-cyan to-blue-500 h-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <span id="global-xp-text" class="text-[10px] font-bold text-slate-400 mt-1">0/0</span>
+            </div>
+        </div>
+    </header>
+
+    <div id="start-screen" class="neon-border p-8 rounded-xl max-w-xl w-full text-center z-10 mt-32 animate-[fadeIn_0.5s_ease-out]">
+        <div class="font-orbitron text-sys-cyan text-xs tracking-[0.3em] uppercase mb-2">[ System Notification ]</div>
+        <h1 class="text-3xl font-black text-white mb-2 drop-shadow-[0_0_10px_rgba(0,240,255,0.5)]">زنزانة الثقافة اللانهائية</h1>
+        <div class="text-sys-purple font-bold text-lg mb-4 floor-glow">Floor <span id="display-floor-start">1</span></div>
+        <p class="text-slate-400 text-sm mb-6 leading-relaxed">
+            زنزانة تعتمد على البقاء (Survival Mode).<br> 
+            كل طابق يحتوي على أسئلة أكثر من سابقه. أجب على <span class="text-emerald-400 font-bold">80%</span> بشكل صحيح للعبور للطابق التالي ومضاعفة جوائزك.<br>
+            <span class="text-rose-500 font-bold">تحذير:</span> الفشل يعني طردك وعودتك للطابق الأول!
+        </p>
+        <button class="sys-btn w-full py-4 font-black text-lg tracking-widest rounded uppercase shadow-[0_0_20px_rgba(0,240,255,0.2)]" onclick="startFloor()">[ اقتحام الطابق ]</button>
+    </div>
+
+    <div id="quiz-screen" class="neon-border p-6 md:p-8 rounded-xl max-w-xl w-full z-10 mt-32 hidden">
+        <div class="flex justify-between items-center mb-4">
+            <div class="font-orbitron text-sys-purple text-xs md:text-sm font-bold tracking-widest uppercase">
+                Floor <span id="current-floor-ui">1</span> <span class="text-slate-500 mx-2">|</span> Q <span id="q-number">1</span>/<span id="q-total">5</span>
+            </div>
+            <div class="text-xs text-sys-cyan font-bold bg-sys-cyan/10 px-3 py-1 border border-sys-cyan/30 rounded">INT Check</div>
+        </div>
+        
+        <div class="timer-bar-container mb-6"><div id="timer-bar" class="timer-bar-fill"></div></div>
+        
+        <h2 id="question" class="text-xl md:text-2xl font-bold text-white mb-8 leading-relaxed min-h-[80px]">...</h2>
+        
+        <div id="options" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            </div>
+    </div>
+
+    <div id="result-screen" class="neon-border p-8 rounded-xl max-w-xl w-full text-center z-10 mt-32 hidden">
+        <div id="result-status-title" class="font-orbitron text-xs tracking-[0.3em] uppercase mb-2">...</div>
+        <h2 class="text-4xl font-black text-white mb-2" id="floor-result-msg">...</h2>
+        <p class="text-slate-400 text-sm mb-6" id="feedback-msg">...</p>
+        
+        <div id="rewards-box" class="bg-black/50 border border-sys-cyan/30 rounded p-4 mb-6 text-left hidden">
+            <div class="text-[10px] text-sys-cyan font-orbitron mb-2 uppercase tracking-widest border-b border-sys-cyan/20 pb-2">Floor Loot Extracted:</div>
+            <div class="flex flex-col gap-2 font-orbitron text-sm font-bold mt-2">
+                <div class="flex justify-between"><span class="text-white">Experience Points</span><span class="text-emerald-400" id="reward-xp">+0 XP</span></div>
+                <div class="flex justify-between"><span class="text-white">Sovereign Gold</span><span class="text-yellow-500" id="reward-gold">+0 G</span></div>
+                <div class="flex justify-between"><span class="text-white">Intelligence Stat</span><span class="text-sys-cyan" id="reward-int">+0 INT</span></div>
+            </div>
+        </div>
+
+        <button id="next-action-btn" class="sys-btn w-full py-4 font-black text-lg rounded uppercase tracking-widest" onclick="handleNextAction()">[ المتابعة ]</button>
+    </div>
+<script src="questions.js"></script>
+    <script>
+        const questionBank = myDungeonQuestions; // الجديد
+        // ==========================================
+        // 1. قاعدة البيانات القابلة للتوسع (Massive Question Bank)
+        // يمكنك إضافة آلاف الأسئلة هنا بنفس التنسيق
+        // ==========================================
+       
+        // ==========================================
+        // 2. نظام الطوابق والتقدم (Floor Progression System)
+        // ==========================================
+        let currentFloor = parseInt(localStorage.getItem('islamic_dungeon_floor')) || 1;
+        let currentStageQuestions = [];
+        let currentQIndex = 0;
+        let score = 0;
+        let timeLeft = 200; // 20 ثانية (200 * 100ms)
+        let timerInterval;
+
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const timerBar = document.getElementById('timer-bar');
+
+        // تهيئة الشاشة الافتتاحية
+        document.getElementById('display-floor-start').innerText = currentFloor;
+
+        function startFloor() {
+            // حساب عدد الأسئلة للطابق الحالي (يبدأ بـ 5 وكل طابق يزيد سؤالين)
+            const numQuestions = 3 + (currentFloor * 2);
+            
+            // سحب أسئلة عشوائية من بنك الأسئلة
+            currentStageQuestions = [...questionBank].sort(() => 0.5 - Math.random()).slice(0, numQuestions);
+            
+            currentQIndex = 0;
+            score = 0;
+
+            document.getElementById('current-floor-ui').innerText = currentFloor;
+            document.getElementById('q-total').innerText = currentStageQuestions.length;
+
+            startScreen.classList.add('hidden');
+            resultScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            clearInterval(timerInterval);
+            timeLeft = 200; // 20 ثانية للرد (وقت ممتد كما طلبت)
+            timerBar.style.width = '100%';
+            timerBar.style.backgroundColor = 'var(--sys-cyan)';
+            
+            document.getElementById('q-number').innerText = currentQIndex + 1;
+            document.getElementById('question').innerText = currentStageQuestions[currentQIndex].q;
+            
+            const optsDiv = document.getElementById('options');
+            optsDiv.innerHTML = '';
+            
+            currentStageQuestions[currentQIndex].options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'sys-btn py-4 px-4 rounded font-bold text-sm text-right leading-relaxed';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(idx, btn);
+                optsDiv.appendChild(btn);
+            });
+            startTimer();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft -= 1; // ينقص درجة كل 100 ملي ثانية
+                timerBar.style.width = Math.max(0, (timeLeft/200)*100) + '%';
+                
+                if(timeLeft <= 60) timerBar.style.backgroundColor = 'var(--danger)'; // آخر 6 ثواني خطر
+                if(timeLeft <= 0) { 
+                    clearInterval(timerInterval); 
+                    checkAnswer(-1, null); 
+                }
+            }, 100);
+        }
+
+        function checkAnswer(selected, btnNode) {
+            clearInterval(timerInterval);
+            const correct = currentStageQuestions[currentQIndex].answer;
+            const buttons = document.getElementById('options').children;
+
+            for(let b of buttons) b.disabled = true;
+
+            if (selected === correct) {
+                if(btnNode) btnNode.classList.add('btn-correct');
+                score++;
+            } else {
+                if(btnNode) btnNode.classList.add('btn-wrong');
+                buttons[correct].classList.add('btn-correct');
+            }
+            setTimeout(nextQuestion, 1200);
+        }
+
+        function nextQuestion() {
+            currentQIndex++;
+            if (currentQIndex < currentStageQuestions.length) {
+                loadQuestion();
+            } else {
+                evaluateFloor();
+            }
+        }
+
+        // ==========================================
+        // 3. تقييم الطابق ونظام الغنائم (Loot & Sync)
+        // ==========================================
+        function evaluateFloor() {
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            
+            const totalQ = currentStageQuestions.length;
+            const passingScore = Math.ceil(totalQ * 0.8); // 80% للنجاح
+            const success = score >= passingScore;
+
+            const titleEl = document.getElementById('result-status-title');
+            const msgEl = document.getElementById('floor-result-msg');
+            const feedEl = document.getElementById('feedback-msg');
+            const btnEl = document.getElementById('next-action-btn');
+            const rewardsBox = document.getElementById('rewards-box');
+
+            if (success) {
+                // الفوز بالطابق
+                titleEl.innerText = "[ FLOOR CLEARED ]";
+                titleEl.className = "font-orbitron text-emerald-400 text-xs tracking-[0.3em] uppercase mb-2";
+                msgEl.innerText = `تم اختراق الطابق ${currentFloor}`;
+                msgEl.style.color = "var(--sys-cyan)";
+                feedEl.innerText = `أداء استثنائي! أجبت على ${score}/${totalQ} بشكل صحيح.`;
+                btnEl.innerText = "[ اقتحام الطابق التالي ]";
+                
+                // حساب الجوائز (تتضاعف مع الطوابق)
+                const earnedXP = 100 + (currentFloor * 50);
+                const earnedGold = 20 + (currentFloor * 10);
+                const earnedInt = (currentFloor % 3 === 0) ? 2 : 1; // +INT إضافي كل 3 طوابق
+
+                document.getElementById('reward-xp').innerText = `+${earnedXP} XP`;
+                document.getElementById('reward-gold').innerText = `+${earnedGold} G`;
+                document.getElementById('reward-int').innerText = `+${earnedInt} INT`;
+                rewardsBox.classList.remove('hidden');
+
+                // تحديث الـ State و LocalStorage
+                currentFloor++;
+                localStorage.setItem('islamic_dungeon_floor', currentFloor);
+                injectRewardsToGlobalSystem(earnedXP, earnedGold, earnedInt);
+
+                if(typeof confetti === 'function') confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: ['#00f0ff', '#10b981'] });
+
+            } else {
+                // الخسارة والموت (Permadeath)
+                titleEl.innerText = "[ SYSTEM FATAL ERROR ]";
+                titleEl.className = "font-orbitron text-rose-500 text-xs tracking-[0.3em] uppercase mb-2 animate-pulse";
+                msgEl.innerText = "فشل ذريع!";
+                msgEl.style.color = "var(--danger)";
+                feedEl.innerHTML = `أجبت على ${score}/${totalQ} فقط.<br>النظام يعاقبك بإعادتك إلى الطابق الأول.`;
+                btnEl.innerText = "[ إعادة بناء النظام (طابق 1) ]";
+                btnEl.style.borderColor = "var(--danger)";
+                btnEl.style.color = "var(--danger)";
+                rewardsBox.classList.add('hidden');
+
+                // إعادة الضبط
+                currentFloor = 1;
+                localStorage.setItem('islamic_dungeon_floor', currentFloor);
+            }
+        }
+
+        function handleNextAction() {
+            // إعادة تحميل الشاشة للبدء من جديد
+            location.reload();
+        }
+
+        // ==========================================
+        // 4. دمج وحقن البيانات مع لوحة التحكم الرئيسية (index11.html)
+        // ==========================================
+        function injectRewardsToGlobalSystem(xp, gold, int) {
+            try {
+                let systemData = JSON.parse(localStorage.getItem('monarch_system_data')) || { level: 1, xp: 0, gold: 0, stats: {int: 10} };
+                
+                systemData.xp = (systemData.xp || 0) + xp;
+                systemData.gold = (systemData.gold || 0) + gold;
+                if(!systemData.stats) systemData.stats = {};
+                systemData.stats.int = (systemData.stats.int || 10) + int;
+
+                // منطق رفع المستوى (Level Up)
+                let xpNeeded = (systemData.level || 1) * 100;
+                while (systemData.xp >= xpNeeded) {
+                    systemData.xp -= xpNeeded;
+                    systemData.level = (systemData.level || 1) + 1;
+                    xpNeeded = systemData.level * 100;
+                    if(typeof confetti === 'function') setTimeout(() => { confetti({ particleCount: 300, spread: 150, origin: { y: 0.3 }}); }, 500);
+                }
+
+                localStorage.setItem('monarch_system_data', JSON.stringify(systemData));
+                
+                // تحديث الواجهة العلوية فوراً
+                updateGlobalUI(systemData);
+
+            } catch(e) { console.error("فشل في تحديث بيانات النظام", e); }
+        }
+
+        function updateGlobalUI(data = null) {
+            if (!data) {
+                const localData = localStorage.getItem('monarch_system_data');
+                data = localData ? JSON.parse(localData) : { level: 1, xp: 0, gold: 0 };
+            }
+            const currentLevel = data.level || 1;
+            const currentXP = data.xp || 0;
+            const currentGold = data.gold || 0;
+            const xpNeeded = currentLevel * 100;
+            const xpPercentage = Math.min((currentXP / xpNeeded) * 100, 100);
+
+            document.getElementById('global-level').innerText = `LVL ${currentLevel}`;
+            document.getElementById('global-gold').innerText = `${currentGold.toLocaleString()} G`;
+            document.getElementById('global-xp-text').innerText = `${currentXP}/${xpNeeded} XP`;
+            document.getElementById('global-xp-bar').style.width = `${xpPercentage}%`;
+        }
+
+        // تشغيل التحديث فوراً عند فتح الصفحة
+        window.addEventListener('DOMContentLoaded', () => {
+            updateGlobalUI();
+            document.getElementById('display-floor-start').innerText = currentFloor;
+        });
+        const QuestSystem = {
+    tasks: [],
+    filter: 'all', // 'all' | 'active'
+    init() {
+        const saved = localStorage.getItem('SL_QUESTS');
+        this.tasks = saved ? JSON.parse(saved) : [];
+        this.render();
+    },
+    setFilter(mode) {
+        this.filter = mode;
+        this.render();
+    },
+    addTask() {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        const inp = document.getElementById('taskInput');
+        const prio = document.getElementById('prioritySelect').value;
+        const statSelect = document.getElementById('statSelect').value;
+        if(!inp || !inp.value.trim()) return;
+        const task = { id: Date.now(), text: inp.value.trim(), priority: prio, completed: false, stat: statSelect, createdAt: new Date().toISOString() };
+        this.tasks.unshift(task);
+        inp.value = '';
+        this.save();
+        this.render();
+        Toast.show('Quest deployed to system window', 'success');
+    },
+    toggleTask(id) {
+        const taskIndex = this.tasks.findIndex(t => t.id === id);
+        if (taskIndex === -1) return;
+        const task = this.tasks[taskIndex];
+        let xpReward = task.priority === 'high' ? 100 : task.priority === 'medium' ? 50 : 20;
+        let goldReward = task.priority === 'high' ? 30 : task.priority === 'medium' ? 15 : 5;
+        let authorityReward = task.priority === 'high' ? 10 : task.priority === 'medium' ? 5 : 2;
+
+        if (!task.completed) {
+            task.completed = true;
+            if(window.PlayerState) {
+                PlayerState.data.authority = (PlayerState.data.authority || 0) + authorityReward;
+                PlayerState.addXP(xpReward);
+                PlayerState.addGold(goldReward);
+                PlayerState.addStat(task.stat || 'int', 1);
+            }
+            Toast.show(`Quest Cleared! +${xpReward} EXP`, 'success');
+            if(window.SoundEffects) SoundEffects.playSuccess();
+            if(typeof confetti === 'function') confetti({particleCount: 80, spread: 60, origin: {y: 0.7}, colors: ['#00f0ff','#9d4edd']});
+        } else {
+            task.completed = false;
+            if(window.PlayerState) {
+                PlayerState.data.authority = Math.max(0, (PlayerState.data.authority || 0) - authorityReward);
+                PlayerState.addXP(-xpReward);
+                PlayerState.addGold(-goldReward);
+                if (PlayerState.data.gold < 0) PlayerState.data.gold = 0;
+                PlayerState.addStat(task.stat || 'int', -1);
+            }
+            Toast.show(`Quest Reversed! Rewards Deducted.`, 'error');
+            if(window.SoundEffects) SoundEffects.playSystemClick();
+        }
+        this.save();
+        this.render();
+    },
+    deleteTask(id) {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        this.tasks = this.tasks.filter(t => t.id !== id);
+        this.save();
+        this.render();
+    },
+    render() {
+        const container = document.getElementById('taskContainer');
+        const titleEl = document.getElementById('taskListTitle');
+        const backBtn = document.getElementById('backToAllBtn');
+        if(!container) return;
+        container.innerHTML = '';
+
+        // Update title and back button based on filter
+        if (titleEl) {
+            titleEl.textContent = this.filter === 'active' ? '⚔️ ACTIVE ENGAGEMENTS (Incomplete)' : '⚔️ Active Directives Log';
+            titleEl.className = this.filter === 'active' 
+                ? 'font-black text-sm text-amber-400 tracking-wide uppercase sys-font' 
+                : 'font-black text-sm text-[var(--sys-cyan)] tracking-wide uppercase sys-font';
+        }
+        if (backBtn) {
+            backBtn.classList.toggle('hidden', this.filter !== 'active');
+        }
+
+        let activeCount = 0; let completedCount = 0;
+
+        // Filter tasks
+        const displayTasks = this.filter === 'active' 
+            ? this.tasks.filter(t => !t.completed) 
+            : this.tasks;
+
+        if (displayTasks.length === 0) {
+            const emptyMsg = this.filter === 'active' 
+                ? '<p>[NO INCOMPLETE ENGAGEMENTS DETECTED]</p><p class="text-[10px] mt-2">All directives have been cleared.</p>'
+                : '<p>[NO ACTIVE QUESTS DETECTED]</p>';
+            container.innerHTML = `<div class="text-center py-10 opacity-30 sys-font">${emptyMsg}</div>`;
+            this.updateStatsUI(0, 0, 0);
+            return;
+        }
+        const statColors = { 'int': 'text-[var(--sys-cyan)]', 'str': 'text-rose-500', 'vit': 'text-emerald-500', 'agi': 'text-sky-400', 'sen': 'text-[var(--sys-purple)]' };
+        displayTasks.forEach(task => {
+            task.completed ? completedCount++ : activeCount++;
+            const escapedText = task.text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            const div = document.createElement('div');
+            div.className = `task-card flex items-center justify-between p-4 bg-slate-900/80 backdrop-blur-sm border-y border-y-slate-800 transition-all ${task.completed ? 'completed opacity-50' : ''}`;
+            div.innerHTML = `
+                <div class="flex items-center gap-4">
+                    <button onclick="QuestSystem.toggleTask(${task.id})" class="w-6 h-6 rounded border-2 border-[var(--sys-cyan)] flex items-center justify-center hover:bg-[var(--sys-cyan)] hover:bg-opacity-20 transition-colors ${task.completed ? 'bg-[var(--sys-cyan)]' : ''}">
+                        ${task.completed ? '<span class="text-black text-xs font-black">✓</span>' : ''}
+                    </button>
+                    <div>
+                        <div class="font-bold text-white text-sm ${task.completed ? 'line-through text-slate-500' : ''}">${escapedText}</div>
+                        <div class="flex gap-2 mt-1">
+                            <span class="sys-font text-[10px] px-2 py-0.5 border border-slate-700 bg-black/50 ${statColors[task.stat || 'int']} uppercase tracking-widest">+1 ${(task.stat || 'int').toUpperCase()}</span>
+                            <span class="sys-font text-[10px] px-2 py-0.5 border border-slate-700 bg-black/50 text-amber-400 uppercase tracking-widest">RANK: ${(task.priority || 'medium').toUpperCase()}</span>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="QuestSystem.deleteTask(${task.id})" class="text-slate-600 hover:text-rose-500 transition-colors p-2">🗑️</button>
+            `;
+            container.appendChild(div);
+        });
+        const lethalityRate = Math.round((completedCount / this.tasks.length) * 100);
+        if(window.PlayerState) {
+            PlayerState.data.lethality = lethalityRate;
+            PlayerState.save();
+        }
+        this.updateStatsUI(activeCount, this.tasks.length, lethalityRate);
+    },
+    updateStatsUI(active, all, lethality) {
+        if(document.getElementById('cnt-active-val')) document.getElementById('cnt-active-val').textContent = active;
+        if(document.getElementById('stat-lethality')) document.getElementById('stat-lethality').textContent = `${lethality}%`;
+    },
+    save() { localStorage.setItem('SL_QUESTS', JSON.stringify(this.tasks)); }
+};
+
+// ==========================================
+// POMODORO TIMER
+// ==========================================
+const Pomodoro = {
+    defaultTime: parseInt(localStorage.getItem('SL_SYS_TIMER')) || (5 * 3600),
+    timeLeft: 0, timer: null, isRunning: false,
+    init() { this.timeLeft = this.defaultTime; this.updateUI(); },
+    saveSettings() {
+        const h = parseInt(document.getElementById('inputHours').value) || 0;
+        const m = parseInt(document.getElementById('inputMinutes').value) || 0;
+        const tot = (h * 3600) + (m * 60);
+        if (tot > 0) {
+            this.defaultTime = tot;
+            localStorage.setItem('SL_SYS_TIMER', this.defaultTime.toString());
+            document.getElementById('timerModal').classList.add('hidden');
+            clearInterval(this.timer); this.timeLeft = this.defaultTime; this.isRunning = false;
+            this.toggle();
+        }
+    },
+    toggle() {
+        if(typeof SoundEffects !== 'undefined') SoundEffects.playSystemClick();
+        const btn = document.getElementById('timerBtn');
+        const st = document.getElementById('timerStatus');
+        if (this.isRunning) {
+            clearInterval(this.timer);
+            btn.textContent = 'START'; btn.classList.remove('bg-rose-600/30');
+            st.textContent = 'PAUSED'; st.className = 'sys-font text-[9px] px-2 py-0.5 bg-amber-900 border border-amber-600 text-amber-300 uppercase';
+        } else {
+            if (this.timeLeft <= 0) this.timeLeft = this.defaultTime;
+            this.timer = setInterval(() => { if (this.timeLeft > 0) { this.timeLeft--; this.updateUI(); } else { this.finish(); } }, 1000);
+            btn.textContent = '⏸️'; btn.classList.add('bg-rose-600/30');
+            st.textContent = 'IN COMBAT'; st.className = 'sys-font text-[9px] px-2 py-0.5 bg-rose-900 border border-rose-600 text-rose-300 uppercase animate-pulse';
+        }
+        this.isRunning = !this.isRunning;
+    },
+    reset() {
+        if(typeof SoundEffects !== 'undefined') SoundEffects.playSystemClick();
+        clearInterval(this.timer);
+        this.timeLeft = this.defaultTime; this.isRunning = false;
+        const btn = document.getElementById('timerBtn'); btn.textContent = 'START'; btn.classList.remove('bg-rose-600/30');
+        const st = document.getElementById('timerStatus');
+        st.textContent = 'IDLE'; st.className = 'sys-font text-[9px] px-2 py-0.5 bg-slate-800 border border-slate-600 text-slate-300 uppercase';
+        this.updateUI();
+    },
+    finish() {
+        clearInterval(this.timer);
+        if(typeof SoundEffects !== 'undefined') SoundEffects.playSuccess();
+        if (typeof confetti !== 'undefined') confetti({ particleCount: 100, colors: ['#00f0ff'] });
+        this.reset();
+    },
+    updateUI() {
+        const h = Math.floor(this.timeLeft / 3600).toString().padStart(2, '0');
+        const m = Math.floor((this.timeLeft % 3600) / 60).toString().padStart(2, '0');
+        const s = (this.timeLeft % 60).toString().padStart(2, '0');
+        if(document.getElementById('timerDisplay')) document.getElementById('timerDisplay').textContent = `${h}:${m}:${s}`;
+    }
+};
+
+const Milestone = {
+    hide() {
+        document.getElementById('milestoneModal').classList.add('hidden');
+        if(typeof SoundEffects !== 'undefined') SoundEffects.playSystemClick();
+    }
+};
+const UI = {
+    toggleTimerSettings() {
+        if (typeof SoundEffects !== 'undefined') SoundEffects.playSystemClick();
+        document.getElementById('timerModal').classList.toggle('hidden');
+    }
+};
+
+const Toast = {
+    show(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+        const toast = document.createElement('div');
+        const colors = {
+            success: 'border-emerald-500 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)]',
+            error: 'border-rose-500 text-rose-400 shadow-[0_0_15px_rgba(225,29,72,0.3)]',
+            info: 'border-[var(--sys-cyan)] text-[var(--sys-cyan)] shadow-[0_0_15px_rgba(0,240,255,0.3)]'
+        };
+        toast.className = `pointer-events-auto px-5 py-3 bg-[#02040a]/95 border backdrop-blur-md text-sm font-bold sys-font tracking-wide animate-system-pop ${colors[type] || colors.info}`;
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 4000);
+    }
+};
+    // ==========================================
+// SYSTEM RESET ENGINE (HARD RESET)
+// ==========================================
+const SystemReset = {
+    confirmAndReset() {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        
+        // رسالة التحذير الأولى
+        const firstConfirm = confirm("⚠️ تحذير أمني سيادي: هل أنت متأكد أنك تريد مسح جميع البيانات؟\n(سيعود المستوى إلى 1، وتفقد كل الذهب، الخبرة، المهام، والسجلات ولن يمكنك استرجاعها).");
+        if (!firstConfirm) return;
+
+        // رسالة التأكيد النهائية
+        const secondConfirm = confirm("‼️ تأكيد نهائي: هذه العملية ستعيد النظام إلى نقطة الصفر. هل تريد تنفيذ 'مسح الذاكرة'؟");
+        if (!secondConfirm) return;
+
+        // قائمة المفاتيح المخزنة في النظام لمسحها
+        const keysToReset = [
+            'monarch_system_data', 
+            'sovereign_active_quest', 
+            'directive_start_time', 
+            'sovereign_active_program', 
+            'SL_QUESTS', 
+            'sovereign_system_logs',
+            'sovereign_titles_index'
+        ];
+
+        // تنفيذ المسح
+        keysToReset.forEach(key => localStorage.removeItem(key));
+
+        // مسح أي تخزين مؤقت للألقاب والمقايضات
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('title_cache_')) {
+                localStorage.removeItem(key);
+            }
+        });
+
+        alert("🔄 تم مسح الذاكرة وإعادة ضبط النظام بالكامل. سيتم إعادة تشغيل الواجهة.");
+        
+        // إعادة تحميل الصفحة لتطبيق حالة الصفر
+        window.location.reload();
+    }
+};
+
+// ==========================================
+// SOUND EFFECTS
+// ==========================================
+const SoundEffects = {
+    track1: new Audio('SHADOWBORN.mp3'),
+    track2: new Audio('Kingdom_of_Iron.mp3'),
+    currentTrackNumber: null,
+    isMusicPlaying: false,
+
+    init() {
+        this.track1.loop = true;
+        this.track2.loop = true;
+    },
+
+    toggleMusic(trackNumber) {
+        const icon1 = document.getElementById('musicIcon1');
+        const icon2 = document.getElementById('musicIcon2');
+
+        if (this.isMusicPlaying && this.currentTrackNumber === trackNumber) {
+            this.stopAllAudio();
+            return;
+        }
+        if (this.isMusicPlaying) this.stopAllAudio();
+
+        this.isMusicPlaying = true;
+        this.currentTrackNumber = trackNumber;
+
+        if (trackNumber === 1) {
+            this.track1.play().catch(err => console.log("Auto-play blocked:", err));
+            if (icon1) icon1.textContent = '⏸️';
+            if (icon2) icon2.textContent = '🎼';
+        } else if (trackNumber === 2) {
+            this.track2.play().catch(err => console.log("Auto-play blocked:", err));
+            if (icon1) icon1.textContent = '🎵';
+            if (icon2) icon2.textContent = '⏸️';
+        }
+    },
+
+    stopAllAudio() {
+        this.track1.pause(); this.track1.currentTime = 0;
+        this.track2.pause(); this.track2.currentTime = 0;
+        const icon1 = document.getElementById('musicIcon1');
+        const icon2 = document.getElementById('musicIcon2');
+        if (icon1) icon1.textContent = '🎵';
+        if (icon2) icon2.textContent = '🎼';
+        this.isMusicPlaying = false;
+        this.currentTrackNumber = null;
+    },
+
+    playSystemClick() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            gain.gain.setValueAtTime(0.05, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.start(); osc.stop(ctx.currentTime + 0.1);
+        } catch(e) {}
+    },
+
+    playSuccess() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((freq, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.1);
+                gain.gain.setValueAtTime(0.1, ctx.currentTime + i * 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.1 + 0.3);
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.start(ctx.currentTime + i * 0.1);
+                osc.stop(ctx.currentTime + i * 0.1 + 0.3);
+            });
+        } catch(e) {}
+    },
+
+    playLevelUp() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const notes = [440, 554, 659, 880, 1108];
+            notes.forEach((freq, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.15);
+                gain.gain.setValueAtTime(0.08, ctx.currentTime + i * 0.15);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.15 + 0.4);
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.start(ctx.currentTime + i * 0.15);
+                osc.stop(ctx.currentTime + i * 0.15 + 0.4);
+            });
+        } catch(e) {}
+    }
+};
+SoundEffects.init();
+
+// ==========================================
+// DIRECTIVE TIMER ENGINE
+// ==========================================
+const DirectiveTimer = {
+    startTime: null,
+    timerInterval: null,
+    isRunning: false,
+
+    start(savedStartTime) {
+        if (this.isRunning) return;
+        this.startTime = savedStartTime || Date.now();
+        this.isRunning = true;
+        localStorage.setItem('directive_start_time', this.startTime.toString());
+        this.update();
+        this.timerInterval = setInterval(() => this.update(), 1000);
+    },
+
+    stop() {
+        clearInterval(this.timerInterval);
+        this.isRunning = false;
+        this.startTime = null;
+        localStorage.removeItem('directive_start_time');
+    },
+
+    update() {
+        if (!this.startTime) return;
+        const elapsed = Date.now() - this.startTime;
+        const timerEl = document.getElementById('directiveTimer');
+        const progressEl = document.getElementById('directiveProgressBar');
+        if (timerEl) timerEl.textContent = this.formatTime(elapsed);
+        if (progressEl) {
+            const progress = Math.min((elapsed / (25 * 60 * 1000)) * 100, 100);
+            progressEl.style.width = `${progress}%`;
+        }
+    },
+
+    formatTime(ms) {
+        const totalSeconds = Math.floor(ms / 1000);
+        const hours = Math.floor(totalSeconds / 3600).toString().padStart(2, '0');
+        const minutes = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
+        const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+        return `${hours}:${minutes}:${seconds}`;
+    },
+
+    reset() {
+        this.stop();
+        const timerEl = document.getElementById('directiveTimer');
+        const progressEl = document.getElementById('directiveProgressBar');
+        if (timerEl) timerEl.textContent = '00:00:00';
+        if (progressEl) progressEl.style.width = '0%';
+    }
+};
+
+// ==========================================
+// ANIME POPUP ENGINE
+// ==========================================
+const AnimePopup = {
+    currentQuest: null,
+    questStartTime: null,
+    playerLevel: 1,
+    playerXP: 0,
+    playerGold: 0,
+
+    show(title, description, timeLimit, rewardXP) {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        this.syncPlayerState();
+
+        this.currentQuest = { 
+            title: title, 
+            rewardXP: rewardXP || 10, 
+            timeLimit: timeLimit || "25:00",
+            type: this.inferQuestType(title),
+            details: description,
+            acceptedAt: null,
+            active: false
+        };
+
+        document.getElementById('animePopupTitle').textContent = title;
+        document.getElementById('animePopupDesc').innerHTML = description;
+        document.getElementById('animePopupTime').textContent = `TIME: ${this.currentQuest.timeLimit}`;
+        document.getElementById('animePopupReward').textContent = `REWARD: +${this.currentQuest.rewardXP} EXP`;
+        document.getElementById('directiveTargetTime').textContent = this.currentQuest.timeLimit;
+
+        const modal = document.getElementById('animeSystemPopup');
+        modal.classList.remove('hidden');
+    },
+
+    inferQuestType(title) {
+        const t = title.toLowerCase();
+        if (t.match(/برمج|code|هندس|ai|تطوير|برمجية/)) return 'coding_ai';
+        if (t.match(/رياض|بدني|ppl|جري|تدريب|قتال/)) return 'sports';
+        if (t.match(/لغة|إنجليز|english|كتاب|قرآن|روح|شرع/)) return 'languages_books';
+        if (t.match(/زنزان|dungeon|ذهن|شطرنج|سودوكو|ذاكرة/)) return 'dungeons';
+        return 'coding_ai';
+    },
+
+    syncPlayerState() {
+        try {
+            const coreData = JSON.parse(localStorage.getItem('monarch_system_data')) || {};
+            this.playerLevel = coreData.level || 1;
+            this.playerXP = coreData.xp || 0;
+            this.playerGold = coreData.gold || 0;
+        } catch(e) {}
+    },
+
+    acceptQuest() {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        document.getElementById('animeSystemPopup').classList.add('hidden');
+        if(this.currentQuest) {
+            this.currentQuest.acceptedAt = Date.now();
+            this.currentQuest.active = true;
+            localStorage.setItem('sovereign_active_quest', JSON.stringify(this.currentQuest));
+
+            document.getElementById('activeDirectiveText').textContent = this.currentQuest.title;
+            document.getElementById('activeDirectiveBar').classList.remove('hidden');
+            DirectiveTimer.start(this.currentQuest.acceptedAt);
+
+            if(window.SovereignEngine) SovereignEngine.state.activeQuest = this.currentQuest;
+            if(window.Toast) Toast.show('تم تفعيل المهمة: ' + this.currentQuest.title, 'success');
+        }
+    },
+
+  completeQuest() {
+        let quest = this.currentQuest || (window.SovereignEngine ? SovereignEngine.state.activeQuest : null);
+        if (!quest) {
+            try { quest = JSON.parse(localStorage.getItem('sovereign_active_quest')); } catch(e){}
+        }
+        if (!quest) {
+            document.getElementById('activeDirectiveBar').classList.add('hidden');
+            if (window.DirectiveTimer) DirectiveTimer.stop();
+            return;
+        }
+
+        const questType = quest.type || 'coding_ai';
+        const baseReward = (window.SovereignEngine ? SovereignEngine.config.weights[questType] : null) || 10;
+        const acceptedAt = quest.acceptedAt || Date.now();
+        const elapsedMinutes = Math.floor((Date.now() - acceptedAt) / 60000);
+
+        let timeBonus = 0;
+        if (elapsedMinutes >= 25) timeBonus = 10;
+        if (elapsedMinutes >= 60) timeBonus = 25;
+
+        const totalXP = baseReward + timeBonus;
+        const goldReward = totalXP * 2;
+
+        if(window.PlayerState) {
+            PlayerState.addXP(totalXP);
+            PlayerState.addGold(goldReward);
+        }
+
+        if(window.SovereignEngine) {
+            SovereignEngine.logToSystem('quest', `تصفية مهمة: [${quest.title}] | +${totalXP} XP`);
+        }
+
+    
+        document.getElementById('activeDirectiveBar').classList.add('hidden');
+        if (window.DirectiveTimer) DirectiveTimer.stop();
+        localStorage.removeItem('sovereign_active_quest');
+        localStorage.removeItem('directive_start_time');
+        if(window.SovereignEngine) SovereignEngine.state.activeQuest = null;
+        this.currentQuest = null;
+
+  
+        if (typeof confetti === 'function') {
+            
+            confetti({
+                particleCount: 140,
+                spread: 80,
+                origin: { y: 0.5 },
+                colors: ['#00f0ff', '#7000ff', '#120024'], 
+                scalar: 0.5,     
+                gravity: 0.8,     
+                startVelocity: 45, 
+                ticks: 80
+            });
+
+            // النبضة الثانية: هالة ذهبية ناعمة تطفو بعد ربع ثانية (ترمز للمكافأة العاهلية)
+            setTimeout(() => {
+                confetti({
+                    particleCount: 40,
+                    spread: 360,
+                    origin: { y: 0.45 },
+                    colors: ['#ffb700', '#ffffff'], // ذهبي ملكي وأبيض ناصع
+                    scalar: 0.4,
+                    gravity: 0.2,       // جاذبية خفيفة جداً تجعل الذهب يطفو كالغبار السحري
+                    startVelocity: 15,  // حركة هادئة
+                    ticks: 120
+                });
+            }, 250);
+        }
+
+        // إشعار النظام الصارم (System Notification)
+        if(window.Toast) {
+        
+            Toast.show(systemMessage, 'success');
+        }
+    },
+
+    cancelQuest() {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        let questToCancel = this.currentQuest || (window.SovereignEngine ? SovereignEngine.state.activeQuest : null);
+        if (!questToCancel) {
+            try { questToCancel = JSON.parse(localStorage.getItem('sovereign_active_quest')); } catch(e){}
+        }
+
+        DirectiveTimer.stop();
+        document.getElementById('activeDirectiveBar').classList.add('hidden');
+
+        if(questToCancel && window.PlayerState) {
+            PlayerState.addXP(-10);
+            if(window.SovereignEngine) SovereignEngine.logToSystem('penalty', `إلغاء مهمة: [${questToCancel.title}] | -10 XP`);
+            if(window.Toast) Toast.show('تم إلغاء المهمة! عقوبة: -10 XP', 'error');
+        }
+
+        localStorage.removeItem('sovereign_active_quest');
+        localStorage.removeItem('directive_start_time');
+        if(window.SovereignEngine) SovereignEngine.state.activeQuest = null;
+        this.currentQuest = null;
+    }
+};
+
+// ==========================================
+// PLAYER STATE (RPG MECHANICS - DATA OVERWRITE SHIELD APPLIED)
+// ==========================================
+const PlayerState = {
+    data: {
+        level: 1,
+        xp: 20,
+        gold: 0,
+        ap: 0,
+        stats: { str: 10, vit: 10, agi: 10, int: 10, sen: 10 },
+        authority: 0,
+        lethality: 0
+    },
+
+    init() {
+        const saved = localStorage.getItem('monarch_system_data');
+        if (saved) {
+            try { 
+                const parsedData = JSON.parse(saved);
+                // دمج الخصائص الرئيسية مع الحفاظ على البيانات العميقة المتشعبة (stats وغيرها)
+                this.data = { 
+                    ...this.data, 
+                    ...parsedData,
+                    stats: { ...this.data.stats, ...(parsedData.stats || {}) }
+                }; 
+            } catch(e) {}
+        }
+        this.updateDynamicStats();
+        this.updateUI();
+        this.startScheduleSync();
+    },
+
+    updateDynamicStats() {
+        const now = new Date();
+        const minutesPassed = (now.getHours() * 60) + now.getMinutes();
+        const fatiguePercentage = Math.floor((minutesPassed / 1440) * 100);
+
+        const baseHP = 1000;
+        const maxHP = baseHP + (this.data.level * 100) + (this.data.stats.vit * 50);
+        const baseMP = 500;
+        const maxMP = baseMP + (this.data.level * 50) + (this.data.stats.int * 40);
+
+        if(document.getElementById('fatigueText')) document.getElementById('fatigueText').textContent = fatiguePercentage;
+        if(document.getElementById('fatigueBar')) document.getElementById('fatigueBar').style.width = `${fatiguePercentage}%`;
+        if(document.getElementById('hpText')) document.getElementById('hpText').textContent = `${maxHP}/${maxHP}`;
+        if(document.getElementById('hpBar')) document.getElementById('hpBar').style.width = '85%';
+        if(document.getElementById('mpText')) document.getElementById('mpText').textContent = `${maxMP}/${maxMP}`;
+        if(document.getElementById('mpBar')) document.getElementById('mpBar').style.width = '72%';
+    },
+
+    analyzeQuestAndReward(questTitle) {
+        let title = questTitle.toLowerCase();
+        let statGained = '';
+        if (title.match(/عضلات|قوة|مواي تاي|جوجيتسو|ضغط|أوزان/)) { this.data.stats.str += 1; statGained = 'STR'; }
+        else if (title.match(/برمجة|ذكاء|دراسة|تطوير|كود|ai|اصطناعي/)) { this.data.stats.int += 1; statGained = 'INT'; }
+        else if (title.match(/جري|سرعة|ركض/)) { this.data.stats.agi += 1; statGained = 'AGI'; }
+        else if (title.match(/تأمل|تركيز|ملاحظة/)) { this.data.stats.sen += 1; statGained = 'PER'; }
+        else if (title.match(/تحمل|صيام|عمل/)) { this.data.stats.vit += 1; statGained = 'VIT'; }
+        else { this.data.ap += 1; statGained = 'AP (Free Point)'; }
+        this.save();
+        return statGained;
+    },
+
+    spendAP(statName) {
+        if (this.data.ap > 0 && this.data.stats[statName] !== undefined) {
+            this.data.ap -= 1;
+            this.data.stats[statName] += 1;
+            if (typeof SoundEffects !== 'undefined') SoundEffects.playSystemClick();
+            if (typeof Toast !== 'undefined') Toast.show(`Stat ${statName.toUpperCase()} structurally upgraded!`, 'success');
+            this.save();
+        }
+    },
+
+    addXP(amount) {
+        this.data.xp += amount;
+        if (this.data.xp < 0) {
+            if (this.data.level > 1) {
+                this.data.level -= 1;
+                this.data.xp += (this.data.level * 100);
+            } else {
+                this.data.xp = 0;
+            }
+        }
+        const xpNeeded = this.data.level * 100;
+        if (this.data.xp >= xpNeeded) {
+            this.data.xp -= xpNeeded;
+            this.levelUp();
+        }
+        this.save();
+    },
+
+    addGold(amount) { 
+        this.data.gold += amount; 
+        this.save();
+    },
+
+    addStat(statName, amount) {
+        if (this.data.stats[statName] !== undefined) { 
+            this.data.stats[statName] += amount;
+            this.save(); 
+        }
+    },
+
+    levelUp() {
+        this.data.level += 1;
+        this.data.ap += 3;
+        Object.keys(this.data.stats).forEach(k => this.data.stats[k] += 1);
+        this.save();
+
+        if (typeof SoundEffects !== 'undefined') SoundEffects.playLevelUp();
+        if (typeof confetti !== 'undefined') confetti({ particleCount: 300, spread: 120, origin: { y: 0.6 }, colors: ['#00f0ff', '#9d4edd', '#ffffff'] });
+
+        const modal = document.getElementById('milestoneModal');
+        if(modal) {
+            document.getElementById('milestoneOldLevel').textContent = this.data.level - 1;
+            document.getElementById('milestoneLevelText').textContent = this.data.level;
+            document.getElementById('milestoneMessage').innerHTML = `State recovered.<br>All stats increased by +1<br>Acquired 3 Free AP.`;
+            modal.classList.remove('hidden');
+        }
+    },
+
+    startScheduleSync() {
+        const updateSystemBroadcast = () => {
+            const now = new Date();
+            const currentTimeDec = now.getHours() + now.getMinutes() / 60;
+            let msg = "[SYSTEM STATUS]: Searching current operational sector...";
+            if (currentTimeDec >= 5 && currentTimeDec < 6) msg = "⚡ ACTIVE BLOCK: [SPIRITUAL CORE] -> Quran recitation & Fajr Adhkar.";
+            else if (currentTimeDec >= 6 && currentTimeDec < 8.5) msg = "💻 ACTIVE BLOCK: [DEEP ARCHITECTURE DEV] -> Programming AiMoha Project.";
+            else if (currentTimeDec >= 8.5 && currentTimeDec < 10.5) msg = "🤖 ACTIVE BLOCK: [AI ACADEMY] -> Machine Learning training.";
+            else if (currentTimeDec >= 15 && currentTimeDec < 16.5) msg = "🏋️ ACTIVE BLOCK: [EVOLUTIONARY PPL ENGINE] -> Physical conditioning.";
+            else if (currentTimeDec >= 20.5 && currentTimeDec < 21.5) msg = "🧠 ACTIVE BLOCK: [COGNITIVE DOMINATION] -> Brain Dungeons active.";
+            else msg = "⚔️ ACTIVE BLOCK: [FLEXIBLE ENGAGEMENT] -> Check operational charter.";
+            if(document.getElementById('motivationalQuote')) document.getElementById('motivationalQuote').textContent = msg;
+        };
+        updateSystemBroadcast();
+        setInterval(updateSystemBroadcast, 60000);
+    },
+
+    save() {
+        // 🛡️ Safe Merge Protocol: يمنع الكتابة الفوقية والمسح العرضي للبيانات التي يتم تحديثها في الملفات الأخرى
+        try {
+            const savedData = JSON.parse(localStorage.getItem('monarch_system_data') || '{}');
+            this.data = { 
+                ...savedData, 
+                ...this.data, 
+                stats: { ...(savedData.stats || {}), ...this.data.stats } 
+            };
+        } catch(e) {
+            console.error("System save error", e);
+        }
+        
+        localStorage.setItem('monarch_system_data', JSON.stringify(this.data));
+        this.updateDynamicStats();
+        this.updateUI();
+    },
+
+    updateUI() {
+        ['str', 'vit', 'agi', 'int', 'sen'].forEach(stat => {
+            if(document.getElementById(`stat-${stat}`)) document.getElementById(`stat-${stat}`).textContent = this.data.stats[stat];
+        });
+        if(document.getElementById('playerGold')) document.getElementById('playerGold').textContent = this.data.gold;
+        if(document.getElementById('availablePoints')) document.getElementById('availablePoints').textContent = this.data.ap;
+        if(document.getElementById('currentLevel')) document.getElementById('currentLevel').textContent = this.data.level;
+
+        const nextLevelXP = this.data.level * 100;
+        if(document.getElementById('xpText')) document.getElementById('xpText').textContent = `${this.data.xp} / ${nextLevelXP}`;
+
+        const xpPercent = Math.min((this.data.xp / nextLevelXP) * 100, 100);
+        if(document.getElementById('xpBar')) document.getElementById('xpBar').style.width = `${xpPercent}%`;
+
+        document.querySelectorAll('.ap-btn').forEach(btn => {
+            btn.classList.toggle('hidden', this.data.ap <= 0);
+        });
+    }
+};
+
+
+
+    </script>
+    
+</body>
+</html>

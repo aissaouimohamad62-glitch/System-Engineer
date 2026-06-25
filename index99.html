@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sovereign System | مراقيت الصلاة والأذان</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="index11.css">
+    <script src="monarch-core.js"></script>
+    <style>
+        body { font-family: 'Cairo', sans-serif; background-color: var(--sys-bg-dark); color: #e2e8f0; min-height: 100vh; }
+        .sys-font { font-family: 'Rajdhani', sans-serif; letter-spacing: 0.05em; }
+
+        /* ── Prayer Cards ── */
+        .prayer-card {
+            background: rgba(5,10,25,0.7);
+            border: 1px solid rgba(0,240,255,0.15);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .prayer-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(0,240,255,0.03) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .prayer-card.next-up {
+            border-color: var(--sys-cyan);
+            box-shadow: 0 0 20px rgba(0,240,255,0.25), inset 0 0 20px rgba(0,240,255,0.05);
+            background: rgba(0,240,255,0.06);
+        }
+        .prayer-card.completed {
+            border-color: rgba(16,185,129,0.4);
+            background: rgba(16,185,129,0.04);
+            opacity: 0.75;
+        }
+
+        /* ── Countdown ── */
+        .countdown-digit {
+            background: rgba(0,240,255,0.08);
+            border: 1px solid rgba(0,240,255,0.3);
+            border-radius: 8px;
+            padding: 8px 14px;
+            min-width: 56px;
+            text-align: center;
+            font-family: 'Rajdhani', monospace;
+            font-weight: 900;
+            font-size: 2.2rem;
+            color: var(--sys-cyan);
+            text-shadow: 0 0 18px var(--sys-cyan-glow);
+        }
+        .countdown-sep {
+            color: var(--sys-cyan);
+            font-size: 2rem;
+            font-weight: 900;
+            opacity: 0.6;
+            padding: 0 2px;
+            align-self: flex-start;
+            padding-top: 8px;
+        }
+
+        /* ── Adhan Alarm Modal ── */
+        #adhan-modal {
+            position: fixed; inset: 0; z-index: 9999;
+            background: rgba(0,0,0,0.92);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 20px;
+            backdrop-filter: blur(8px);
+            animation: fadeInModal 0.4s ease;
+        }
+        #adhan-modal.hidden { display: none; }
+        @keyframes fadeInModal { from { opacity:0; transform:scale(0.97); } to { opacity:1; transform:scale(1); } }
+        .adhan-pulse {
+            width: 120px; height: 120px;
+            border-radius: 50%;
+            border: 3px solid var(--sys-cyan);
+            box-shadow: 0 0 0 0 rgba(0,240,255,0.6);
+            animation: adhanRipple 1.4s ease-out infinite;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 3rem;
+        }
+        @keyframes adhanRipple {
+            0%   { box-shadow: 0 0 0 0   rgba(0,240,255,0.6); }
+            70%  { box-shadow: 0 0 0 40px rgba(0,240,255,0);   }
+            100% { box-shadow: 0 0 0 0   rgba(0,240,255,0);    }
+        }
+
+        /* ── Compass ── */
+        .compass-ring {
+            width: 160px; height: 160px;
+            border-radius: 50%;
+            border: 2px dashed var(--sys-cyan);
+            box-shadow: 0 0 25px rgba(0,240,255,0.2);
+            position: relative;
+            margin: 0 auto;
+            transition: transform 0.6s ease-out;
+        }
+        .compass-needle {
+            position: absolute;
+            top: 12px; left: calc(50% - 5px);
+            width: 10px; height: 65px;
+            background: linear-gradient(to bottom, var(--sys-cyan), transparent);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            filter: drop-shadow(0 0 8px var(--sys-cyan));
+        }
+        .compass-center {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%,-50%);
+            width: 10px; height: 10px;
+            background: white; border-radius: 50%;
+            box-shadow: 0 0 8px white;
+        }
+
+        /* ── Progress bar ── */
+        .prayer-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--sys-cyan), var(--sys-purple));
+            border-radius: 999px;
+            box-shadow: 0 0 10px rgba(0,240,255,0.5);
+            transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        /* ── Claim Buttons ── */
+        .btn-mosque {
+            background: rgba(16,185,129,0.15);
+            border: 1px solid rgba(16,185,129,0.5);
+            color: #6ee7b7;
+            transition: all 0.2s;
+        }
+        .btn-mosque:hover:not(:disabled) {
+            background: rgba(16,185,129,0.3);
+            box-shadow: 0 0 12px rgba(16,185,129,0.3);
+            transform: translateY(-1px);
+        }
+        .btn-home {
+            background: rgba(100,116,139,0.2);
+            border: 1px solid rgba(100,116,139,0.4);
+            color: #94a3b8;
+            transition: all 0.2s;
+        }
+        .btn-home:hover:not(:disabled) {
+            background: rgba(100,116,139,0.35);
+            transform: translateY(-1px);
+        }
+        button:disabled { opacity: 0.35; cursor: not-allowed; transform: none !important; }
+
+        /* ── Toast ── */
+        #toastBox { position: fixed; top: 20px; left: 20px; z-index: 9998; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+        .toast-pill {
+            background: rgba(2,4,10,0.96);
+            border-right: 3px solid var(--sys-cyan);
+            padding: 10px 16px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            border-radius: 6px;
+            box-shadow: 0 0 12px rgba(0,240,255,0.2);
+            animation: toastIn 0.25s ease;
+            transition: opacity 0.3s;
+            pointer-events: auto;
+        }
+        @keyframes toastIn { from { transform: translateX(-30px); opacity:0; } to { transform: none; opacity:1; } }
+    </style>
+</head>
+<body class="p-3 md:p-6">
+<div class="sov-secondary-bg" aria-hidden="true"></div>
+<div id="toastBox"></div>
+
+<!-- ═══════════════════ ADHAN ALARM MODAL ═══════════════════ -->
+<div id="adhan-modal" class="hidden">
+    <div class="adhan-pulse">🕌</div>
+    <div class="sys-font text-[11px] text-[var(--sys-cyan)] tracking-[0.4em]">[ SOVEREIGN SYSTEM — SPIRITUAL ALERT ]</div>
+    <h2 id="adhan-prayer-name" class="text-4xl font-black text-white">حان الأذان</h2>
+    <p class="text-slate-400 text-sm">استجب لنداء السماء — ارفع يديك وصلِّ</p>
+    <button onclick="AdhanSystem.stop()" class="mt-4 px-10 py-3 bg-[var(--sys-cyan)] text-black font-black text-sm rounded-lg sys-font hover:bg-white transition">
+        ⏹ إيقاف الأذان
+    </button>
+</div>
+
+<!-- ═══════════════════ PAGE WRAPPER ═══════════════════ -->
+<div class="max-w-2xl mx-auto space-y-5">
+
+    <!-- ── Header ── -->
+    <header class="sl-panel p-4 rounded-xl">
+        <nav id="sovereign-nav" class="flex flex-wrap gap-2 mb-4">
+            <a href="index11.html"          class="nav-item px-3 py-1.5 text-[10px] font-mono font-bold rounded border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] transition">🏠 DASHBOARD</a>
+            <a href="active-quests.html"    class="nav-item px-3 py-1.5 text-[10px] font-mono font-bold rounded border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] transition">⚔️ QUESTS</a>
+            <a href="brain-stats.html"      class="nav-item px-3 py-1.5 text-[10px] font-mono font-bold rounded border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] transition">🧠 STATS</a>
+            <a href="dungeons.html"         class="nav-item px-3 py-1.5 text-[10px] font-mono font-bold rounded border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] transition">🌋 DUNGEONS</a>
+            <a href="index99.html"          class="nav-item px-3 py-1.5 text-[10px] font-mono font-bold rounded border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] transition">🕋 PRAYER</a>
+            <a href="ppo.html"              class="nav-item px-3 py-1.5 text-[10px] font-mono font-bold rounded border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] transition">📖 QURAN</a>
+            <a href="sovereign-shop.html"   class="nav-item px-3 py-1.5 text-[10px] font-mono font-bold rounded border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] transition">🛒 SHOP</a>
+            <a href="operational-charter.html" class="nav-item px-3 py-1.5 text-[10px] font-mono font-bold rounded border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] transition">📜 CHARTER</a>
+            <a href="monarch-ai.html"       class="nav-item px-3 py-1.5 text-[10px] font-mono font-bold rounded border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] transition">🤖 MONARCH AI</a>
+            <a href="system-logs.html"      class="nav-item px-3 py-1.5 text-[10px] font-mono font-bold rounded border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] transition">📊 LOGS</a>
+        </nav>
+        <div class="flex flex-wrap justify-between items-center gap-3">
+            <div>
+                <div class="sys-font text-[10px] text-[var(--sys-cyan)] tracking-[0.3em] font-bold mb-0.5">[ SOVEREIGN SYSTEM — SPIRITUAL CORE ]</div>
+                <h1 class="text-xl font-black text-white tracking-wide">مراقيت الصلاة والأذان</h1>
+            </div>
+            <div class="sov-identity-strip">
+                <span data-sov-name></span>
+                <span data-sov-title></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ── Live Clock ── -->
+    <div class="sl-panel rounded-xl p-5 text-center">
+        <div class="sys-font text-[10px] text-slate-500 tracking-[0.3em] mb-1">[ SYSTEM CLOCK ]</div>
+        <div id="live-clock" class="sys-font text-5xl font-black text-white tabular-nums" dir="ltr">--:--:--</div>
+        <div id="live-date"  class="text-xs text-slate-400 mt-1 font-bold"></div>
+        <div id="location-status" class="text-[11px] text-slate-500 mt-1 font-mono">📍 جاري تحديد الموقع...</div>
+    </div>
+
+    <!-- ── Next Prayer Countdown ── -->
+    <div class="sl-panel rounded-xl p-5 text-center relative overflow-hidden">
+        <div class="absolute inset-0 pointer-events-none">
+            <div class="absolute inset-0 bg-[var(--sys-cyan)]/3 animate-pulse"></div>
+        </div>
+        <div class="sys-font text-[10px] text-[var(--sys-purple)] tracking-[0.3em] mb-1">[ NEXT SPIRITUAL OBJECTIVE ]</div>
+        <div id="next-prayer-label" class="text-sm font-bold text-slate-300 mb-4">جاري المزامنة...</div>
+        <div class="flex items-center justify-center gap-1" dir="ltr">
+            <div class="flex flex-col items-center">
+                <div class="countdown-digit" id="cd-h">--</div>
+                <span class="text-[9px] text-slate-500 sys-font mt-1">ساعة</span>
+            </div>
+            <div class="countdown-sep self-start pt-2">:</div>
+            <div class="flex flex-col items-center">
+                <div class="countdown-digit" id="cd-m">--</div>
+                <span class="text-[9px] text-slate-500 sys-font mt-1">دقيقة</span>
+            </div>
+            <div class="countdown-sep self-start pt-2">:</div>
+            <div class="flex flex-col items-center">
+                <div class="countdown-digit" id="cd-s">--</div>
+                <span class="text-[9px] text-slate-500 sys-font mt-1">ثانية</span>
+            </div>
+        </div>
+        <div id="next-prayer-time" class="text-xs text-slate-500 mt-3 sys-font"></div>
+    </div>
+
+    <!-- ── Today Progress ── -->
+    <div class="sl-panel rounded-xl p-4">
+        <div class="flex justify-between items-center mb-3">
+            <div class="sys-font text-[10px] text-slate-400 tracking-widest">[ إنجاز اليوم ]</div>
+            <div class="flex items-center gap-2">
+                <span id="prayers-done" class="sys-font font-black text-[var(--sys-cyan)] text-lg">0</span>
+                <span class="text-slate-500 text-sm font-bold">/ 5 صلوات</span>
+            </div>
+        </div>
+        <div class="h-2 bg-slate-800/60 rounded-full overflow-hidden">
+            <div id="daily-progress" class="prayer-progress-fill" style="width:0%"></div>
+        </div>
+        <div id="prayer-dots" class="flex justify-between mt-2 px-1">
+            <!-- filled by JS -->
+        </div>
+    </div>
+
+    <!-- ── Prayer List ── -->
+    <div id="prayer-list" class="space-y-2">
+        <div class="text-center text-slate-500 text-sm py-8 sys-font">
+            ⏳ جاري تحميل مواقيت الصلاة...
+        </div>
+    </div>
+
+    <!-- ── Qibla Compass ── -->
+    <div class="sl-panel rounded-xl p-5 text-center">
+        <div class="sys-font text-[10px] text-[var(--sys-purple)] tracking-[0.3em] mb-4">[ QIBLA NAVIGATOR ]</div>
+        <div class="compass-ring" id="compass">
+            <div class="compass-needle"></div>
+            <div class="compass-center"></div>
+            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-[9px] text-[var(--sys-cyan)] sys-font font-black">كعبة</div>
+        </div>
+        <div id="qibla-degrees" class="text-xs text-slate-400 mt-3 sys-font font-bold"></div>
+        <p class="text-[10px] text-slate-600 mt-2">ضع الهاتف مسطحاً ليُشير السهم نحو القبلة</p>
+    </div>
+
+    <!-- ── Stats Footer ── -->
+    <div class="sl-panel rounded-xl p-4 grid grid-cols-3 gap-3 text-center">
+        <div>
+            <div class="sys-font text-[9px] text-slate-500 tracking-widest mb-1">LEVEL</div>
+            <div id="stat-level" class="sys-font text-xl font-black text-[var(--sys-cyan)]">--</div>
+        </div>
+        <div>
+            <div class="sys-font text-[9px] text-slate-500 tracking-widest mb-1">GOLD</div>
+            <div id="stat-gold" class="sys-font text-xl font-black text-yellow-400">--</div>
+        </div>
+        <div>
+            <div class="sys-font text-[9px] text-slate-500 tracking-widest mb-1">XP</div>
+            <div id="stat-xp" class="sys-font text-xl font-black text-purple-400">--</div>
+        </div>
+    </div>
+
+</div><!-- /max-w wrapper -->
+
+<!-- Adhan audio — multiple sources for reliability -->
+<audio id="adhan-audio" preload="none">
+    <source src="https://audio.muslimcentral.com/athan/makkah.mp3" type="audio/mpeg">
+    <source src="https://media.blubrry.com/muslim_central_athan/audio.muslimcentral.com/athan/makkah.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+'use strict';
+
+// ──────────────────────────────────────────────
+// CONSTANTS
+// ──────────────────────────────────────────────
+const MESSAAD_LAT  = 34.1543;
+const MESSAAD_LON  = 3.5026;
+const MAKKAH_LAT   = 21.422487;
+const MAKKAH_LON   = 39.826206;
+
+const PRAYERS = [
+    { id: 'Fajr',    ar: 'الفجر',  en: 'FAJR',    icon: '🌙', xpMosque: 35, goldMosque: 25, xpHome: 15, goldHome: 8  },
+    { id: 'Dhuhr',   ar: 'الظهر',  en: 'DHUHR',   icon: '☀️', xpMosque: 27, goldMosque: 20, xpHome: 10, goldHome: 5  },
+    { id: 'Asr',     ar: 'العصر',  en: 'ASR',     icon: '🌤', xpMosque: 27, goldMosque: 20, xpHome: 10, goldHome: 5  },
+    { id: 'Maghrib', ar: 'المغرب', en: 'MAGHRIB', icon: '🌅', xpMosque: 27, goldMosque: 20, xpHome: 10, goldHome: 5  },
+    { id: 'Isha',    ar: 'العشاء', en: 'ISHA',    icon: '⭐', xpMosque: 35, goldMosque: 25, xpHome: 15, goldHome: 8  }
+];
+
+// ──────────────────────────────────────────────
+// STATE
+// ──────────────────────────────────────────────
+let currentTimings = null;
+let countdownInterval = null;
+let adhanFired = {};           // { prayerId: true } so alarm fires only once per prayer per day
+let qiblaAngle = 0;
+
+// ──────────────────────────────────────────────
+// PLAYER STATE — safe-merge always
+// ──────────────────────────────────────────────
+const PlayerStats = {
+    data: { level: 1, xp: 0, gold: 0, ap: 0, stats: { str:10,vit:10,agi:10,int:10,sen:10 } },
+
+    init() {
+        try {
+            const raw = window.SovereignCore ? SovereignCore.data
+                      : JSON.parse(localStorage.getItem('monarch_system_data') || '{}');
+            this.data = { ...this.data, ...raw, stats: { ...this.data.stats, ...(raw.stats||{}) } };
+        } catch(e) {}
+        this.updateUI();
+    },
+
+    save(partial = {}) {
+        Object.assign(this.data, partial);
+        if (window.SovereignCore) {
+            SovereignCore.save(this.data);
+        } else {
+            const stored = JSON.parse(localStorage.getItem('monarch_system_data') || '{}');
+            localStorage.setItem('monarch_system_data', JSON.stringify({ ...stored, ...this.data }));
+        }
+        this.updateUI();
+    },
+
+    addRewards(xp, gold) {
+        this.data.xp   = (this.data.xp   || 0) + xp;
+        this.data.gold = (this.data.gold  || 0) + gold;
+
+        // Level-up loop
+        while (true) {
+            const needed = (this.data.level || 1) * 100;
+            if (this.data.xp < needed) break;
+            this.data.xp    -= needed;
+            this.data.level  = (this.data.level || 1) + 1;
+            this.data.ap     = (this.data.ap    || 0) + 3;
+            toast(`⚡ LEVEL UP — أنت الآن المستوى ${this.data.level}!`, 6000);
+            if (typeof confetti === 'function')
+                confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, colors: ['#00f0ff','#ffd700','#9d4edd'] });
+        }
+        this.save();
+    },
+
+    updateUI() {
+        const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+        set('stat-level', this.data.level || 1);
+        set('stat-gold',  (this.data.gold  || 0).toLocaleString());
+        set('stat-xp',    `${this.data.xp || 0}/${(this.data.level||1)*100}`);
+    }
+};
+
+// ──────────────────────────────────────────────
+// ADHAN SYSTEM — HTML5 audio + Web Audio beeps fallback
+// ──────────────────────────────────────────────
+const AdhanSystem = {
+    _beepCtx: null,
+    _beepNodes: [],
+    _playing: false,
+
+    play(prayerAr) {
+        if (this._playing) return;
+        this._playing = true;
+
+        // Show modal
+        const modal = document.getElementById('adhan-modal');
+        const label = document.getElementById('adhan-prayer-name');
+        if (label) label.textContent = `صلاة ${prayerAr} — حان الأذان`;
+        if (modal) modal.classList.remove('hidden');
+
+        // Try HTML5 audio first
+        const el = document.getElementById('adhan-audio');
+        if (el) {
+            el.volume = 1;
+            el.currentTime = 0;
+            el.play()
+               .catch(() => this._playBeeps()); // browser blocked? fall back to beeps
+        } else {
+            this._playBeeps();
+        }
+    },
+
+    stop() {
+        this._playing = false;
+
+        // Stop HTML5 audio
+        const el = document.getElementById('adhan-audio');
+        if (el) { el.pause(); el.currentTime = 0; }
+
+        // Stop beeps
+        this._beepNodes.forEach(n => { try { n.stop(); } catch(e) {} });
+        this._beepNodes = [];
+
+        // Hide modal
+        const modal = document.getElementById('adhan-modal');
+        if (modal) modal.classList.add('hidden');
+    },
+
+    _playBeeps() {
+        // Web Audio API — patterned beeps to emulate a call to prayer
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            this._beepCtx = ctx;
+
+            const pattern = [
+                { t: 0,    f: 880, d: 0.4 }, { t: 0.5,  f: 988, d: 0.4 },
+                { t: 1.0,  f: 1047,d: 0.6 }, { t: 1.8,  f: 988, d: 0.4 },
+                { t: 2.4,  f: 880, d: 0.8 }, { t: 3.4,  f: 784, d: 1.0 },
+                { t: 4.8,  f: 880, d: 0.4 }, { t: 5.3,  f: 988, d: 0.4 },
+                { t: 5.8,  f: 1047,d: 0.6 }, { t: 6.6,  f: 880, d: 1.2 },
+            ];
+
+            pattern.forEach(({ t, f, d }) => {
+                const osc  = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = f;
+                gain.gain.setValueAtTime(0, ctx.currentTime + t);
+                gain.gain.linearRampToValueAtTime(0.45, ctx.currentTime + t + 0.05);
+                gain.gain.linearRampToValueAtTime(0,    ctx.currentTime + t + d);
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.start(ctx.currentTime + t);
+                osc.stop(ctx.currentTime + t + d + 0.05);
+                this._beepNodes.push(osc);
+            });
+        } catch(e) { console.warn('Web Audio not available', e); }
+    }
+};
+
+// ──────────────────────────────────────────────
+// PRAYER LIST RENDERER
+// ──────────────────────────────────────────────
+function renderPrayerList(timings) {
+    const container = document.getElementById('prayer-list');
+    if (!container || !timings) return;
+    const today = new Date().toISOString().split('T')[0];
+    const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
+
+    // Figure out which is next
+    let nextId = null, minDiff = Infinity;
+    PRAYERS.forEach(p => {
+        const [h, m] = (timings[p.id] || '00:00').split(':').map(Number);
+        const pMin = h * 60 + m;
+        let diff = pMin - nowMin;
+        if (diff < 0) diff += 1440;
+        if (diff < minDiff) { minDiff = diff; nextId = p.id; }
+    });
+
+    container.innerHTML = PRAYERS.map(p => {
+        const claimed  = !!localStorage.getItem(`prayer_${p.id}_${today}`);
+        const isNext   = p.id === nextId;
+        const timeStr  = timings[p.id] || '--:--';
+        const cardCls  = claimed ? 'prayer-card completed' : isNext ? 'prayer-card next-up' : 'prayer-card';
+        const nextBadge= isNext  ? `<span class="sys-font text-[8px] text-[var(--sys-cyan)] bg-[var(--sys-cyan)]/10 border border-[var(--sys-cyan)]/30 px-2 py-0.5 rounded-full tracking-widest font-black">NEXT</span>` : '';
+
+        return `
+        <div class="${cardCls} p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl">${p.icon}</span>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-black text-white text-base">${p.ar}</span>
+                        ${nextBadge}
+                    </div>
+                    <div class="sys-font text-xs text-slate-500 tracking-widest">${p.en}</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+                <span class="sys-font text-2xl font-black ${isNext ? 'text-[var(--sys-cyan)]' : 'text-white'} tracking-wide tabular-nums flex-1 sm:flex-none text-center" dir="ltr">${timeStr}</span>
+                ${claimed
+                  ? `<span class="sys-font text-[10px] text-emerald-400 font-black tracking-widest bg-emerald-900/20 border border-emerald-500/30 px-3 py-1 rounded">✓ مُنجز</span>`
+                  : `<div class="flex gap-2">
+                        <button onclick="claimPrayer('${p.id}','mosque')" class="btn-mosque px-3 py-1.5 rounded text-[10px] font-black sys-font">🕌 مسجد<br><span class="opacity-70">+${p.xpMosque}XP +${p.goldMosque}G</span></button>
+                        <button onclick="claimPrayer('${p.id}','home')"   class="btn-home   px-3 py-1.5 rounded text-[10px] font-black sys-font">🏠 منزل<br><span class="opacity-70">+${p.xpHome}XP +${p.goldHome}G</span></button>
+                    </div>`
+                }
+            </div>
+        </div>`;
+    }).join('');
+
+    updateDailyProgress();
+}
+
+// ──────────────────────────────────────────────
+// CLAIM PRAYER
+// ──────────────────────────────────────────────
+function claimPrayer(prayerId, type) {
+    const today = new Date().toISOString().split('T')[0];
+    const key   = `prayer_${prayerId}_${today}`;
+    if (localStorage.getItem(key)) {
+        toast('⚠️ تم تسجيل هذه الصلاة مسبقاً اليوم.'); return;
+    }
+
+    const p  = PRAYERS.find(x => x.id === prayerId);
+    if (!p) return;
+
+    const xp   = type === 'mosque' ? p.xpMosque : p.xpHome;
+    const gold = type === 'mosque' ? p.goldMosque : p.goldHome;
+    const loc  = type === 'mosque' ? '🕌 مسجد' : '🏠 منزل';
+
+    localStorage.setItem(key, 'claimed');
+    PlayerStats.addRewards(xp, gold);
+    toast(`${loc} — صلاة ${p.ar} ✓   +${xp} XP  +${gold} 🪙`, 5000);
+
+    if (currentTimings) renderPrayerList(currentTimings);
+}
+
+// ──────────────────────────────────────────────
+// DAILY PROGRESS
+// ──────────────────────────────────────────────
+function updateDailyProgress() {
+    const today = new Date().toISOString().split('T')[0];
+    let done = 0;
+    PRAYERS.forEach(p => { if (localStorage.getItem(`prayer_${p.id}_${today}`)) done++; });
+
+    const pctEl = document.getElementById('daily-progress');
+    const cntEl = document.getElementById('prayers-done');
+    const dotsEl= document.getElementById('prayer-dots');
+    if (pctEl) pctEl.style.width = `${(done/5)*100}%`;
+    if (cntEl) cntEl.textContent = done;
+    if (dotsEl) {
+        dotsEl.innerHTML = PRAYERS.map(p => {
+            const ok = localStorage.getItem(`prayer_${p.id}_${today}`);
+            return `<span title="${p.ar}" class="text-base">${ok ? '✅' : '⬜'}</span>`;
+        }).join('');
+    }
+}
+
+// ──────────────────────────────────────────────
+// COUNTDOWN
+// ──────────────────────────────────────────────
+function startCountdown(timings) {
+    if (countdownInterval) clearInterval(countdownInterval);
+    const today = new Date().toISOString().split('T')[0];
+    // Reset adhanFired for today only
+    Object.keys(adhanFired).forEach(k => { if (!k.endsWith(today)) delete adhanFired[k]; });
+
+    countdownInterval = setInterval(() => {
+        const now   = new Date();
+        const nowSec= now.getHours()*3600 + now.getMinutes()*60 + now.getSeconds();
+
+        let nextP = null, minDiff = Infinity;
+        PRAYERS.forEach(p => {
+            const [h, m] = (timings[p.id] || '00:00').split(':').map(Number);
+            const pSec = h*3600 + m*60;
+            let diff   = pSec - nowSec;
+            if (diff < 0) diff += 86400;
+            if (diff < minDiff) { minDiff = diff; nextP = p; }
+        });
+
+        if (!nextP) return;
+
+        const h = Math.floor(minDiff / 3600);
+        const m = Math.floor((minDiff % 3600) / 60);
+        const s = minDiff % 60;
+
+        const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = String(v).padStart(2,'0'); };
+        set('cd-h', h); set('cd-m', m); set('cd-s', s);
+
+        const lbl = document.getElementById('next-prayer-label');
+        if (lbl) lbl.textContent = `الهدف الروحي القادم: صلاة ${nextP.ar}`;
+        const timeLbl = document.getElementById('next-prayer-time');
+        if (timeLbl) timeLbl.textContent = `وقت ${nextP.ar}: ${timings[nextP.id]}`;
+
+        // Adhan trigger — fire once per prayer per day
+        const alarmKey = `${nextP.id}_${today}`;
+        if (minDiff <= 1 && !adhanFired[alarmKey]) {
+            adhanFired[alarmKey] = true;
+            AdhanSystem.play(nextP.ar);
+            toast(`🔔 حان الآن وقت أذان ${nextP.ar}!`, 8000);
+        }
+    }, 1000);
+}
+
+// ──────────────────────────────────────────────
+// FETCH PRAYER TIMES
+// ──────────────────────────────────────────────
+async function fetchPrayerData(lat, lon, isFallback) {
+    const stamp = Math.floor(Date.now() / 1000);
+    const url   = `https://api.aladhan.com/v1/timings/${stamp}?latitude=${lat}&longitude=${lon}&method=21`;
+    try {
+        const res  = await fetch(url);
+        const json = await res.json();
+        if (json.code !== 200) throw new Error('API error');
+
+        currentTimings = json.data.timings;
+
+        const locEl = document.getElementById('location-status');
+        if (locEl) locEl.textContent = isFallback
+            ? '📍 مسعد، الجلفة — الجزائر (موقع افتراضي)'
+            : '📍 موقعك الحالي (GPS)';
+
+        renderPrayerList(currentTimings);
+        startCountdown(currentTimings);
+    } catch(e) {
+        const locEl = document.getElementById('location-status');
+        if (locEl) locEl.textContent = '❌ تعذّر تحميل المواقيت — تحقق من الاتصال';
+        toast('❌ تعذّر الاتصال بخادم مواقيت الصلاة');
+    }
+}
+
+// ──────────────────────────────────────────────
+// QIBLA
+// ──────────────────────────────────────────────
+function calcQibla(lat, lon) {
+    const toRad = d => d * Math.PI / 180;
+    const toDeg = r => r * 180 / Math.PI;
+    const φK    = toRad(MAKKAH_LAT), λK = toRad(MAKKAH_LON);
+    const φ     = toRad(lat),        λ  = toRad(lon);
+    const y     = Math.sin(λK - λ);
+    const x     = Math.cos(φ) * Math.tan(φK) - Math.sin(φ) * Math.cos(λK - λ);
+    qiblaAngle  = (toDeg(Math.atan2(y, x)) + 360) % 360;
+
+    const degEl = document.getElementById('qibla-degrees');
+    if (degEl) degEl.textContent = `اتجاه القبلة: ${Math.round(qiblaAngle)}° من الشمال`;
+}
+
+function initCompass() {
+    if (!window.DeviceOrientationEvent) return;
+    const handler = (e) => {
+        const heading = e.webkitCompassHeading ?? (360 - (e.alpha || 0));
+        const angle   = qiblaAngle - heading;
+        const el      = document.getElementById('compass');
+        if (el) el.style.transform = `rotate(${angle}deg)`;
+    };
+    // iOS 13+ requires permission
+    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+        const btn = document.createElement('button');
+        btn.textContent = '📡 تفعيل البوصلة';
+        btn.className   = 'mt-3 px-4 py-2 text-xs sys-font font-black bg-[var(--sys-cyan)]/10 border border-[var(--sys-cyan)]/40 text-[var(--sys-cyan)] rounded';
+        btn.onclick     = () => {
+            DeviceOrientationEvent.requestPermission()
+                .then(r => { if (r === 'granted') window.addEventListener('deviceorientation', handler); })
+                .catch(console.error);
+            btn.remove();
+        };
+        document.getElementById('compass').after(btn);
+    } else {
+        window.addEventListener('deviceorientation', handler);
+    }
+}
+
+// ──────────────────────────────────────────────
+// LIVE CLOCK
+// ──────────────────────────────────────────────
+function startClock() {
+    const DAYS = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+    const MONTHS = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+    setInterval(() => {
+        const now = new Date();
+        const h   = String(now.getHours()).padStart(2,'0');
+        const m   = String(now.getMinutes()).padStart(2,'0');
+        const s   = String(now.getSeconds()).padStart(2,'0');
+        const clkEl = document.getElementById('live-clock');
+        const datEl = document.getElementById('live-date');
+        if (clkEl) clkEl.textContent = `${h}:${m}:${s}`;
+        if (datEl) datEl.textContent = `${DAYS[now.getDay()]} ${now.getDate()} ${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
+    }, 1000);
+}
+
+// ──────────────────────────────────────────────
+// TOAST
+// ──────────────────────────────────────────────
+function toast(msg, ms = 4000) {
+    const box = document.getElementById('toastBox');
+    if (!box) return;
+    const t = document.createElement('div');
+    t.className = 'toast-pill';
+    t.textContent = msg;
+    box.appendChild(t);
+    setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, ms);
+}
+
+// ──────────────────────────────────────────────
+// INIT
+// ──────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    PlayerStats.init();
+    startClock();
+    updateDailyProgress();
+
+    if (window.SovereignCore) {
+        SovereignCore.onChange(() => { PlayerStats.init(); });
+    }
+
+    if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+            pos => {
+                const { latitude: lat, longitude: lon } = pos.coords;
+                fetchPrayerData(lat, lon, false);
+                calcQibla(lat, lon);
+                initCompass();
+            },
+            () => {
+                fetchPrayerData(MESSAAD_LAT, MESSAAD_LON, true);
+                calcQibla(MESSAAD_LAT, MESSAAD_LON);
+                initCompass();
+            },
+            { timeout: 8000 }
+        );
+    } else {
+        fetchPrayerData(MESSAAD_LAT, MESSAAD_LON, true);
+        calcQibla(MESSAAD_LAT, MESSAAD_LON);
+    }
+});
+</script>
+</body>
+</html>

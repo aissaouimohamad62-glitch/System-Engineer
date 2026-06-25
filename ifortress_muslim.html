@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حصن المسلم السيادي | Fortress of the Muslim</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --sys-cyan: #00f0ff;
+            --sys-cyan-glow: rgba(0, 240, 255, 0.6);
+            --sys-purple: #9d4edd;
+            --sys-purple-glow: rgba(157, 78, 221, 0.4);
+            --sys-bg-dark: #02040a;
+            --sys-panel: rgba(5, 10, 25, 0.85);
+            --sys-border: rgba(0, 240, 255, 0.3);
+            --azkar-font-size: 18px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--sys-bg-dark);
+            
+            color: #e2e8f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-attachment: fixed;
+            transition: background-color 0.5s, background-image 0.5s;
+        }
+
+        /* Reading Mode - وضع القراءة المريح للعين */
+        body.reading-mode {
+            background-image: none;
+            background-color: #000000;
+        }
+        body.reading-mode .sl-panel {
+            background: rgba(10, 10, 10, 0.95);
+            box-shadow: none;
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .sys-font { font-family: 'Rajdhani', sans-serif; letter-spacing: 0.05em; }
+        .naskh-font { font-family: 'Noto Naskh Arabic', serif; }
+        .orbitron-font { font-family: 'Orbitron', sans-serif; }
+
+        .sl-panel {
+            background: var(--sys-panel);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--sys-border);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(0, 240, 255, 0.05);
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .sl-btn {
+            background: linear-gradient(180deg, rgba(0, 240, 255, 0.05) 0%, rgba(5, 10, 25, 0.8) 100%);
+            border: 1px solid var(--sys-cyan);
+            transition: var(--transition);
+        }
+        .sl-btn:hover {
+            box-shadow: 0 0 15px var(--sys-cyan-glow);
+            background: rgba(0, 240, 255, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .nav-tab {
+            transition: var(--transition);
+            border-bottom: 2px solid transparent;
+        }
+        .nav-tab.active {
+            color: var(--sys-cyan);
+            border-bottom: 2px solid var(--sys-cyan);
+            text-shadow: 0 0 8px var(--sys-cyan-glow);
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+        .section.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Azkar Item Styles */
+        .azkar-item {
+            transition: var(--transition);
+            border-right: 3px solid transparent;
+        }
+        .azkar-item:hover {
+            border-right: 3px solid var(--sys-cyan);
+            background: rgba(0, 240, 255, 0.03);
+        }
+        .azkar-item.completed {
+            border-right: 3px solid #10b981; /* Emerald 500 */
+            background: rgba(16, 185, 129, 0.05);
+            opacity: 0.7;
+        }
+        
+        .counter-btn {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--sys-cyan);
+            color: var(--sys-cyan);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.1);
+            transition: var(--transition);
+        }
+        .counter-btn:active {
+            transform: scale(0.9);
+            box-shadow: 0 0 20px var(--sys-cyan-glow);
+        }
+        .counter-btn.done {
+            background: #10b981;
+            border-color: #10b981;
+            color: black;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+            pointer-events: none;
+        }
+
+        /* Tasbeeh Circle */
+        .tasbeeh-circle {
+            width: 280px; height: 280px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(5, 10, 25, 0.9));
+            border: 3px solid var(--sys-cyan);
+            box-shadow: 0 0 30px var(--sys-cyan-glow), inset 0 0 20px rgba(0, 240, 255, 0.2);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.1s; user-select: none; position: relative;
+        }
+        .tasbeeh-circle:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 50px var(--sys-cyan-glow);
+        }
+        .tasbeeh-circle::after {
+            content: ''; position: absolute;
+            top: -10px; left: -10px; right: -10px; bottom: -10px;
+            border-radius: 50%; border: 1px dashed var(--sys-cyan);
+            animation: spin 15s linear infinite; opacity: 0.5;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--sys-bg-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--sys-cyan); border-radius: 10px; }
+
+        /* Settings Toggle */
+        .toggle-checkbox:checked { right: 0; border-color: var(--sys-cyan); }
+        .toggle-checkbox:checked + .toggle-label { background-color: var(--sys-cyan); }
+    </style>
+    <link rel="stylesheet" href="index11.css">
+    <script src="monarch-core.js"></script>
+</head>
+<body class="text-slate-200 antialiased p-2 md:p-6 relative">
+<div class="sov-secondary-bg" aria-hidden="true"></div>
+
+    <div id="toastContainer" class="fixed top-5 right-5 z-[10000] flex flex-col gap-3 pointer-events-none"></div>
+
+    <header class="max-w-[1400px] mx-auto sl-panel rounded-xl p-4 mb-6 sticky top-4 z-50">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-lg bg-black border border-[var(--sys-cyan)] flex items-center justify-center shadow-[0_0_15px_var(--sys-cyan-glow)]">
+                    <span class="text-2xl animate-pulse">🛡️</span>
+                </div>
+                <div>
+                    <h1 class="orbitron-font text-xl font-black tracking-widest text-[var(--sys-cyan)] uppercase">FORTRESS</h1>
+                    <p class="text-xs text-slate-400 font-bold tracking-wide">حصن المسلم السيادي</p>
+                </div>
+            </div>
+            
+            <nav class="flex flex-wrap justify-center gap-2 md:gap-4 text-sm font-bold">
+                <nav id="sovereign-nav" class="flex flex-wrap gap-3 justify-center md:justify-start items-center p-4 bg-slate-950/60 border border-slate-850/50 backdrop-blur-md rounded-lg shadow-[inset_0_0_15px_rgba(0,0,0,0.8)] my-4 select-none">
+    
+    <a href="index11.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>🏠</span> <span>DASHBOARD</span>
+    </a>
+
+    <a href="active-quests.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>⚔️</span> <span>ACTIVE QUESTS</span>
+    </a>
+
+    <a href="brain-stats.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>🧠</span> <span>BRAIN STATS</span>
+    </a>
+
+    <a href="dungeons.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>🌋</span> <span>DUNGEONS</span>
+    </a>
+
+    <a href="ifortress_muslim.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>🕌</span> <span>ISLAMIC FORTRESS</span>
+    </a>
+
+    <a href="index99.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>🕋</span> <span>PRAYER REWARDS</span>
+    </a>
+
+    <a href="ppo.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>📖</span> <span>CELESTIAL QURAN</span>
+    </a>
+
+    <a href="sovereign-shop.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>🛒</span> <span>SOVEREIGN SHOP</span>
+    </a>
+
+    <a href="operational-charter.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>📜</span> <span>CHARTER</span>
+    </a>
+
+    <a href="monarch-ai.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>🤖</span> <span>MONARCH AI</span>
+    </a>
+
+    <a href="system-logs.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>📊</span> <span>SYSTEM LOGS</span>
+    </a>
+</nav>
+                <button class="nav-tab active px-3 py-2" onclick="showSection('dashboard', this)">📊 اللوحة</button>
+                <button class="nav-tab px-3 py-2" onclick="showSection('morning', this)">🌅 الصباح</button>
+                <button class="nav-tab px-3 py-2" onclick="showSection('evening', this)">🌙 المساء</button>
+                <button class="nav-tab px-3 py-2" onclick="showSection('sleep', this)">😴 النوم</button>
+                <button class="nav-tab px-3 py-2" onclick="showSection('prayer', this)">🕌 الصلاة</button>
+                <button class="nav-tab px-3 py-2" onclick="showSection('tasbeeh', this)">📿 المسبحة</button>
+                <button class="nav-tab px-3 py-2 text-slate-400" onclick="showSection('settings', this)">⚙️ الإعدادات</button>
+            </nav>
+        </div>
+    </header>
+
+    <div class="max-w-[1400px] mx-auto">
+        
+        <div id="dashboard" class="section active space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="sl-panel p-6 rounded-xl flex flex-col justify-center items-center text-center">
+                    <span class="orbitron-font text-[10px] tracking-[0.3em] text-[var(--sys-cyan)] uppercase mb-2">Monarch Sync</span>
+                    <div class="orbitron-font text-5xl font-black text-white drop-shadow-[0_0_15px_var(--sys-cyan-glow)] mb-1" id="dashLevel">1</div>
+                    <span class="text-xs text-slate-400 font-bold">المستوى السيادي الحالي</span>
+                    <div class="w-full h-2 bg-slate-900 rounded-full mt-4 border border-slate-700 overflow-hidden">
+                        <div id="xpFill" class="h-full bg-gradient-to-r from-[var(--sys-purple)] to-[var(--sys-cyan)]" style="width:0%"></div>
+                    </div>
+                </div>
+                
+                <div class="md:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="sl-panel p-4 rounded-xl text-center border-t-2 border-t-amber-500">
+                        <div class="text-3xl font-black orbitron-font text-amber-400" id="currentStreak">0</div>
+                        <div class="text-xs text-slate-400 mt-1">أيام الاستمرارية 🔥</div>
+                    </div>
+                    <div class="sl-panel p-4 rounded-xl text-center border-t-2 border-t-[var(--sys-cyan)]">
+                        <div class="text-3xl font-black orbitron-font text-[var(--sys-cyan)]" id="dashGold">0</div>
+                        <div class="text-xs text-slate-400 mt-1">الذهب المكتسب 🪙</div>
+                    </div>
+                    <div class="sl-panel p-4 rounded-xl text-center border-t-2 border-t-[var(--sys-purple)]">
+                        <div class="text-3xl font-black orbitron-font text-[var(--sys-purple)]" id="totalDhikr">0</div>
+                        <div class="text-xs text-slate-400 mt-1">إجمالي التسبيحات 📿</div>
+                    </div>
+                    <div class="sl-panel p-4 rounded-xl text-center border-t-2 border-t-emerald-500">
+                        <div class="text-3xl font-black orbitron-font text-emerald-400" id="completionRate">0%</div>
+                        <div class="text-xs text-slate-400 mt-1">معدل الإنجاز الكلي 📊</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sl-panel p-6 rounded-xl">
+                <div class="flex items-center gap-2 mb-4 pb-2 border-b border-white/10">
+                    <span class="text-xl">📅</span>
+                    <h3 class="font-bold text-lg text-[var(--sys-cyan)]">سجل الاستمرارية (Streak Log)</h3>
+                </div>
+                <div class="grid grid-cols-7 gap-2" id="calendarGrid" dir="ltr"></div>
+            </div>
+        </div>
+
+        <div id="morning" class="section space-y-4">
+            <div class="sl-panel p-4 rounded-xl flex justify-between items-center sticky top-[100px] z-40 bg-[var(--sys-bg-dark)]/90">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">🌅</span>
+                    <h2 class="text-xl font-bold text-white">أذكار الصباح</h2>
+                </div>
+                <div class="flex items-center gap-3 w-1/3">
+                    <span class="orbitron-font font-bold text-sm text-[var(--sys-cyan)]" id="morningProgressText">0/0</span>
+                    <div class="flex-1 h-2 bg-slate-900 rounded-full overflow-hidden border border-slate-700">
+                        <div id="morningProgressBar" class="h-full bg-[var(--sys-cyan)] transition-all duration-500" style="width:0%"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="morningAzkarContainer" class="space-y-4"></div>
+        </div>
+
+        <div id="evening" class="section space-y-4">
+            <div class="sl-panel p-4 rounded-xl flex justify-between items-center sticky top-[100px] z-40 bg-[var(--sys-bg-dark)]/90">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">🌙</span>
+                    <h2 class="text-xl font-bold text-white">أذكار المساء</h2>
+                </div>
+                <div class="flex items-center gap-3 w-1/3">
+                    <span class="orbitron-font font-bold text-sm text-[var(--sys-cyan)]" id="eveningProgressText">0/0</span>
+                    <div class="flex-1 h-2 bg-slate-900 rounded-full overflow-hidden border border-slate-700">
+                        <div id="eveningProgressBar" class="h-full bg-[var(--sys-cyan)] transition-all duration-500" style="width:0%"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="eveningAzkarContainer" class="space-y-4"></div>
+        </div>
+
+        <div id="sleep" class="section space-y-4">
+            <div class="sl-panel p-4 rounded-xl flex justify-between items-center sticky top-[100px] z-40 bg-[var(--sys-bg-dark)]/90">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">😴</span>
+                    <h2 class="text-xl font-bold text-white">أذكار النوم</h2>
+                </div>
+                <div class="flex items-center gap-3 w-1/3">
+                    <span class="orbitron-font font-bold text-sm text-[var(--sys-cyan)]" id="sleepProgressText">0/0</span>
+                    <div class="flex-1 h-2 bg-slate-900 rounded-full overflow-hidden border border-slate-700">
+                        <div id="sleepProgressBar" class="h-full bg-[var(--sys-cyan)] transition-all duration-500" style="width:0%"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="sleepAzkarContainer" class="space-y-4"></div>
+        </div>
+
+        <div id="prayer" class="section space-y-4">
+            <div class="sl-panel p-4 rounded-xl flex justify-between items-center sticky top-[100px] z-40 bg-[var(--sys-bg-dark)]/90">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">🕌</span>
+                    <h2 class="text-xl font-bold text-white">أذكار بعد الصلاة</h2>
+                </div>
+                <div class="flex items-center gap-3 w-1/3">
+                    <span class="orbitron-font font-bold text-sm text-[var(--sys-cyan)]" id="prayerProgressText">0/0</span>
+                    <div class="flex-1 h-2 bg-slate-900 rounded-full overflow-hidden border border-slate-700">
+                        <div id="prayerProgressBar" class="h-full bg-[var(--sys-cyan)] transition-all duration-500" style="width:0%"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="prayerAzkarContainer" class="space-y-4"></div>
+        </div>
+
+        <div id="tasbeeh" class="section">
+            <div class="sl-panel p-8 rounded-xl max-w-2xl mx-auto flex flex-col items-center text-center">
+                <div class="flex flex-wrap justify-center gap-2 mb-10" id="dhikrSelector">
+                    <button class="px-4 py-2 rounded-lg border border-[var(--sys-cyan)] bg-[var(--sys-cyan)]/20 text-[var(--sys-cyan)] font-bold text-sm transition" onclick="selectDhikr('subhanallah', this)">سبحان الله</button>
+                    <button class="px-4 py-2 rounded-lg border border-slate-700 hover:border-[var(--sys-cyan)] text-slate-300 font-bold text-sm transition" onclick="selectDhikr('alhamdulillah', this)">الحمد لله</button>
+                    <button class="px-4 py-2 rounded-lg border border-slate-700 hover:border-[var(--sys-cyan)] text-slate-300 font-bold text-sm transition" onclick="selectDhikr('allahuakbar', this)">الله أكبر</button>
+                    <button class="px-4 py-2 rounded-lg border border-slate-700 hover:border-[var(--sys-cyan)] text-slate-300 font-bold text-sm transition" onclick="selectDhikr('lailahaillallah', this)">لا إله إلا الله</button>
+                    <button class="px-4 py-2 rounded-lg border border-slate-700 hover:border-[var(--sys-cyan)] text-slate-300 font-bold text-sm transition" onclick="selectDhikr('astaghfirullah', this)">أستغفر الله</button>
+                    <button class="px-4 py-2 rounded-lg border border-slate-700 hover:border-[var(--sys-cyan)] text-slate-300 font-bold text-sm transition" onclick="selectDhikr('salawat', this)">الصلاة على النبي</button>
+                </div>
+
+                <div class="tasbeeh-circle mb-8" onclick="incrementTasbeeh()">
+                    <span class="orbitron-font text-6xl font-black text-white drop-shadow-[0_0_15px_var(--sys-cyan-glow)]" id="tasbeehCountDisplay">0</span>
+                    <span class="text-sm font-bold text-[var(--sys-cyan)] mt-2" id="tasbeehNameDisplay">سبحان الله</span>
+                    <span class="text-xs text-slate-500 mt-1 orbitron-font" id="tasbeehTargetDisplay">TARGET: 33</span>
+                </div>
+
+                <div class="flex gap-4 w-full justify-center">
+                    <button onclick="incrementTasbeeh()" class="sl-btn px-8 py-3 rounded-lg font-black text-white tracking-widest flex-1 max-w-[200px]">👆 تسبيح</button>
+                    <button onclick="resetCurrentTasbeeh()" class="px-6 py-3 bg-slate-900 border border-slate-700 text-slate-300 rounded-lg hover:text-white hover:border-white transition">🔄 إعادة</button>
+                    <button onclick="changeTasbeehTarget()" class="px-6 py-3 bg-slate-900 border border-slate-700 text-[var(--sys-purple)] rounded-lg hover:border-[var(--sys-purple)] transition orbitron-font">🎯 TARGET</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="settings" class="section">
+            <div class="max-w-3xl mx-auto space-y-6">
+                <div class="sl-panel p-6 rounded-xl">
+                    <h3 class="text-xl font-bold text-[var(--sys-cyan)] mb-6 border-b border-white/10 pb-2">🎨 المظهر والتخصيص</h3>
+                    
+                    <div class="flex justify-between items-center py-3 border-b border-slate-800">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">🌙</span>
+                            <div>
+                                <h4 class="font-bold text-white">وضع القراءة الليلي</h4>
+                                <p class="text-xs text-slate-400">إطفاء النيون وتحويل الخلفية للأسود المريح للعين</p>
+                            </div>
+                        </div>
+                        <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" id="nightModeToggle" name="toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer z-10 opacity-0" onchange="toggleNightMode()"/>
+                            <label for="nightModeToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-700 cursor-pointer border border-slate-600 transition-colors"></label>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center py-4 border-b border-slate-800">
+                        <div class="flex items-center gap-3 w-1/2">
+                            <span class="text-2xl">🔤</span>
+                            <div>
+                                <h4 class="font-bold text-white">حجم خط الأذكار</h4>
+                                <p class="text-xs text-slate-400" id="fontSizeLabel">18px</p>
+                            </div>
+                        </div>
+                        <input type="range" id="fontSizeSlider" min="14" max="32" value="18" class="w-1/2 accent-[var(--sys-cyan)]" oninput="changeFontSize(this.value)">
+                    </div>
+
+                    <div class="flex justify-between items-center py-3">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">📳</span>
+                            <div>
+                                <h4 class="font-bold text-white">الاهتزاز والتفاعل</h4>
+                                <p class="text-xs text-slate-400">اهتزاز الهاتف عند التسبيح والنقر</p>
+                            </div>
+                        </div>
+                        <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" id="vibrationToggle" name="toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer z-10 opacity-0" onchange="toggleVibration()" checked/>
+                            <label for="vibrationToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-[var(--sys-cyan)] cursor-pointer border border-slate-600 transition-colors"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sl-panel p-6 rounded-xl border-rose-900/50">
+                    <h3 class="text-xl font-bold text-rose-500 mb-6 border-b border-rose-900/30 pb-2">⚠️ إدارة البيانات</h3>
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h4 class="font-bold text-white">مسح الذاكرة المحلية للحصن</h4>
+                            <p class="text-xs text-slate-400">لن يؤثر على المستوى السيادي أو الذهب.</p>
+                        </div>
+                        <button onclick="resetFortressData()" class="px-4 py-2 bg-rose-950 border border-rose-700 text-rose-400 rounded hover:bg-rose-900 transition font-bold text-sm">مسح البيانات</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+<script>
+// ==================== AZKAR DATA ====================
+// Note: Keeping arrays concise for code limits. The structure matches user's request.
+const azkarData = {
+    morning: [
+        {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ", "count": "1"},
+        {"text": "اللَّهُمَّ بِكَ أَصْبَحْنَا، وَبِكَ أَمْسَيْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ النُّشُورُ", "count": "1"},
+        {"text": "اللَّهُمَّ إني أصبحت أشهدك و أشهد حملة عرشك وملائكتك وجميع خلقك أنك أنت الله لاإله إلا أنت وحدك لاشريك لك وأن محمدا عبدك ورسولك", "count": "4"},
+       {"text": "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ", "count": "3"},
+       {"text": "أبسم الله الذي لايضر مع إسمه شيء في الأرض ولافي السماء وهو السميع العليم", "count": "3"},
+        {"text": "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ: عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ", "count": "3"},
+        {"text": "اللَّهُمَّ عَافِنِي فِي بَدَنِي، اللَّهُمَّ عَافِنِي فِي سَمْعِي، اللَّهُمَّ عَافِنِي فِي بَصَرِي، لَا إِلَهَ إِلَّا أَنْتَ", "count": "3"},
+        {"text": "حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ", "count": "7"},
+        {"text": "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ", "count": "3"},
+        {"text": "اللَّهُمَّ أَجِرْنِي مِنَ النَّارِ", "count": "7"},
+        {"text": "أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ", "count": "10"}
+    ],
+    evening: [
+        {"text": "أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ", "count": "1"},
+        {"text": "اللَّهُمَّ بِكَ أَمْسَيْنَا، وَبِكَ أَصْبَحْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ الْمَصِيرُ", "count": "1"},
+         {"text": "اللَّهُمَّ إني أمسيت أشهدك و أشهد حملة عرشك وملائكتك وجميع خلقك أنك أنت الله لاإله إلا أنت وحدك لاشريك لك وأن محمدا عبدك ورسولك", "count": "4"},
+        {"text": "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ", "count": "3"},
+        {"text": "أبسم الله الذي لايضر مع إسمه شيء في الأرض ولافي السماء وهو السميع العليم", "count": "3"},
+         {"text": "اللَّهُمَّ عَافِنِي فِي بَدَنِي، اللَّهُمَّ عَافِنِي فِي سَمْعِي، اللَّهُمَّ عَافِنِي فِي بَصَرِي، لَا إِلَهَ إِلَّا أَنْتَ", "count": "3"},
+         {"text": "حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ", "count": "7"},
+        {"text": "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ", "count": "3"},
+        {"text": "اللَّهُمَّ أَجِرْنِي مِنَ النَّارِ", "count": "7"},
+        {"text": "أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ", "count": "10"},
+    ],
+    sleep: [
+        {"text": "بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا", "count": "1"},
+        {"text": "اللهم وضعت جنبي وبك أرفهه فإن أمسكت نفسي فإرحمها وإن أرسلتها فإحفظها كما تحفظ به عبادك الصالحين", "count": "1"},
+         {"text": "امن الرسول بما أنزل إليه من ربه والمؤمنون كل امن بالله وملائكته وكتبه ورسله لانفرق بين أحد من رسله وقالو سمعنا وأطعنا غفرانك ربنا وإليك المصير", "count": "1"},
+        {"text": "سُبْحَانَ اللَّهِ", "count": "33"},
+        {"text": "الْحَمْدُ لِلَّهِ", "count": "33"},
+        {"text": "اللَّهُ أَكْبَرُ", "count": "34"},
+        {"text": "اللَّهُمَّ قِنِي عَذَابَكَ يَوْمَ تَجْمَعُ عِبَادَكَ", "count": "3"}
+    ],
+    prayer: [
+        {"text": "أَسْتَغْفِرُ اللَّهَ", "count": "3"},
+        {"text": "اللَّهُمَّ أَنْتَ السَّلَامُ، وَمِنْكَ السَّلَامُ، تَبَارَكْتَ يَا ذَا الْجَلَالِ وَالْإِكْرَامِ", "count": "1"},
+        {"text": "سُبْحَانَ اللَّهِ", "count": "33"},
+        {"text": "الْحَمْدُ لِلَّهِ", "count": "33"},
+        {"text": "اللَّهُ أَكْبَرُ", "count": "33"},
+        {"text": "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ", "count": "1"},
+        {"text": "اللَّهُم إني أسألك علما نافعا ورزقا طيبا وعملا متقبلا", "count": "1"},
+        {"text": "اللَّهُم إني أسألك العفو والعافية في الدنيا والاخرة", "count": "1"},
+    ]
+};
+
+// ==================== STATE MANAGEMENT ====================
+let state = {
+    progress: { morning: {}, evening: {}, sleep: {}, prayer: {} },
+    tasbeeh: { subhanallah: 0, alhamdulillah: 0, allahuakbar: 0, lailahaillallah: 0, astaghfirullah: 0, salawat: 0 },
+    currentTasbeehType: 'subhanallah',
+    tasbeehTarget: 33,
+    streak: { current: 0, history: {} },
+    settings: { fontSize: 18, nightMode: false, vibration: true }
+};
+
+const tasbeehNames = { subhanallah: 'سبحان الله', alhamdulillah: 'الحمد لله', allahuakbar: 'الله أكبر', lailahaillallah: 'لا إله إلا الله', astaghfirullah: 'أستغفر الله', salawat: 'الصلاة على النبي' };
+
+// ==================== AUDIO/SFX (From index11.html) ====================
+const SoundEffects = {
+    playSystemClick() {
+        try { const ctx = new (window.AudioContext || window.webkitAudioContext)(); const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.type = 'sine'; osc.frequency.setValueAtTime(880, ctx.currentTime); gain.gain.setValueAtTime(0.05, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1); osc.connect(gain); gain.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + 0.1); } catch(e) {}
+    },
+    playSuccess() {
+        try { const ctx = new (window.AudioContext || window.webkitAudioContext)(); const notes = [523.25, 659.25, 783.99, 1046.50]; notes.forEach((freq, i) => { const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.type = 'sine'; osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.1); gain.gain.setValueAtTime(0.1, ctx.currentTime + i * 0.1); gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.1 + 0.3); osc.connect(gain); gain.connect(ctx.destination); osc.start(ctx.currentTime + i * 0.1); osc.stop(ctx.currentTime + i * 0.1 + 0.3); }); } catch(e) {}
+    }
+};
+
+// ==================== SYSTEM SYNC (XP/GOLD) ====================
+const SovereignSync = {
+    addRewards(xpAmount, goldAmount) {
+        let sysData = JSON.parse(localStorage.getItem('monarch_system_data') || '{}');
+        sysData.xp = (sysData.xp || 0) + xpAmount;
+        sysData.gold = (sysData.gold || 0) + goldAmount;
+        sysData.level = sysData.level || 1;
+        
+        // Level up logic
+        let xpNeeded = sysData.level * 100;
+        if(sysData.xp >= xpNeeded) {
+            sysData.xp -= xpNeeded;
+            sysData.level += 1;
+            sysData.ap = (sysData.ap || 0) + 3;
+            if(typeof confetti !== 'undefined') confetti({ particleCount: 150, spread: 80, colors: ['#00f0ff', '#b026ff'] });
+            showToast(`LEVEL UP! أنت الآن مستوى ${sysData.level}`, 'success');
+        }
+        if (window.SovereignCore) {
+            SovereignCore.save(sysData);
+        } else {
+            localStorage.setItem('monarch_system_data', JSON.stringify(sysData));
+        }
+        updateDashboardFromSync();
+    }
+};
+
+// ==================== INITIALIZATION ====================
+function init() {
+    loadAura();
+    loadState();
+    applySettings();
+    renderAllAzkar();
+    updateDashboardFromSync();
+    updateTasbeehUI();
+    renderCalendar();
+    
+    // Listen for aura changes from shop
+    if (typeof BroadcastChannel !== 'undefined') {
+        const bc = new BroadcastChannel('sovereign_sync');
+        bc.onmessage = (event) => { if (event.data.type === 'TITLE_EQUIPPED' || event.data.type === 'GOLD_UPDATED') { loadAura(); updateDashboardFromSync(); }};
+    }
+}
+
+function loadAura() {
+    if (window.SovereignCore) {
+        SovereignCore.applyAura();
+    } else {
+        const savedAura = localStorage.getItem('sovereign_aura_color');
+        if (savedAura) {
+            document.documentElement.style.setProperty('--sys-cyan', savedAura);
+            document.documentElement.style.setProperty('--sys-cyan-glow', savedAura + '99');
+        }
+    }
+}
+
+// ==================== NAVIGATION ====================
+function showSection(id, tabEl) {
+    if(state.settings.vibration) SoundEffects.playSystemClick();
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => { t.classList.remove('active'); t.classList.add('text-slate-400'); });
+    document.getElementById(id).classList.add('active');
+    tabEl.classList.add('active');
+    tabEl.classList.remove('text-slate-400');
+    window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// ==================== AZKAR RENDERING & LOGIC ====================
+function renderAllAzkar() {
+    ['morning', 'evening', 'sleep', 'prayer'].forEach(type => {
+        const container = document.getElementById(`${type}AzkarContainer`);
+        let html = '';
+        let completedCount = 0;
+        const dataList = azkarData[type];
+        
+        dataList.forEach((dhikr, index) => {
+            const target = parseInt(dhikr.count);
+            const current = state.progress[type][index] || 0;
+            const isDone = current >= target;
+            if(isDone) completedCount++;
+
+            html += `
+                <div class="sl-panel p-5 rounded-xl azkar-item flex flex-col md:flex-row items-center gap-4 ${isDone ? 'completed' : ''}">
+                    <p class="naskh-font text-white leading-loose flex-1 w-full text-right" style="font-size: var(--azkar-font-size);">${dhikr.text}</p>
+                    <button onclick="incrementAzkar('${type}', ${index}, ${target})" 
+                            class="counter-btn w-full md:w-32 py-3 rounded-lg font-black orbitron-font text-xl flex-shrink-0 flex items-center justify-center gap-2 ${isDone ? 'done' : ''}">
+                        ${isDone ? '✓ تمت' : `${current} / ${target}`}
+                    </button>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+        
+        // Update Progress Bar
+        const pct = Math.round((completedCount / dataList.length) * 100);
+        document.getElementById(`${type}ProgressText`).innerText = `${completedCount}/${dataList.length}`;
+        document.getElementById(`${type}ProgressBar`).style.width = `${pct}%`;
+        
+        // Streak Check
+        checkDailyStreak();
+    });
+}
+
+function incrementAzkar(type, index, target) {
+    if(!state.progress[type][index]) state.progress[type][index] = 0;
+    if(state.progress[type][index] < target) {
+        state.progress[type][index]++;
+        if(state.settings.vibration && navigator.vibrate) navigator.vibrate(30);
+        
+        if(state.progress[type][index] === target) {
+            SoundEffects.playSuccess();
+            SovereignSync.addRewards(2, 1); // +2 XP, +1 Gold per dhikr completion
+            showToast('تم الذكر! +2 XP | +1 Gold', 'success');
+        } else {
+            SoundEffects.playSystemClick();
+        }
+        
+        saveState();
+        renderAllAzkar(); // Re-render to update UI
+    }
+}
+
+// ==================== TASBEEH LOGIC ====================
+function selectDhikr(type, btnEl) {
+    SoundEffects.playSystemClick();
+    state.currentTasbeehType = type;
+    document.querySelectorAll('#dhikrSelector button').forEach(b => {
+        b.className = "px-4 py-2 rounded-lg border border-slate-700 hover:border-[var(--sys-cyan)] text-slate-300 font-bold text-sm transition";
+    });
+    btnEl.className = "px-4 py-2 rounded-lg border border-[var(--sys-cyan)] bg-[var(--sys-cyan)]/20 text-[var(--sys-cyan)] font-bold text-sm transition";
+    updateTasbeehUI();
+}
+
+function incrementTasbeeh() {
+    state.tasbeeh[state.currentTasbeehType]++;
+    if(state.settings.vibration && navigator.vibrate) navigator.vibrate(40);
+    
+    // Reward every 33 tasbeeh
+    if(state.tasbeeh[state.currentTasbeehType] % state.tasbeehTarget === 0) {
+        SoundEffects.playSuccess();
+        SovereignSync.addRewards(5, 2);
+        showToast('🎯 تمت دورة التسبيح! +5 XP | +2 Gold', 'success');
+        if(typeof confetti !== 'undefined') confetti({ particleCount: 50, spread: 40, origin: { y: 0.6 }});
+    } else {
+        SoundEffects.playSystemClick();
+    }
+    
+    saveState();
+    updateTasbeehUI();
+    updateDashboardFromSync();
+}
+
+function resetCurrentTasbeeh() {
+    state.tasbeeh[state.currentTasbeehType] = 0;
+    saveState();
+    updateTasbeehUI();
+    SoundEffects.playSystemClick();
+}
+
+function changeTasbeehTarget() {
+    const val = prompt("أدخل الهدف الجديد للتسبيح:", state.tasbeehTarget);
+    if(val && !isNaN(val)) {
+        state.tasbeehTarget = parseInt(val);
+        saveState();
+        updateTasbeehUI();
+    }
+}
+
+function updateTasbeehUI() {
+    document.getElementById('tasbeehCountDisplay').innerText = state.tasbeeh[state.currentTasbeehType];
+    document.getElementById('tasbeehNameDisplay').innerText = tasbeehNames[state.currentTasbeehType];
+    document.getElementById('tasbeehTargetDisplay').innerText = `TARGET: ${state.tasbeehTarget}`;
+}
+
+// ==================== DASHBOARD & STREAK ====================
+function updateDashboardFromSync() {
+    let sysData = JSON.parse(localStorage.getItem('monarch_system_data') || '{}');
+    let lvl = sysData.level || 1;
+    let xp = sysData.xp || 0;
+    let gold = sysData.gold || 0;
+    let need = lvl * 100;
+    
+    document.getElementById('dashLevel').innerText = lvl;
+    document.getElementById('dashGold').innerText = gold;
+    document.getElementById('xpFill').style.width = Math.min((xp/need)*100, 100) + '%';
+    
+    const totalTasbeeh = Object.values(state.tasbeeh).reduce((a,b)=>a+b, 0);
+    document.getElementById('totalDhikr').innerText = totalTasbeeh;
+    document.getElementById('currentStreak').innerText = state.streak.current;
+}
+
+function checkDailyStreak() {
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Check if at least Morning and Evening are 100% complete
+    let morningDone = Object.keys(state.progress.morning).length === azkarData.morning.length && Object.values(state.progress.morning).every((v,i) => v >= parseInt(azkarData.morning[i].count));
+    let eveningDone = Object.keys(state.progress.evening).length === azkarData.evening.length && Object.values(state.progress.evening).every((v,i) => v >= parseInt(azkarData.evening[i].count));
+    
+    if(morningDone && eveningDone && !state.streak.history[today]) {
+        state.streak.history[today] = true;
+        // Check yesterday to continue streak, else reset to 1
+        const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+        const yestStr = yesterday.toISOString().split('T')[0];
+        
+        if(state.streak.history[yestStr]) state.streak.current++;
+        else state.streak.current = 1;
+        
+        SovereignSync.addRewards(50, 20); // Big daily completion reward
+        showToast('🔥 اكتمل ورد اليوم! +50 XP | +20 Gold', 'success');
+        saveState();
+        updateDashboardFromSync();
+        renderCalendar();
+    }
+}
+
+function renderCalendar() {
+    const grid = document.getElementById('calendarGrid');
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    let html = '';
+    for(let d=1; d<=daysInMonth; d++) {
+        const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const isCompleted = state.streak.history[dateStr];
+        const isToday = d === today.getDate();
+        
+        let cls = "h-8 rounded flex items-center justify-center text-xs orbitron-font font-bold border transition";
+        if(isCompleted) cls += " bg-emerald-500/20 border-emerald-500 text-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.3)]";
+        else if(d < today.getDate()) cls += " bg-rose-950/30 border-rose-900 text-rose-800";
+        else cls += " bg-slate-900 border-slate-800 text-slate-500";
+        
+        if(isToday && !isCompleted) cls += " border-[var(--sys-cyan)] text-[var(--sys-cyan)] shadow-[0_0_10px_var(--sys-cyan-glow)]";
+        
+        html += `<div class="${cls}">${d}</div>`;
+    }
+    grid.innerHTML = html;
+}
+
+// ==================== SETTINGS ====================
+function toggleNightMode() {
+    state.settings.nightMode = document.getElementById('nightModeToggle').checked;
+    applySettings();
+    saveState();
+    SoundEffects.playSystemClick();
+}
+
+function changeFontSize(val) {
+    state.settings.fontSize = val;
+    applySettings();
+    saveState();
+}
+
+function toggleVibration() {
+    state.settings.vibration = document.getElementById('vibrationToggle').checked;
+    saveState();
+    if(state.settings.vibration && navigator.vibrate) navigator.vibrate(50);
+}
+
+function applySettings() {
+    // Font
+    document.documentElement.style.setProperty('--azkar-font-size', `${state.settings.fontSize}px`);
+    document.getElementById('fontSizeLabel').innerText = `${state.settings.fontSize}px`;
+    document.getElementById('fontSizeSlider').value = state.settings.fontSize;
+    
+    // Night Mode
+    const body = document.body;
+    document.getElementById('nightModeToggle').checked = state.settings.nightMode;
+    if(state.settings.nightMode) body.classList.add('reading-mode');
+    else body.classList.remove('reading-mode');
+    
+    // Vibration
+    document.getElementById('vibrationToggle').checked = state.settings.vibration;
+}
+
+function resetFortressData() {
+    if(confirm("هل أنت متأكد من تصفير أذكار اليوم والتسبيحات؟ لن يؤثر ذلك على ذهبك ومستواك.")) {
+        state.progress = { morning: {}, evening: {}, sleep: {}, prayer: {} };
+        Object.keys(state.tasbeeh).forEach(k => state.tasbeeh[k] = 0);
+        saveState();
+        renderAllAzkar();
+        updateTasbeehUI();
+        showToast('تم تفريغ البيانات المحلية بنجاح.', 'success');
+    }
+}
+
+// ==================== STORAGE UTILS ====================
+function saveState() {
+    // Reset progress daily logic
+    const today = new Date().toISOString().split('T')[0];
+    if(state.lastDate !== today) {
+        state.progress = { morning: {}, evening: {}, sleep: {}, prayer: {} };
+        state.lastDate = today;
+    }
+    localStorage.setItem('fortressStateV2', JSON.stringify(state));
+}
+
+function loadState() {
+    const saved = localStorage.getItem('fortressStateV2');
+    if(saved) {
+        const parsed = JSON.parse(saved);
+        state = { ...state, ...parsed };
+    }
+    const today = new Date().toISOString().split('T')[0];
+    if(state.lastDate !== today) {
+        state.progress = { morning: {}, evening: {}, sleep: {}, prayer: {} };
+        state.lastDate = today;
+        saveState();
+    }
+}
+
+// ==================== UI HELPERS ====================
+function showToast(msg, type='info') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    let colors = "border-[var(--sys-cyan)] text-[var(--sys-cyan)] shadow-[0_0_15px_var(--sys-cyan-glow)]";
+    if(type === 'success') colors = "border-emerald-500 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)]";
+    
+    toast.className = `px-5 py-3 bg-[var(--sys-bg-dark)]/95 border backdrop-blur-md text-sm font-bold sys-font tracking-wide rounded ${colors}`;
+    toast.innerText = msg;
+    
+    container.appendChild(toast);
+    setTimeout(() => { toast.style.opacity = '0'; setTimeout(()=>toast.remove(), 300); }, 3000);
+}
+
+// Boot up
+window.onload = init;
+</script>
+</body>
+</html>

@@ -1,0 +1,372 @@
+:root {
+    --sys-cyan: #00f0ff;
+    --sys-cyan-glow: rgba(0, 240, 255, 0.6);
+    --sys-purple: #9d4edd;
+    --sys-purple-glow: rgba(157, 78, 221, 0.4);
+    --sys-bg-dark: #02040a;
+    --sys-panel: rgba(5, 10, 25, 0.85);
+    --sys-border: rgba(0, 240, 255, 0.3);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+    font-family: 'Cairo', sans-serif;
+    background-color: var(--sys-bg-dark);
+    background-image: 
+        radial-gradient(circle at 15% 50%, var(--sys-cyan-glow) 0%, transparent 25%),
+        radial-gradient(circle at 85% 30%, var(--sys-purple-glow) 0%, transparent 25%);
+    color: #e2e8f0;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-attachment: fixed;
+}
+
+.sys-font { font-family: 'Rajdhani', sans-serif; letter-spacing: 0.05em; }
+
+.sl-panel {
+    background: var(--sys-panel);
+    backdrop-filter: blur(16px);
+    border: 2px solid var(--sys-border);
+    box-shadow: 0 0 25px rgba(0, 240, 255, 0.15), inset 0 0 15px rgba(0, 240, 255, 0.1);
+    position: relative;
+}
+
+.sl-panel::before, .sl-panel::after {
+    content: ''; position: absolute; width: 20px; height: 20px;
+    pointer-events: none;
+}
+.sl-panel::before { top: -2px; left: -2px; border-top: 3px solid var(--sys-cyan); border-left: 3px solid var(--sys-cyan); }
+.sl-panel::after { bottom: -2px; right: -2px; border-bottom: 3px solid var(--sys-cyan); border-right: 3px solid var(--sys-cyan); }
+
+.sl-glow-text {
+    color: var(--sys-cyan);
+    text-shadow: 0 0 8px var(--sys-cyan-glow);
+}
+
+@keyframes systemPopIn {
+    0% { opacity: 0; transform: scale(0.95) translateY(10px); filter: brightness(2); }
+    100% { opacity: 1; transform: scale(1) translateY(0); filter: brightness(1); }
+}
+.animate-system-pop { animation: systemPopIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+
+.sl-btn {
+    background: linear-gradient(180deg, rgba(0, 240, 255, 0.05) 0%, rgba(5, 10, 25, 0.8) 100%);
+    border: 1px solid var(--sys-cyan);
+    transition: var(--transition);
+}
+.sl-btn:hover {
+    box-shadow: 0 0 20px rgba(0,240,255,0.4);
+    background: rgba(0,240,255,0.15);
+    transform: translateY(-1px);
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: var(--sys-cyan); }
+
+.progress-bar-container {
+    position: relative;
+    width: 100%;
+    height: 8px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 9999px;
+    overflow: hidden;
+    will-change: width;
+}
+.progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--sys-cyan), #00a8ff);
+    box-shadow: 0 0 10px var(--sys-cyan-glow);
+    border-radius: 9999px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* تنسيق شارة اللقب في اللوحة الرئيسية */
+.monarch-title-badge {
+    color: #bb86fc; /* لون أرجواني سيادي */
+    text-shadow: 0 0 8px rgba(187, 134, 252, 0.8);
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-left: 10px;
+    padding: 3px 10px;
+    border: 1px solid #bb86fc;
+    border-radius: 6px;
+    background: rgba(187, 134, 252, 0.1);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: none; /* مخفي افتراضياً حتى تفعيل لقب من المتجر */
+    transition: all 0.3s ease;
+}
+.monarch-title-badge.active {
+    display: inline-block; /* يظهر فقط عند تفعيل لقب سيادي حقيقي */
+    animation: systemPopIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+.monarch-title-badgi {
+    color: #bb86fc; /* لون أرجواني سيادي */
+    text-shadow: 0 0 8px rgba(187, 134, 252, 0.8);
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-left: 10px;
+    padding: 3px 10px;
+    letter-spacing: 1px;
+}
+.monarch-title-badgie {
+    color: #dcc300; /* لون أرجواني سيادي */
+    text-shadow: 0 0 8px rgba(172, 141, 0, 0.8);
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-left: 10px;
+    padding: 3px 10px;
+    letter-spacing: 1px;
+}
+.monarch-title-badgiex {
+    color: #dedede; /* لون أرجواني سيادي */
+    text-shadow: 0 0 8px rgb(133, 133, 133);
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-left: 10px;
+    padding: 3px 10px;
+    letter-spacing: 1px;
+}
+
+/* تأثير بروفايل العاهل الدائري المتطور */
+.monarch-profile-card {
+    background: rgba(4, 8, 20, 0.9);
+    border: 1px solid var(--sys-cyan);
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.15), inset 0 0 15px rgba(0, 240, 255, 0.05);
+    backdrop-filter: blur(12px);
+}
+
+.avatar-wrapper {
+    position: relative;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%; /* تحويل كامل الإطار لدائرة مطلقة */
+    border: 2px solid var(--sys-cyan);
+    box-shadow: 0 0 15px var(--sys-cyan-glow);
+    overflow: hidden;
+    background: #02040a;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.avatar-wrapper:hover {
+    border-color: var(--sys-purple);
+    box-shadow: 0 0 20px rgba(157, 78, 221, 0.6);
+    transform: scale(1.03);
+}
+
+.avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.9) contrast(1.1);
+}
+
+.avatar-uploader-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    cursor: pointer;
+    color: var(--sys-cyan);
+    font-size: 0.65rem;
+    font-weight: 900;
+    text-align: center;
+    border-radius: 50%; /* تطابق التراكب السحابي ليصبح دائرياً */
+}
+
+.avatar-wrapper:hover .avatar-uploader-overlay {
+    opacity: 1;
+}
+
+/* تأثير الطفو الحركي للشخصية المستدعاة */
+@keyframes shadowIdleFloat {
+    0%, 100% { transform: translateY(0px) scale(1); }
+    50% { transform: translateY(-12px) scale(1.02); }
+}
+
+/* هالة التوهج النيون المتحركة خلف جندي الظل */
+@keyframes shadowPulseGlow {
+    0%, 100% { filter: drop-shadow(0 0 15px rgba(176,38,255,0.5)) drop-shadow(0 0 30px rgba(0,240,255,0.2)); }
+    50% { filter: drop-shadow(0 0 25px rgba(176,38,255,0.8)) drop-shadow(0 0 45px rgba(0,240,255,0.5)); }
+}
+
+.live-shadow-active {
+    animation: shadowIdleFloat 4s ease-in-out infinite, shadowPulseGlow 3s ease-in-out infinite;
+    transition: all 0.5s ease-in-out;
+}
+/* ============================================================================
+   شبكة التنقل الموحّدة — UNIFIED NAVIGATION MESH (الحالة النشطة)
+   مرتبط بمتغيرات الهالة الحية fوهي قابلة لإعادة التلوين الفوري عبر --sys-cyan
+   ============================================================================ */
+#sovereign-nav a.nav-item-active {
+    background: rgba(0, 240, 255, 0.10) !important;
+    border-color: var(--sys-cyan) !important;
+    color: var(--sys-cyan) !important;
+    box-shadow: 0 0 12px var(--sys-cyan-glow);
+}
+
+.sov-identity-strip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-inline-start: auto;
+    font-family: 'Rajdhani', sans-serif;
+    white-space: nowrap;
+}
+.sov-identity-strip [data-sov-name] {
+    color: var(--sys-cyan);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    font-size: 0.72rem;
+    text-shadow: 0 0 6px var(--sys-cyan-glow);
+    user-select: none;
+}
+.sov-identity-strip [data-sov-title] {
+    color: var(--sys-purple);
+    font-weight: 600;
+    font-style: italic;
+    letter-spacing: 0.03em;
+    font-size: 0.68rem;
+    text-shadow: 0 0 6px var(--sys-purple-glow);
+    user-select: none;
+}
+.sov-identity-strip [data-sov-title]:empty { display: none; }
+.sov-identity-strip [data-sov-level-chip] {
+    font-size: 0.65rem;
+    font-weight: 900;
+    color: #02040a;
+    background: var(--sys-cyan);
+    padding: 1px 7px;
+    border-radius: 999px;
+    letter-spacing: 0.05em;
+}
+
+/* ============================================================================
+   خلفية سينمائية موحّدة للصفحات الفرعية — CINEMATIC SECONDARY BACKGROUND
+   مُسرّعة بالكامل عبر GPU (transform/opacity فقط) — لا إعادة تخطيط ولا رسم
+   متكرر للمتصفح، صفر إجهاد على المعالج. تُستخدم في كل صفحة فرعية عدا
+   index.html و index11.html واللتان تحافظان على خلفيتهما الأصلية كما هي.
+   ============================================================================ */
+.sov-secondary-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    overflow: hidden;
+    background: var(--sys-bg-dark);
+    pointer-events: none;
+}
+.sov-secondary-bg::before,
+.sov-secondary-bg::after {
+    content: '';
+    position: absolute;
+    inset: -12%;
+    will-change: transform, opacity;
+}
+.sov-secondary-bg::before {
+    background:
+        radial-gradient(circle at 20% 28%, var(--sys-cyan-glow) 0%, transparent 32%),
+        radial-gradient(circle at 82% 72%, var(--sys-purple-glow) 0%, transparent 34%);
+    animation: sovMistDrift 18s ease-in-out infinite;
+}
+.sov-secondary-bg::after {
+    background-image:
+        repeating-linear-gradient(115deg, transparent 0 140px, rgba(0, 240, 255, 0.05) 140px 141px, transparent 141px 280px),
+        repeating-linear-gradient(25deg, transparent 0 180px, rgba(157, 78, 221, 0.05) 180px 181px, transparent 181px 360px);
+    opacity: 0.55;
+    animation: sovLinesFlow 26s linear infinite;
+}
+@keyframes sovMistDrift {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1);      opacity: 0.85; }
+    50%      { transform: translate3d(2%, -2%, 0) scale(1.08); opacity: 1; }
+}
+@keyframes sovLinesFlow {
+    0%   { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-280px, 140px, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .sov-secondary-bg::before, .sov-secondary-bg::after { animation: none; }
+}
+
+/* ============================================================================
+   SHADOW LOCK UI — بوابة القفل الظليّة لبرامج الميثاق التشغيلي
+   تُحقن داخل أي حاوية برنامج مقفل عبر SovereignCore.applyProgramGateToElement()
+   ============================================================================ */
+.sov-locked-content {
+    position: relative;
+    min-height: 220px;
+    overflow: hidden;
+    filter: saturate(0.4) brightness(0.5);
+    pointer-events: none;
+    user-select: none;
+}
+.shadow-lock-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-align: center;
+    padding: 24px;
+    background: radial-gradient(circle at 50% 40%, rgba(10, 4, 20, 0.94) 0%, rgba(2, 4, 10, 0.98) 70%);
+    backdrop-filter: blur(6px) saturate(0.6);
+    border: 1px solid rgba(157, 78, 221, 0.4);
+    box-shadow: inset 0 0 40px rgba(157, 78, 221, 0.12);
+    pointer-events: auto;
+    animation: shadowLockReveal 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+.shadow-lock-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(45deg, transparent 0 6px, rgba(157, 78, 221, 0.05) 6px 7px);
+    pointer-events: none;
+}
+.shadow-lock-icon {
+    font-size: 2.2rem;
+    filter: drop-shadow(0 0 14px rgba(157, 78, 221, 0.7));
+    animation: shadowLockPulse 2.4s ease-in-out infinite;
+}
+.shadow-lock-title {
+    font-family: 'Rajdhani', sans-serif;
+    letter-spacing: 0.18em;
+    font-size: 0.7rem;
+    color: var(--sys-purple);
+    text-transform: uppercase;
+    text-shadow: 0 0 10px var(--sys-purple-glow);
+}
+.shadow-lock-req {
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.95rem;
+    color: #e2e8f0;
+    font-weight: 700;
+    max-width: 320px;
+    line-height: 1.6;
+}
+.shadow-lock-req span {
+    color: var(--sys-cyan);
+    text-shadow: 0 0 8px var(--sys-cyan-glow);
+    font-weight: 900;
+}
+.shadow-lock-sub {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.68rem;
+    color: #64748b;
+    letter-spacing: 0.08em;
+}
+@keyframes shadowLockPulse {
+    0%, 100% { filter: drop-shadow(0 0 10px rgba(157, 78, 221, 0.5)); transform: scale(1); }
+    50%      { filter: drop-shadow(0 0 22px rgba(157, 78, 221, 0.9)); transform: scale(1.08); }
+}
+@keyframes shadowLockReveal {
+    0%   { opacity: 0; transform: scale(0.97); }
+    100% { opacity: 1; transform: scale(1); }
+}

@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku Crypt | Sovereign System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'sys-dark': '#000000',
+                        'sys-cyan': '#00f0ff',
+                        'sys-purple': '#b026ff',
+                        'sys-white': '#ffffff',
+                        'sys-green': '#10b981',
+                        'sys-rose': '#e11d48',
+                        'sys-gold': '#ffd700',
+                        'rank-b': '#00d4ff',
+                    },
+                    fontFamily: {
+                        'cairo': ['Cairo', 'sans-serif'],
+                        'orbitron': ['Orbitron', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --sys-cyan: #00f0ff;
+            --sys-purple: #b026ff;
+            --rank-b: #00d4ff;
+            --sys-gold: #ffd700;
+            --sys-green: #10b981;
+            --sys-rose: #e11d48;
+        }
+
+        /* إصلاح شريط التمرير ليظهر على الصفحة فقط ولا يحجب الرؤية داخل العناصر */
+        html, body { scrollbar-width: thin; scrollbar-color: var(--rank-b) #000000; }
+        html::-webkit-scrollbar, body::-webkit-scrollbar { width: 6px; }
+        html::-webkit-scrollbar-track, body::-webkit-scrollbar-track { background: #000000; }
+        html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--rank-b), var(--sys-cyan)); border-radius: 3px; }
+
+        /* إصلاح مشكلة اختفاء وإظهار الواجهات حتى بدون إنترنت */
+        .hidden { display: none !important; }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--sys-bg-dark);
+            color: #e2e8f0;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .bg-grid-pattern {
+                    }
+
+        .scanline {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent 50%, rgba(255, 255, 255, 0.02) 50%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.5;
+        }
+
+        .neon-border-b {
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.06), inset 0 0 20px rgba(0, 212, 255, 0.03);
+            transition: all 0.3s ease;
+        }
+        .neon-border-b:hover {
+            border-color: rgba(0, 212, 255, 0.6);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2), 0 0 60px rgba(0, 240, 255, 0.08), inset 0 0 30px rgba(0, 212, 255, 0.1);
+        }
+
+        .sys-btn {
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .sys-btn::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+        .sys-btn:hover::after { left: 100%; }
+
+        .glitch-text {
+            position: relative;
+            animation: glitch 3s infinite;
+        }
+        @keyframes glitch {
+            0%, 100% { text-shadow: 0 0 10px var(--rank-b), 0 0 20px var(--rank-b); }
+            50% { text-shadow: 0 0 20px var(--sys-cyan), 0 0 40px var(--sys-cyan), -2px 0 var(--rank-b), 2px 0 var(--sys-cyan); }
+        }
+
+        .particle-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .phase-transition {
+            animation: phaseIn 0.5s ease-out;
+        }
+        @keyframes phaseIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Sudoku Specific */
+        .sudoku-grid {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 1px;
+            background: rgba(0, 212, 255, 0.15);
+            padding: 2px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.08);
+        }
+
+        .sudoku-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.8);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            position: relative;
+            border: none;
+            color: #e2e8f0;
+            user-select: none;
+        }
+        .sudoku-cell:hover {
+            background: rgba(0, 212, 255, 0.1);
+        }
+        .sudoku-cell.fixed {
+            color: var(--rank-b);
+            text-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
+            background: rgba(0, 212, 255, 0.05);
+            cursor: default;
+        }
+        .sudoku-cell.selected {
+            background: rgba(0, 212, 255, 0.25) !important;
+            box-shadow: inset 0 0 15px rgba(0, 212, 255, 0.3);
+            border: 1px solid var(--rank-b);
+        }
+        .sudoku-cell.highlight-row,
+        .sudoku-cell.highlight-col,
+        .sudoku-cell.highlight-box {
+            background: rgba(0, 212, 255, 0.08);
+        }
+        .sudoku-cell.same-number {
+            background: rgba(0, 212, 255, 0.15) !important;
+        }
+        .sudoku-cell.error {
+            color: var(--sys-rose) !important;
+            text-shadow: 0 0 8px rgba(225, 29, 72, 0.5);
+            animation: errorPulse 0.5s ease;
+        }
+        .sudoku-cell.correct-fill {
+            color: var(--sys-green);
+            text-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+        }
+
+        @keyframes errorPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* تعديل الحدود السميكة لتتناسب مع الاتجاه العربي من اليمين لليسار */
+        .sudoku-cell:nth-child(3n) { border-left: 2px solid rgba(0, 212, 255, 0.3); }
+        .sudoku-cell:nth-child(9n) { border-left: none; }
+        .sudoku-cell:nth-child(n+19):nth-child(-n+27),
+        .sudoku-cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 2px solid rgba(0, 212, 255, 0.3); }
+
+        .num-pad-btn {
+            font-family: 'Orbitron', sans-serif;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            user-select: none;
+        }
+        .num-pad-btn:hover {
+            background: rgba(0, 212, 255, 0.15);
+            border-color: rgba(0, 212, 255, 0.5);
+            transform: scale(1.05);
+        }
+        .num-pad-btn:active {
+            transform: scale(0.95);
+        }
+
+        .level-badge {
+            font-family: 'Orbitron', sans-serif;
+            clip-path: polygon(10% 0, 100% 0, 100% 100%, 0 100%, 0 30%);
+        }
+
+        .stat-glow {
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        .xp-bar-fill {
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px var(--rank-b), 0 0 20px var(--rank-b);
+        }
+
+        .life-indicator {
+            transition: all 0.3s ease;
+        }
+        .life-indicator.lost {
+            color: var(--sys-rose);
+            text-shadow: 0 0 10px rgba(225, 29, 72, 0.5);
+            animation: lifeLost 0.5s ease;
+        }
+        @keyframes lifeLost {
+            0% { transform: scale(1.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+<base target="_blank">
+    <link rel="stylesheet" href="index11.css">
+    <script src="monarch-core.js"></script>
+</head>
+<body class="relative">
+<div class="sov-secondary-bg" aria-hidden="true"></div>
+    <canvas id="particles" class="particle-canvas"></canvas>
+    <div class="scanline"></div>
+
+    <header class="relative z-10 max-w-7xl mx-auto mb-4 p-4">
+        <div class="bg-black/80 backdrop-blur-xl border border-white/10 rounded-xl p-4 flex flex-wrap justify-between items-center gap-4 neon-border-b">
+            <div class="flex items-center gap-4">
+                <button onclick="window.location.href='dungeons.html'" class="sys-btn text-xs bg-black/80 px-4 py-2 border border-white/20 hover:border-rank-b hover:text-rank-b transition rounded-lg flex items-center gap-2 text-white/70">
+                    <span>↩</span> <span>العودة للزنازين</span>
+                </button>
+                <div class="flex flex-col">
+                    <span class="font-orbitron text-[10px] text-white/30 tracking-[0.3em] uppercase">Sovereign System</span>
+                    <h1 class="font-orbitron text-xl font-black tracking-widest text-rank-b uppercase glitch-text">🧩 SUDOKU CRYPT</h1>
+                </div>
+            </div>
+            <nav class="flex flex-wrap gap-2 justify-center md:justify-start">
+            <a href="index11.html" class="px-4 py-2 text-xs font-mono sovereign-panel rounded hover:bg-[var(--sys-cyan)] hover:text-black transition duration-300 text-slate-300">
+                🏠 DASHBOARD
+            </a>
+            <a href="active-quests.html" class="px-4 py-2 text-xs font-mono bg-cyan-950/40 border border-[var(--sys-cyan)] text-[var(--sys-cyan)] rounded font-bold shadow-[0_0_10px_rgba(0,240,255,0.1)]">
+                ⚔️ ACTIVE QUESTS
+            </a>
+            <a href="brain-stats.html" class="px-4 py-2 text-xs font-mono sovereign-panel rounded hover:bg-[var(--sys-cyan)] hover:text-black transition duration-300 text-slate-300">
+                🧠 BRAIN STATS
+            </a>
+            <a href="operational-charter.html" class="px-4 py-2 text-xs font-mono sovereign-panel rounded hover:bg-[var(--sys-cyan)] hover:text-black transition duration-300 text-slate-300">
+                📜 CHARTER
+            </a>
+            <a href="monarch-ai.html" class="px-4 py-2 text-xs font-mono sovereign-panel rounded hover:bg-[var(--sys-cyan)] hover:text-black transition duration-300 text-slate-300">
+                🤖 MONARCH AI
+            </a>
+            <a href="system-logs.html" class="px-4 py-2 text-xs font-mono sovereign-panel rounded hover:bg-[var(--sys-cyan)] hover:text-black transition duration-300 text-slate-300">
+                📊 SYSTEM LOGS
+            </a>
+        </nav>
+
+
+            <div class="flex items-center gap-6 flex-wrap justify-center">
+                <div class="flex flex-col items-center min-w-[80px]">
+                    <span class="font-orbitron text-[10px] text-white/40 tracking-wider uppercase">Level</span>
+                    <span id="currentLevel" class="font-orbitron text-2xl font-bold text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">1</span>
+                </div>
+                <div class="flex flex-col items-center min-w-[100px]">
+                    <span class="font-orbitron text-[10px] text-white/40 tracking-wider uppercase">XP</span>
+                    <div class="flex items-center gap-2">
+                        <span id="currentXP" class="font-orbitron text-lg font-bold text-white/80">0</span>
+                        <span class="text-white/30 text-xs">/</span>
+                        <span id="xpNeeded" class="font-orbitron text-xs text-white/40">100</span>
+                    </div>
+                    <div class="w-20 h-1 bg-white/5 rounded-full overflow-hidden mt-1">
+                        <div id="xpBar" class="h-full bg-rank-b xp-bar-fill rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="flex flex-col items-center min-w-[60px]">
+                    <span class="font-orbitron text-[10px] text-white/40 tracking-wider uppercase">INT</span>
+                    <span id="stat-int" class="font-orbitron text-lg font-bold text-sys-purple drop-shadow-[0_0_8px_rgba(176,38,255,0.4)]">10</span>
+                </div>
+                <div class="flex flex-col items-center min-w-[60px]">
+                    <span class="font-orbitron text-[10px] text-white/40 tracking-wider uppercase">Gold</span>
+                    <span id="stat-gold" class="font-orbitron text-lg font-bold text-sys-gold drop-shadow-[0_0_8px_rgba(255,215,0,0.4)]">0</span>
+                </div>
+                <div class="flex flex-col items-center min-w-[60px]">
+                    <span class="font-orbitron text-[10px] text-white/40 tracking-wider uppercase">Authority</span>
+                    <span id="stat-auth" class="font-orbitron text-lg font-bold text-sys-cyan drop-shadow-[0_0_8px_rgba(0,240,255,0.4)]">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="relative z-10 max-w-4xl mx-auto px-4 pb-10">
+
+        <div id="phase-menu" class="phase-transition">
+            <div class="text-center mb-6">
+                <div class="font-orbitron text-rank-b tracking-[0.4em] text-xs mb-3">RANK: B — LOGIC CRYPT</div>
+                <h2 class="font-orbitron text-4xl md:text-5xl font-black text-white mb-4 glitch-text">Sudoku Crypt</h2>
+                <p class="font-cairo text-white/50 text-sm max-w-xl mx-auto leading-relaxed mb-2">
+                    املأ الشبكة <span class="text-rank-b">9×9</span> بالأرقام 1-9 دون تكرار في الصفوف والأعمدة والصناديق.
+                </p>
+                <p class="font-cairo text-white/30 text-xs max-w-lg mx-auto leading-relaxed">
+                    3 أخطاء مسموحة. Validator حقيقي. Highlight للصف/العمود/الصندوق.
+                </p>
+            </div>
+
+            <div class="bg-black/60 border border-white/10 rounded-2xl p-6 mb-6 max-w-md mx-auto neon-border-b">
+                <div class="font-orbitron text-white/60 text-xs tracking-wider mb-4 text-center">اختر مستوى الصعوبة</div>
+                <div class="flex justify-center gap-3">
+                    <button onclick="SudokuApp.setDifficulty('easy')" id="btn-easy" class="diff-btn px-5 py-3 bg-black border border-rank-b rounded-xl font-orbitron text-sm font-bold text-rank-b transition shadow-[0_0_15px_rgba(0,212,255,0.2)]">
+                        سهل
+                    </button>
+                    <button onclick="SudokuApp.setDifficulty('medium')" id="btn-medium" class="diff-btn px-5 py-3 bg-black border border-white/10 rounded-xl font-orbitron text-sm font-bold text-white/50 hover:border-rank-b hover:text-rank-b transition">
+                        متوسط
+                    </button>
+                    <button onclick="SudokuApp.setDifficulty('hard')" id="btn-hard" class="diff-btn px-5 py-3 bg-black border border-white/10 rounded-xl font-orbitron text-sm font-bold text-white/50 hover:border-rank-b hover:text-rank-b transition">
+                        صعب
+                    </button>
+                </div>
+                <div id="diff-description" class="text-center mt-4 text-xs text-white/40 font-cairo">
+                    40 خلية فارغة — بداية سهلة
+                </div>
+            </div>
+
+            <div class="bg-black/40 border border-white/5 rounded-xl p-4 mb-6 max-w-md mx-auto">
+                <div class="font-orbitron text-[10px] text-white/30 tracking-wider mb-3 text-center">المكافآت المتوقعة عند النصر</div>
+                <div class="flex justify-center gap-6">
+                    <div class="text-center">
+                        <div class="text-rank-b font-orbitron text-lg font-bold stat-glow">+100</div>
+                        <div class="text-[10px] text-white/40 font-orbitron">XP</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-sys-purple font-orbitron text-lg font-bold stat-glow">+2</div>
+                        <div class="text-[10px] text-white/40 font-orbitron">INT</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-sys-gold font-orbitron text-lg font-bold stat-glow">+25</div>
+                        <div class="text-[10px] text-white/40 font-orbitron">GOLD</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button onclick="SudokuApp.startCountdown()" class="sys-btn px-10 py-4 bg-rank-b/10 border border-rank-b/50 text-rank-b hover:bg-rank-b hover:text-black transition rounded-xl text-sm shadow-[0_0_20px_rgba(0,212,255,0.15)]">
+                    ENTER THE CRYPT
+                </button>
+            </div>
+        </div>
+
+        <div id="phase-countdown" class="hidden text-center py-20">
+            <div class="font-orbitron text-white/30 text-sm tracking-widest mb-8">GENERATING PUZZLE MATRIX...</div>
+            <div id="countdown-number" class="font-orbitron text-8xl font-black text-rank-b drop-shadow-[0_0_30px_rgba(0,212,255,0.5)]">3</div>
+        </div>
+
+        <div id="phase-game" class="hidden">
+            <div class="flex flex-wrap justify-between items-center mb-4 px-2 gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="font-orbitron text-rank-b text-xs tracking-wider">
+                        <span class="text-white/30">DIFFICULTY:</span> <span id="game-diff" class="text-rank-b font-bold">EASY</span>
+                    </div>
+                    <div class="font-orbitron text-white/40 text-xs">
+                        <span class="text-white/30">TIME:</span> <span id="timer" class="text-white font-mono">00:00</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="font-orbitron text-white/40 text-xs flex items-center gap-2">
+                        <span class="text-white/30">LIVES:</span>
+                        <span id="lives-display" class="flex gap-1">
+                            <span class="life-indicator text-rank-b text-lg">◆</span>
+                            <span class="life-indicator text-rank-b text-lg">◆</span>
+                            <span class="life-indicator text-rank-b text-lg">◆</span>
+                        </span>
+                    </div>
+                    <button onclick="SudokuApp.giveUp()" class="text-[10px] font-orbitron text-sys-rose/60 hover:text-sys-rose border border-sys-rose/20 hover:border-sys-rose/60 px-3 py-1 rounded transition">
+                        استسلام
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex justify-center mb-4">
+                <div class="w-full max-w-md bg-black/40 border border-white/5 rounded-full h-2 overflow-hidden">
+                    <div id="completion-bar" class="h-full bg-gradient-to-r from-rank-b to-sys-cyan transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="text-center mb-4">
+                <span id="filled-count" class="font-orbitron text-xs text-white/40">0/81</span>
+            </div>
+
+            <div class="flex justify-center mb-6">
+                <div id="sudoku-grid" class="sudoku-grid w-full max-w-[400px]">
+                    </div>
+            </div>
+
+            <div class="flex justify-center mb-4">
+                <div class="grid grid-cols-5 gap-2 max-w-[320px]">
+                    <button onclick="SudokuApp.inputNumber(1)" class="num-pad-btn w-12 h-12 bg-black/60 border border-white/10 rounded-lg text-rank-b font-bold text-lg flex items-center justify-center">1</button>
+                    <button onclick="SudokuApp.inputNumber(2)" class="num-pad-btn w-12 h-12 bg-black/60 border border-white/10 rounded-lg text-rank-b font-bold text-lg flex items-center justify-center">2</button>
+                    <button onclick="SudokuApp.inputNumber(3)" class="num-pad-btn w-12 h-12 bg-black/60 border border-white/10 rounded-lg text-rank-b font-bold text-lg flex items-center justify-center">3</button>
+                    <button onclick="SudokuApp.inputNumber(4)" class="num-pad-btn w-12 h-12 bg-black/60 border border-white/10 rounded-lg text-rank-b font-bold text-lg flex items-center justify-center">4</button>
+                    <button onclick="SudokuApp.inputNumber(5)" class="num-pad-btn w-12 h-12 bg-black/60 border border-white/10 rounded-lg text-rank-b font-bold text-lg flex items-center justify-center">5</button>
+                    <button onclick="SudokuApp.inputNumber(6)" class="num-pad-btn w-12 h-12 bg-black/60 border border-white/10 rounded-lg text-rank-b font-bold text-lg flex items-center justify-center">6</button>
+                    <button onclick="SudokuApp.inputNumber(7)" class="num-pad-btn w-12 h-12 bg-black/60 border border-white/10 rounded-lg text-rank-b font-bold text-lg flex items-center justify-center">7</button>
+                    <button onclick="SudokuApp.inputNumber(8)" class="num-pad-btn w-12 h-12 bg-black/60 border border-white/10 rounded-lg text-rank-b font-bold text-lg flex items-center justify-center">8</button>
+                    <button onclick="SudokuApp.inputNumber(9)" class="num-pad-btn w-12 h-12 bg-black/60 border border-white/10 rounded-lg text-rank-b font-bold text-lg flex items-center justify-center">9</button>
+                    <button onclick="SudokuApp.clearCell()" class="num-pad-btn w-12 h-12 bg-black/60 border border-sys-rose/30 rounded-lg text-sys-rose font-bold text-sm flex items-center justify-center">⌫</button>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <p class="text-[10px] text-white/20 font-cairo">يمكنك استخدام لوحة المفاتيح: الأرقام 1-9 للملء، Backspace للمسح</p>
+            </div>
+        </div>
+
+        <div id="phase-results" class="hidden text-center">
+            <div class="font-orbitron text-rank-b tracking-[0.4em] text-xs mb-4">DUNGEON CLEARED</div>
+            <h2 id="result-title" class="font-orbitron text-3xl font-black text-white mb-2 glitch-text">CRYPT DECRYPTED</h2>
+            <p id="result-subtitle" class="font-cairo text-white/50 text-sm mb-6">لقد حللت اللغز ببراعة استدلالية!</p>
+
+            <div class="bg-black/60 border border-white/10 rounded-2xl p-6 max-w-md mx-auto mb-6 neon-border-b">
+                <div class="flex justify-center mb-4">
+                    <div class="level-badge bg-rank-b/20 text-rank-b text-lg px-6 py-2 border border-rank-b/40 shadow-[0_0_15px_rgba(0,212,255,0.3)]">
+                        RANK: B
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3 mb-6">
+                    <div class="bg-black/40 border border-white/5 rounded-xl p-3">
+                        <div class="font-orbitron text-[10px] text-rank-b mb-1">TIME</div>
+                        <div id="result-time" class="font-orbitron text-lg font-bold text-white">02:34</div>
+                    </div>
+                    <div class="bg-black/40 border border-white/5 rounded-xl p-3">
+                        <div class="font-orbitron text-[10px] text-rank-b mb-1">ERRORS</div>
+                        <div id="result-errors" class="font-orbitron text-lg font-bold text-sys-green">0/3</div>
+                    </div>
+                    <div class="bg-black/40 border border-white/5 rounded-xl p-3">
+                        <div class="font-orbitron text-[10px] text-rank-b mb-1">DIFFICULTY</div>
+                        <div id="result-diff" class="font-orbitron text-lg font-bold text-white">EASY</div>
+                    </div>
+                </div>
+
+                <div class="border-t border-white/5 pt-4">
+                    <div class="font-orbitron text-[10px] text-white/30 tracking-wider mb-3">REWARDS ACQUIRED</div>
+                    <div class="flex justify-center gap-8">
+                        <div class="text-center">
+                            <div id="reward-xp" class="text-rank-b font-orbitron text-2xl font-bold stat-glow">+100</div>
+                            <div class="text-[10px] text-white/40 font-orbitron">XP</div>
+                        </div>
+                        <div class="text-center">
+                            <div id="reward-int" class="text-sys-purple font-orbitron text-2xl font-bold stat-glow">+2</div>
+                            <div class="text-[10px] text-white/40 font-orbitron">INT</div>
+                        </div>
+                        <div class="text-center">
+                            <div id="reward-gold" class="text-sys-gold font-orbitron text-2xl font-bold stat-glow">+25</div>
+                            <div class="text-[10px] text-white/40 font-orbitron">GOLD</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="level-up-banner" class="hidden mb-6">
+                <div class="bg-sys-gold/10 border border-sys-gold/40 rounded-xl p-4 max-w-md mx-auto">
+                    <div class="font-orbitron text-sys-gold text-lg font-bold tracking-wider">⚡ LEVEL UP!</div>
+                    <div class="text-white/60 text-sm font-cairo mt-1">لقد ارتقيت إلى مستوى أعلى! +3 AP متاحة للتوزيع.</div>
+                </div>
+            </div>
+
+            <div class="flex justify-center gap-3">
+                <button onclick="SudokuApp.showMenu()" class="sys-btn px-6 py-3 bg-black border border-white/20 text-white/70 hover:border-rank-b hover:text-rank-b transition rounded-lg text-xs">
+                    تغيير الإعدادات
+                </button>
+                <button onclick="SudokuApp.startCountdown()" class="sys-btn px-6 py-3 bg-rank-b/10 border border-rank-b/50 text-rank-b hover:bg-rank-b hover:text-black transition rounded-lg text-xs shadow-[0_0_15px_rgba(0,212,255,0.15)]">
+                    إعادة المحاولة
+                </button>
+            </div>
+        </div>
+
+        <div id="phase-failure" class="hidden text-center">
+            <div class="font-orbitron text-sys-rose tracking-[0.4em] text-xs mb-4">DUNGEON FAILED</div>
+            <h2 class="font-orbitron text-3xl font-black text-sys-rose mb-2">CRYPT SEALED</h2>
+            <p id="fail-reason" class="font-cairo text-white/50 text-sm mb-6">لقد استنفدت جميع محاولاتك.</p>
+
+            <div class="bg-black/60 border border-sys-rose/20 rounded-2xl p-6 max-w-md mx-auto mb-6">
+                <div class="font-orbitron text-[10px] text-white/30 tracking-wider mb-3">PARTIAL REWARDS</div>
+                <div class="flex justify-center gap-6">
+                    <div class="text-center">
+                        <div id="fail-xp" class="text-white/60 font-orbitron text-lg font-bold">+15</div>
+                        <div class="text-[10px] text-white/40 font-orbitron">XP</div>
+                    </div>
+                    <div class="text-center">
+                        <div id="fail-gold" class="text-white/60 font-orbitron text-lg font-bold">+5</div>
+                        <div class="text-[10px] text-white/40 font-orbitron">GOLD</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-center gap-3">
+                <button onclick="SudokuApp.showMenu()" class="sys-btn px-6 py-3 bg-black border border-white/20 text-white/70 hover:border-rank-b hover:text-rank-b transition rounded-lg text-xs">
+                    العودة للقائمة
+                </button>
+                <button onclick="SudokuApp.startCountdown()" class="sys-btn px-6 py-3 bg-sys-rose/10 border border-sys-rose/50 text-sys-rose hover:bg-sys-rose hover:text-white transition rounded-lg text-xs shadow-[0_0_15px_rgba(225,29,72,0.15)]">
+                    إعادة المحاولة
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+<script>
+// ==========================================
+// PARTICLE SYSTEM
+// ==========================================
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+class Particle {
+    constructor() {
+        this.reset();
+    }
+    reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 0.5;
+        this.speedX = (Math.random() - 0.5) * 0.3;
+        this.speedY = (Math.random() - 0.5) * 0.3;
+        this.opacity = Math.random() * 0.5 + 0.1;
+        this.color = Math.random() > 0.6 ? '0, 212, 255' : (Math.random() > 0.5 ? '0, 240, 255' : '255, 255, 255');
+    }
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.reset();
+    }
+    draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`;
+        ctx.fill();
+    }
+}
+
+for (let i = 0; i < 60; i++) particles.push(new Particle());
+
+function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+// ==========================================
+// PLAYER STATE (RPG SYSTEM)
+// ==========================================
+const PlayerState = {
+    data: {
+        level: 1,
+        xp: 0,
+        ap: 0,
+        stats: { str: 10, agi: 10, vit: 10, int: 10, sen: 10 },
+        gold: 0,
+        authority: 0,
+        clearedDungeons: { Memory: 0, Hanoi: 0, Sudoku: 0, Math: 0, Chess: 0, NBack: 0 }
+    },
+
+    init() {
+        const saved = localStorage.getItem('monarch_system_data');
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            this.data = { ...this.data, ...parsed };
+            if (!this.data.clearedDungeons) {
+                this.data.clearedDungeons = { Memory: 0, Hanoi: 0, Sudoku: 0, Math: 0, Chess: 0, NBack: 0 };
+            }
+            if (!this.data.stats) {
+                this.data.stats = { str: 10, agi: 10, vit: 10, int: 10, sen: 10 };
+            }
+        }
+        this.updateUI();
+    },
+
+    save() {
+        if (window.SovereignCore) {
+            SovereignCore.save(this.data);
+        } else {
+            localStorage.setItem('monarch_system_data', JSON.stringify(this.data));
+        }
+        this.updateUI();
+    },
+
+    updateUI() {
+        const lvl = this.data.level || 1;
+        const xp = this.data.xp || 0;
+        const need = lvl * 100;
+        const pct = Math.min((xp / need) * 100, 100);
+
+        document.getElementById('currentLevel').textContent = lvl;
+        document.getElementById('currentXP').textContent = xp;
+        document.getElementById('xpNeeded').textContent = need;
+        document.getElementById('xpBar').style.width = pct + '%';
+        document.getElementById('stat-int').textContent = this.data.stats?.int || 10;
+        document.getElementById('stat-gold').textContent = this.data.gold || 0;
+        document.getElementById('stat-auth').textContent = this.data.authority || 0;
+    },
+
+    reward(xp, int, gold, auth) {
+        const oldLevel = this.data.level;
+        this.data.xp = (this.data.xp || 0) + xp;
+        this.data.stats.int = (this.data.stats.int || 10) + int;
+        this.data.gold = (this.data.gold || 0) + gold;
+        this.data.authority = (this.data.authority || 0) + (auth || 0);
+        this.data.clearedDungeons.Sudoku = (this.data.clearedDungeons.Sudoku || 0) + 1;
+
+        let leveledUp = false;
+        while (this.data.xp >= this.data.level * 100) {
+            this.data.xp -= this.data.level * 100;
+            this.data.level++;
+            this.data.ap = (this.data.ap || 0) + 3;
+            leveledUp = true;
+        }
+        this.save();
+        return { leveledUp, oldLevel, newLevel: this.data.level };
+    },
+
+    partialReward(xp, gold) {
+        this.data.xp = (this.data.xp || 0) + xp;
+        this.data.gold = (this.data.gold || 0) + gold;
+
+        while (this.data.xp >= this.data.level * 100) {
+            this.data.xp -= this.data.level * 100;
+            this.data.level++;
+            this.data.ap = (this.data.ap || 0) + 3;
+        }
+        this.save();
+    }
+};
+
+// ==========================================
+// SUDOKU ENGINE
+// ==========================================
+const SudokuApp = {
+    difficulty: 'easy',
+    grid: [],
+    solution: [],
+    fixed: [],
+    selectedCell: -1,
+    lives: 3,
+    errors: 0,
+    startTime: 0,
+    timerInterval: null,
+    isPlaying: false,
+
+    difficulties: {
+        easy: { empty: 40, label: 'EASY', timeBonus: 1.2 },
+        medium: { empty: 50, label: 'MEDIUM', timeBonus: 1.0 },
+        hard: { empty: 58, label: 'HARD', timeBonus: 0.8 }
+    },
+
+    setDifficulty(diff) {
+        this.difficulty = diff;
+        document.querySelectorAll('.diff-btn').forEach(btn => {
+            btn.classList.remove('border-rank-b', 'text-rank-b', 'shadow-[0_0_15px_rgba(0,212,255,0.2)]');
+            btn.classList.add('border-white/10', 'text-white/50');
+        });
+        const active = document.getElementById('btn-' + diff);
+        active.classList.remove('border-white/10', 'text-white/50');
+        active.classList.add('border-rank-b', 'text-rank-b', 'shadow-[0_0_15px_rgba(0,212,255,0.2)]');
+
+        const descs = {
+            easy: '40 خلية فارغة — بداية سهلة',
+            medium: '50 خلية فارغة — تحدي متوسط',
+            hard: '58 خلية فارغة — تحدي صعب'
+        };
+        document.getElementById('diff-description').textContent = descs[diff];
+    },
+
+    showPhase(phase) {
+        ['menu', 'countdown', 'game', 'results', 'failure'].forEach(p => {
+            document.getElementById('phase-' + p).classList.add('hidden');
+        });
+        document.getElementById('phase-' + phase).classList.remove('hidden');
+        document.getElementById('phase-' + phase).classList.add('phase-transition');
+    },
+
+    showMenu() {
+        this.showPhase('menu');
+        if (this.timerInterval) clearInterval(this.timerInterval);
+    },
+
+    startCountdown() {
+        this.showPhase('countdown');
+        let count = 3;
+        const el = document.getElementById('countdown-number');
+        el.textContent = count;
+        el.className = 'font-orbitron text-8xl font-black text-rank-b drop-shadow-[0_0_30px_rgba(0,212,255,0.5)] countdown-number';
+
+        const interval = setInterval(() => {
+            count--;
+            if (count > 0) {
+                el.textContent = count;
+                el.classList.remove('countdown-number');
+                void el.offsetWidth;
+                el.classList.add('countdown-number');
+            } else {
+                clearInterval(interval);
+                this.startGame();
+            }
+        }, 1000);
+    },
+
+    startGame() {
+        this.lives = 3;
+        this.errors = 0;
+        this.selectedCell = -1;
+        this.isPlaying = true;
+
+        this.generatePuzzle();
+        this.showPhase('game');
+        this.renderGrid();
+        this.updateLives();
+        this.startTimer();
+        this.updateProgress();
+
+        document.getElementById('game-diff').textContent = this.difficulties[this.difficulty].label;
+    },
+
+    // ==========================================
+    // SUDOKU GENERATOR
+    // ==========================================
+    generatePuzzle() {
+        this.solution = Array(9).fill().map(() => Array(9).fill(0));
+
+        for (let box = 0; box < 3; box++) {
+            const nums = [1,2,3,4,5,6,7,8,9].sort(() => Math.random() - 0.5);
+            let idx = 0;
+            for (let r = box * 3; r < box * 3 + 3; r++) {
+                for (let c = box * 3; c < box * 3 + 3; c++) {
+                    this.solution[r][c] = nums[idx++];
+                }
+            }
+        }
+
+        this.solveSudoku(this.solution);
+
+        this.grid = this.solution.map(row => [...row]);
+        this.fixed = Array(9).fill().map(() => Array(9).fill(false));
+
+        const config = this.difficulties[this.difficulty];
+        let removed = 0;
+        const positions = [];
+        for (let r = 0; r < 9; r++) {
+            for (let c = 0; c < 9; c++) {
+                positions.push([r, c]);
+            }
+        }
+        positions.sort(() => Math.random() - 0.5);
+
+        for (const [r, c] of positions) {
+            if (removed >= config.empty) break;
+            const backup = this.grid[r][c];
+            this.grid[r][c] = 0;
+
+            const testGrid = this.grid.map(row => [...row]);
+            if (this.solveSudoku(testGrid)) {
+                removed++;
+            } else {
+                this.grid[r][c] = backup;
+            }
+        }
+
+        for (let r = 0; r < 9; r++) {
+            for (let c = 0; c < 9; c++) {
+                if (this.grid[r][c] !== 0) {
+                    this.fixed[r][c] = true;
+                }
+            }
+        }
+    },
+
+    solveSudoku(board) {
+        for (let r = 0; r < 9; r++) {
+            for (let c = 0; c < 9; c++) {
+                if (board[r][c] === 0) {
+                    const nums = [1,2,3,4,5,6,7,8,9].sort(() => Math.random() - 0.5);
+                    for (const num of nums) {
+                        if (this.isValid(board, r, c, num)) {
+                            board[r][c] = num;
+                            if (this.solveSudoku(board)) return true;
+                            board[r][c] = 0;
+                        }
+                    }
+                    return false;
+                }
+            }
+        }
+        return true;
+    },
+
+    isValid(board, row, col, num) {
+        for (let x = 0; x < 9; x++) {
+            if (board[row][x] === num) return false;
+        }
+        for (let x = 0; x < 9; x++) {
+            if (board[x][col] === num) return false;
+        }
+        const startRow = row - row % 3;
+        const startCol = col - col % 3;
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if (board[i + startRow][j + startCol] === num) return false;
+            }
+        }
+        return true;
+    },
+
+    // ==========================================
+    // RENDERING
+    // ==========================================
+    renderGrid() {
+        const container = document.getElementById('sudoku-grid');
+        container.innerHTML = '';
+
+        for (let r = 0; r < 9; r++) {
+            for (let c = 0; c < 9; c++) {
+                const cell = document.createElement('div');
+                cell.className = 'sudoku-cell';
+                cell.dataset.row = r;
+                cell.dataset.col = c;
+                cell.dataset.idx = r * 9 + c;
+
+                const value = this.grid[r][c];
+                if (value !== 0) {
+                    cell.textContent = value;
+                    if (this.fixed[r][c]) {
+                        cell.classList.add('fixed');
+                    } else {
+                        cell.classList.add('correct-fill');
+                    }
+                }
+
+                cell.onclick = () => this.selectCell(r, c);
+                container.appendChild(cell);
+            }
+        }
+    },
+
+    selectCell(r, c) {
+        if (!this.isPlaying || this.fixed[r][c]) return;
+
+        this.selectedCell = r * 9 + c;
+
+        document.querySelectorAll('.sudoku-cell').forEach(cell => {
+            cell.classList.remove('selected', 'highlight-row', 'highlight-col', 'highlight-box', 'same-number');
+        });
+
+        const selected = document.querySelector(`[data-idx="${this.selectedCell}"]`);
+        if (selected) {
+            selected.classList.add('selected');
+            const val = this.grid[r][c];
+
+            document.querySelectorAll('.sudoku-cell').forEach(cell => {
+                const cr = parseInt(cell.dataset.row);
+                const cc = parseInt(cell.dataset.col);
+
+                if (cr === r) cell.classList.add('highlight-row');
+                if (cc === c) cell.classList.add('highlight-col');
+                if (Math.floor(cr/3) === Math.floor(r/3) && Math.floor(cc/3) === Math.floor(c/3)) {
+                    cell.classList.add('highlight-box');
+                }
+                if (val !== 0 && this.grid[cr][cc] === val) {
+                    cell.classList.add('same-number');
+                }
+            });
+        }
+    },
+
+    inputNumber(num) {
+        if (!this.isPlaying || this.selectedCell === -1) return;
+
+        const r = Math.floor(this.selectedCell / 9);
+        const c = this.selectedCell % 9;
+
+        if (this.fixed[r][c]) return;
+
+        const cell = document.querySelector(`[data-idx="${this.selectedCell}"]`);
+
+        if (this.solution[r][c] === num) {
+            this.grid[r][c] = num;
+            cell.textContent = num;
+            cell.classList.remove('error');
+            cell.classList.add('correct-fill');
+            this.playTone(600, 0.1);
+
+            this.updateProgress();
+
+            if (this.isComplete()) {
+                setTimeout(() => this.gameOver(true), 500);
+            }
+        } else {
+            this.errors++;
+            this.lives--;
+            cell.textContent = num;
+            cell.classList.add('error');
+            this.playTone(150, 0.3, 'sawtooth');
+
+            this.updateLives();
+
+            if (this.lives <= 0) {
+                setTimeout(() => this.gameOver(false, 'errors'), 800);
+            }
+        }
+    },
+
+    clearCell() {
+        if (!this.isPlaying || this.selectedCell === -1) return;
+
+        const r = Math.floor(this.selectedCell / 9);
+        const c = this.selectedCell % 9;
+
+        if (this.fixed[r][c]) return;
+
+        this.grid[r][c] = 0;
+        const cell = document.querySelector(`[data-idx="${this.selectedCell}"]`);
+        cell.textContent = '';
+        cell.classList.remove('error', 'correct-fill');
+        this.updateProgress();
+    },
+
+    isComplete() {
+        for (let r = 0; r < 9; r++) {
+            for (let c = 0; c < 9; c++) {
+                if (this.grid[r][c] === 0) return false;
+            }
+        }
+        return true;
+    },
+
+    updateProgress() {
+        let filled = 0;
+        for (let r = 0; r < 9; r++) {
+            for (let c = 0; c < 9; c++) {
+                if (this.grid[r][c] !== 0) filled++;
+            }
+        }
+        const pct = (filled / 81) * 100;
+        document.getElementById('completion-bar').style.width = pct + '%';
+        document.getElementById('filled-count').textContent = `${filled}/81`;
+    },
+
+    updateLives() {
+        const container = document.getElementById('lives-display');
+        container.innerHTML = '';
+        for (let i = 0; i < 3; i++) {
+            const heart = document.createElement('span');
+            heart.textContent = '◆';
+            if (i < this.lives) {
+                heart.className = 'life-indicator text-rank-b text-lg';
+            } else {
+                heart.className = 'life-indicator text-sys-rose text-lg lost';
+            }
+            container.appendChild(heart);
+        }
+    },
+
+    startTimer() {
+        this.startTime = Date.now();
+        if (this.timerInterval) clearInterval(this.timerInterval);
+        this.timerInterval = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+            const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
+            const secs = (elapsed % 60).toString().padStart(2, '0');
+            document.getElementById('timer').textContent = `${mins}:${secs}`;
+        }, 1000);
+    },
+
+    giveUp() {
+        if (!this.isPlaying) return;
+        this.gameOver(false, 'give_up');
+    },
+
+    gameOver(won, reason) {
+        this.isPlaying = false;
+        if (this.timerInterval) clearInterval(this.timerInterval);
+
+        const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+        const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
+        const secs = (elapsed % 60).toString().padStart(2, '0');
+        const timeStr = `${mins}:${secs}`;
+
+        if (won) {
+            const config = this.difficulties[this.difficulty];
+            let xpReward = Math.floor(100 * config.timeBonus);
+            let intReward = 2;
+            let goldReward = Math.floor(25 * config.timeBonus);
+            let authReward = 3;
+
+            if (this.difficulty === 'hard') {
+                xpReward = Math.floor(xpReward * 1.3);
+                intReward = 3;
+                goldReward = Math.floor(goldReward * 1.3);
+                authReward = 5;
+            } else if (this.difficulty === 'medium') {
+                xpReward = Math.floor(xpReward * 1.1);
+            }
+
+            const result = PlayerState.reward(xpReward, intReward, goldReward, authReward);
+
+            document.getElementById('result-time').textContent = timeStr;
+            document.getElementById('result-errors').textContent = `${this.errors}/3`;
+            document.getElementById('result-diff').textContent = config.label;
+            document.getElementById('reward-xp').textContent = '+' + xpReward;
+            document.getElementById('reward-int').textContent = '+' + intReward;
+            document.getElementById('reward-gold').textContent = '+' + goldReward;
+
+            if (result.leveledUp) {
+                document.getElementById('level-up-banner').classList.remove('hidden');
+                document.getElementById('level-up-banner').querySelector('.font-orbitron').textContent = 
+                    `⚡ LEVEL UP! ${result.oldLevel} → ${result.newLevel}`;
+            } else {
+                document.getElementById('level-up-banner').classList.add('hidden');
+            }
+
+            this.showPhase('results');
+            // منح مكافآت الرتبة A لتطهير زنزانة السودوكو
+
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#00d4ff', '#00f0ff', '#ffd700', '#ffffff']
+            
+            });
+        } else {
+          
+
+            const reasonText = reason === 'errors' 
+                ? 'لقد استنفدت جميع محاولاتك (3 أخطاء).' 
+                : 'لقد استسلمت أمام اللغز.';
+            document.getElementById('fail-reason').textContent = reasonText;
+            document.getElementById('fail-xp').textContent = '+' + partialXP;
+            document.getElementById('fail-gold').textContent = '+' + partialGold;
+            this.showPhase('failure');
+            
+        }
+    },
+
+    audioContext: null,
+
+    initAudio() {
+        if (!this.audioContext) {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    },
+
+    playTone(freq, duration, type = 'sine') {
+        this.initAudio();
+        const osc = this.audioContext.createOscillator();
+        const gain = this.audioContext.createGain();
+        osc.connect(gain);
+        gain.connect(this.audioContext.destination);
+        osc.frequency.value = freq;
+        osc.type = type;
+        gain.gain.setValueAtTime(0.08, this.audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + duration);
+        osc.start(this.audioContext.currentTime);
+        osc.stop(this.audioContext.currentTime + duration);
+    }
+};
+
+// ==========================================
+// KEYBOARD SUPPORT
+// ==========================================
+document.addEventListener('keydown', (e) => {
+    if (document.getElementById('phase-game').classList.contains('hidden')) return;
+
+    if (e.key >= '1' && e.key <= '9') {
+        SudokuApp.inputNumber(parseInt(e.key));
+    } else if (e.key === 'Backspace' || e.key === 'Delete') {
+        SudokuApp.clearCell();
+    } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        if (SudokuApp.selectedCell === -1) {
+            SudokuApp.selectCell(4, 4);
+            return;
+        }
+        const r = Math.floor(SudokuApp.selectedCell / 9);
+        const c = SudokuApp.selectedCell % 9;
+        let nr = r, nc = c;
+        if (e.key === 'ArrowUp') nr = Math.max(0, r - 1);
+        if (e.key === 'ArrowDown') nr = Math.min(8, r + 1);
+        if (e.key === 'ArrowLeft') nc = Math.max(0, c - 1);
+        if (e.key === 'ArrowRight') nc = Math.min(8, c + 1);
+        SudokuApp.selectCell(nr, nc);
+    }
+});
+
+// ==========================================
+// INIT
+// ==========================================
+window.addEventListener('DOMContentLoaded', () => {
+    PlayerState.init();
+    SudokuApp.setDifficulty('easy');
+});
+</script>
+</body>
+</html>

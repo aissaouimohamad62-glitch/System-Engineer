@@ -1,0 +1,1674 @@
+01<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sovereign System | AI Sovereign Advisor — REAL-TIME NEURAL LINK</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sys-cyan: #9c8200;
+            --sys-cyan-glow: rgba(255, 196, 0, 0.6);
+            --sys-purple: #c9e800;
+            --sys-purple-glow: rgba(221, 157, 78, 0.4);
+            --sys-bg-dark: #b69b00f4;
+            --sys-panel: rgba(216, 153, 7, 0.85);
+            --sys-border: rgba(0, 240, 255, 0.3);
+            --sys-gold: #fbbf24;
+            --sys-red: #b9ef44;
+            --sys-green: #b99d10;
+        }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--sys-bg-dark);
+            background-image: 
+                radial-gradient(circle at 15% 50%, var(--sys-cyan-glow) 0%, transparent 25%),
+                radial-gradient(circle at 85% 30%, var(--sys-purple-glow) 0%, transparent 25%);
+            background-attachment: fixed;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+        .sys-font { font-family: 'Rajdhani', sans-serif; letter-spacing: 0.05em; }
+        .sl-panel {
+            background: var(--sys-panel);
+            backdrop-filter: blur(16px);
+            border: 2px solid var(--sys-border);
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.15), inset 0 0 15px rgba(0, 240, 255, 0.1);
+            position: relative;
+        }
+        .sl-panel::before, .sl-panel::after {
+            content: ''; position: absolute; width: 20px; height: 20px; pointer-events: none;
+        }
+        .sl-panel::before { top: -2px; left: -2px; border-top: 3px solid var(--sys-cyan); border-left: 3px solid var(--sys-cyan); }
+        .sl-panel::after { bottom: -2px; right: -2px; border-bottom: 3px solid var(--sys-cyan); border-right: 3px solid var(--sys-cyan); }
+        .sl-btn {
+            background: linear-gradient(180deg, rgba(0, 240, 255, 0.05) 0%, rgba(5, 10, 25, 0.8) 100%);
+            border: 1px solid var(--sys-cyan);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sl-btn:hover {
+            box-shadow: 0 0 20px rgba(0,240,255,0.4);
+            background: rgba(0,240,255,0.15);
+            transform: translateY(-1px);
+        }
+        .sl-btn.active {
+            background: var(--sys-cyan);
+            color: black;
+            box-shadow: 0 0 20px var(--sys-cyan-glow);
+            font-weight: 900;
+        }
+        .sl-btn-purple {
+            border-color: var(--sys-purple);
+            background: linear-gradient(180deg, rgba(157, 78, 221, 0.05) 0%, rgba(5, 10, 25, 0.8) 100%);
+        }
+        .sl-btn-purple:hover {
+            box-shadow: 0 0 20px var(--sys-purple-glow);
+            background: rgba(157, 78, 221, 0.15);
+        }
+        .sl-btn-purple.active {
+            background: var(--sys-purple);
+            color: white;
+            box-shadow: 0 0 20px var(--sys-purple-glow);
+        }
+        .sl-glow-text {
+            color: var(--sys-cyan);
+            text-shadow: 0 0 8px var(--sys-cyan-glow);
+        }
+        @keyframes systemPopIn {
+            0% { opacity: 0; transform: scale(0.95) translateY(10px); filter: brightness(2); }
+            100% { opacity: 1; transform: scale(1) translateY(0); filter: brightness(1); }
+        }
+        .animate-system-pop { animation: systemPopIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        .message-enter {
+            animation: slideIn 0.3s ease-out forwards;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .typing-cursor::after {
+            content: '|';
+            animation: blink 1s infinite;
+            color: var(--sys-cyan);
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .neural-pulse {
+            animation: neuralPulse 2s infinite;
+        }
+        @keyframes neuralPulse {
+            0%, 100% { box-shadow: 0 0 5px var(--sys-purple); border-color: var(--sys-purple); }
+            50% { box-shadow: 0 0 20px var(--sys-purple-glow); border-color: var(--sys-cyan); }
+        }
+        .api-connected { border-color: var(--sys-green) !important; box-shadow: 0 0 15px rgba(16,185,129,0.3) !important; }
+        .api-disconnected { border-color: var(--sys-red) !important; box-shadow: 0 0 15px rgba(239,68,68,0.3) !important; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--sys-cyan); }
+        .log-item {
+            transition: all 0.3s ease;
+            border-right: 3px solid transparent;
+        }
+        .log-item:hover {
+            background: rgba(255, 255, 255, 0.03);
+            transform: translateX(-5px);
+        }
+        .block-active {
+            border: 1px solid var(--sys-cyan);
+            background: rgba(0, 240, 255, 0.05);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+        }
+        .live-pulse {
+            animation: livePulse 2s infinite;
+        }
+        @keyframes livePulse {
+            0%, 100% { box-shadow: 0 0 5px var(--sys-cyan); }
+            50% { box-shadow: 0 0 20px var(--sys-cyan); }
+        }
+        .progress-bar-container {
+            width: 100%; height: 6px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 999px; overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%; background: linear-gradient(90deg, var(--sys-cyan), var(--sys-purple));
+            box-shadow: 0 0 10px var(--sys-cyan-glow);
+            transition: width 0.6s ease;
+        }
+        .typing-indicator {
+            display: flex; gap: 4px; padding: 8px 0;
+        }
+        .typing-indicator span {
+            width: 8px; height: 8px; background: var(--sys-cyan);
+            border-radius: 50%; animation: typingBounce 1.4s infinite ease-in-out both;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typingBounce {
+            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+        .conn-badge {
+            transition: all 0.3s ease;
+        }
+        .conn-badge.online {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: var(--sys-green);
+            color: var(--sys-green);
+        }
+        .conn-badge.offline {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: var(--sys-red);
+            color: var(--sys-red);
+        }
+        .conn-badge.local {
+            background: rgba(251, 191, 36, 0.15);
+            border-color: var(--sys-gold);
+            color: var(--sys-gold);
+        }
+        .sovereign-video-bg-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            overflow: hidden;
+            background-color: #000000;
+        }
+        .sovereign-video-element {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+            filter: blur(0.1px) brightness(1); 
+            opacity: 1; 
+            transition: opacity 1s ease-in-out;
+        }
+        .sovereign-video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 30%, rgba(0, 0, 0, 0.85) 100%);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col p-2 md:p-6">
+    <div class="sovereign-video-bg-container">
+        <video autoplay loop muted playsinline class="sovereign-video-element">
+            <source src="D:\\خلفيات متحركة\\AMV] 4K!.mp4" type="video/mp4">
+        </video>
+        <div class="sovereign-video-overlay"></div>
+    </div>
+    
+    <div class="fixed top-6 left-6 z-50 flex gap-4 items-center text-slate-300 text-shadow-sm font-bold text-xs ml-3 py-1 px-3 tracking-wider">
+        <button onclick="SoundEffects.toggleMusic(1)" class="w-10 h-10 flex items-center justify-center bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-[var(--sys-cyan)] rounded-full transition-all shadow-md">
+            <span id="musicIcon1" class="text-lg animate-pulse">🎵</span>
+        </button>
+        <button onclick="SoundEffects.toggleMusic(2)" class="w-10 h-10 flex items-center justify-center bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-[var(--sys-cyan)] rounded-full transition-all shadow-md">
+            <span id="musicIcon2" class="text-lg animate-pulse">🎼</span>
+        </button>
+        <a href="https://aissaouimohamad62-glitch.github.io/proto/" target="_blank" class="px-4 py-2 bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-white text-xs font-black uppercase tracking-widest rounded flex items-center gap-2 shadow-md transition-all">
+            <span>𝐏𝐎𝐑𝐓𝐅𝐎𝐋𝐈𝐎</span> <span class="text-[var(--sys-cyan)]">📍</span>
+        </a>
+        <a href="https://aissaouimohamad62-glitch.github.io/booksoverhaul.dz/" target="_blank" class="px-4 py-2 bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-white text-xs font-black uppercase tracking-widest rounded flex items-center gap-2 shadow-md transition-all">
+            <span>𝐋𝐈𝐁𝐑𝐀𝐑𝐘</span> <span class="text-[var(--sys-cyan)]">📒</span>
+        </a>
+    </div>
+
+    <nav id="sovereign-nav" class="flex flex-wrap gap-3 justify-center md:justify-start items-center p-4 bg-slate-950/60 border border-slate-800/50 backdrop-blur-md rounded-lg shadow-inner my-4 select-none">
+        <a href="index11.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)]">
+            <span>🏠</span> <span>DASHBOARD</span>
+        </a>
+        <a href="active-quests.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)]">
+            <span>⚔️</span> <span>ACTIVE QUESTS</span>
+        </a>
+        <a href="brain-stats.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)]">
+            <span>🧠</span> <span>BRAIN STATS</span>
+        </a>
+        <a href="dungeons.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)]">
+            <span>🌋</span> <span>DUNGEONS</span>
+        </a>
+        <a href="index99.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)]">
+            <span>🕋</span> <span>PRAYER REWARDS</span>
+        </a>
+        <a href="ppo.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)]">
+            <span>📖</span> <span>CELESTIAL QURAN</span>
+        </a>
+        <a href="sovereign-shop.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)]">
+            <span>🛒</span> <span>SOVEREIGN SHOP</span>
+        </a>
+        <a href="operational-charter.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)]">
+            <span>📜</span> <span>CHARTER</span>
+        </a>
+        <a href="monarch-ai.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)]">
+            <span>🤖</span> <span>MONARCH AI</span>
+        </a>
+        <a href="system-logs.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)]">
+            <span>📊</span> <span>SYSTEM LOGS</span>
+        </a>
+    </nav>
+
+    <header class="max-w-5xl w-full mx-auto p-4 bg-slate-900/40 backdrop-blur border border-slate-800 rounded-xl flex flex-col sm:flex-row justify-between items-center gap-4 mb-4 animate-system-pop" style="animation-delay: 0.1s;">
+        <div class="flex items-center gap-3">
+            <div id="status-indicator" class="w-3 h-3 rounded-full bg-[var(--sys-cyan)] shadow-[0_0_10px_var(--sys-cyan)] animate-pulse"></div>
+            <div>
+                <h1 class="text-md font-black tracking-wider text-slate-100 uppercase sys-font">Sovereign AI Advisor</h1>
+                <p id="system-subtitle" class="text-[11px] text-slate-400">Neural Analysis Engine — REAL-TIME AI LINK</p>
+            </div>
+        </div>
+        
+        <div class="flex gap-4 bg-black/40 px-4 py-2 border border-slate-800 rounded-lg text-xs sys-font">
+            <div>LEVEL: <span id="ai-player-level" class="text-[var(--sys-cyan)] font-bold">1</span></div>
+            <div class="text-slate-700">|</div>
+            <div>XP: <span id="ai-player-xp" class="text-emerald-400 font-bold">0</span></div>
+            <div class="text-slate-700">|</div>
+            <div>GOLD: <span id="ai-player-gold" class="text-yellow-400 font-bold">0</span></div>
+            <div class="text-slate-700">|</div>
+            <div>PROGRAM: <span id="ai-active-program" class="text-[var(--sys-purple)] font-bold">WEEK 1</span></div>
+        </div>
+    </header>
+
+    <div class="max-w-5xl w-full mx-auto mb-4 animate-system-pop" style="animation-delay: 0.15s;">
+        <div id="connection-bar" class="conn-badge local sl-panel p-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <span id="conn-icon" class="text-lg">⚡</span>
+                <div>
+                    <span id="conn-status-text" class="font-bold text-sm sys-font block">LOCAL NEURAL ENGINE</span>
+                    <span id="conn-detail" class="text-[10px] opacity-70">وضع المحاكاة المحلي — اضغط الإعدادات لتفعيل Gemini API</span>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="AIConnection.toggleSettings()" class="px-3 py-1.5 bg-slate-900 border border-slate-600 hover:border-[var(--sys-cyan)] text-slate-300 rounded text-[10px] font-bold sys-font transition">
+                    ⚙️ API SETTINGS
+                </button>
+                <button onclick="AIConnection.testConnection()" class="px-3 py-1.5 bg-slate-900 border border-slate-600 hover:border-[var(--sys-green)] text-slate-300 rounded text-[10px] font-bold sys-font transition">
+                    🔗 TEST LINK
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="apiSettingsModal" class="fixed inset-0 z-[200] hidden flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div class="sl-panel p-6 w-full max-w-md mx-4 animate-system-pop">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
+                <h3 class="text-sm font-black text-[var(--sys-cyan)] sys-font tracking-widest">⚙️ NEURAL LINK CONFIGURATION</h3>
+                <button onclick="AIConnection.toggleSettings()" class="text-slate-500 hover:text-white text-lg">✕</button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] text-slate-400 sys-font block mb-1">AI PROVIDER</label>
+                    <select id="apiProvider" class="w-full bg-slate-950 border border-slate-700 text-white text-sm rounded px-3 py-2 outline-none focus:border-[var(--sys-cyan)]">
+                        <option value="gemini">🧠 Google Gemini (Free Tier)</option>
+                        <option value="openai">🤖 OpenAI GPT (Requires Key)</option>
+                        <option value="local">⚡ Local Neural Engine (Offline)</option>
+                    </select>
+                </div>
+                
+                <div id="apiKeyContainer">
+                    <label class="text-[10px] text-slate-400 sys-font block mb-1">API KEY</label>
+                    <input type="password" id="apiKey" placeholder="Enter your API key..." 
+                           class="w-full bg-slate-950 border border-slate-700 text-white text-sm rounded px-3 py-2 outline-none focus:border-[var(--sys-cyan)] font-mono">
+                    <p class="text-[9px] text-slate-500 mt-1">المفتاح يُحفظ محلياً فقط في متصفحك (localStorage). لا يُرسل لأي خادم خارجي.</p>
+                </div>
+                
+                <div>
+                    <label class="text-[10px] text-slate-400 sys-font block mb-1">MODEL / TIER</label>
+                    <select id="apiModel" class="w-full bg-slate-950 border border-slate-700 text-white text-sm rounded px-3 py-2 outline-none focus:border-[var(--sys-cyan)]">
+                        <option value="gemini-1.5-flash">Gemini 1.5 Flash (Fast & Free)</option>
+                        <option value="gemini-1.5-pro">Gemini 1.5 Pro (Advanced)</option>
+                        <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                        <option value="gpt-4">GPT-4 (Premium)</option>
+                    </select>
+                </div>
+                
+                <div class="p-3 bg-slate-950/60 border border-slate-800 rounded">
+                    <p class="text-[10px] text-slate-400 leading-relaxed">
+                        <span class="text-[var(--sys-cyan)] font-bold">💡 ملاحظة:</span> 
+                        يمكنك الحصول على مفتاح Gemini API مجاني من 
+                        <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-[var(--sys-cyan)] hover:underline">Google AI Studio</a>.
+                        المفتاح يعمل مباشرة من المتصفح بدون خادم وسيط.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="flex gap-3 mt-6">
+                <button onclick="AIConnection.saveSettings()" class="flex-1 sl-btn text-white font-bold py-3 uppercase sys-font tracking-widest text-xs">
+                    SAVE & CONNECT
+                </button>
+                <button onclick="AIConnection.toggleSettings()" class="flex-1 bg-transparent border border-rose-500 text-rose-500 hover:bg-rose-500 hover:text-white font-bold py-3 transition-colors uppercase sys-font text-xs">
+                    CANCEL
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-5xl w-full mx-auto mb-4 sl-panel p-4 animate-system-pop" style="animation-delay: 0.2s;">
+        <div class="flex justify-between items-center mb-3 border-b border-slate-800 pb-2">
+            <h2 class="text-sm font-black text-white sys-font tracking-widest">OPERATIONAL PROTOCOL SELECTOR</h2>
+            <span class="text-[10px] text-slate-500 sys-font">ACTIVE DIRECTIVE</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <button onclick="ProgramManager.switch('week1')" id="btn-week1" class="sl-btn w-full text-left p-4 rounded flex justify-between items-center group">
+                <div>
+                    <span class="sys-font text-sm font-black text-white group-hover:text-[var(--sys-cyan)] block uppercase">📜 Mind Games Protocol Active SYSTEM v8.0 — Infinity</span>
+                    <span class="text-[10px] text-slate-400">Integrated Operations Charter (Levels 1-450)</span>
+                </div>
+                <span class="sys-font text-[10px] bg-cyan-950 text-[var(--sys-cyan)] px-2 py-0.5 border border-[var(--sys-cyan)]">CORE</span>
+            </button>
+            <button onclick="ProgramManager.switch('week2')" id="btn-week2" class="sl-btn-purple sl-btn w-full text-left p-4 rounded flex justify-between items-center group">
+                <div>
+                    <span class="sys-font text-sm font-black text-white group-hover:text-[var(--sys-purple)] block uppercase">🌌 SYSTEM v9.0 — Infinity</span>
+                    <span class="text-[10px] text-slate-400">System Update 8.0 (Levels 450→600)</span>
+                </div>
+                <span class="sys-font text-[10px] bg-purple-950 text-[var(--sys-purple)] px-2 py-0.5 border border-[var(--sys-purple)]">INFINITY</span>
+            </button>
+            <button onclick="ProgramManager.switch('week3')" id="btn-week3" class="sl-btn-purple sl-btn w-full text-left p-4 rounded flex justify-between items-center group">
+                <div>
+                    <span class="sys-font text-sm font-black text-white group-hover:text-[var(--sys-purple)] block uppercase">🌩️​ SYSTEM v10.0 — Infinity</span>
+                    <span class="text-[10px] text-slate-400">System Update 8.0 (Levels 600→800)</span>
+                </div>
+                <span class="sys-font text-[10px] bg-purple-950 text-[var(--sys-purple)] px-2 py-0.5 border border-[var(--sys-purple)]">INFINITY</span>
+            </button>
+            <button onclick="ProgramManager.switch('week4')" id="btn-week4" class="sl-btn-purple sl-btn w-full text-left p-4 rounded flex justify-between items-center group">
+                <div>
+                    <span class="sys-font text-sm font-black text-white group-hover:text-[var(--sys-purple)] block uppercase">😈​⚠️​​​ SYSTEM v11.0 — Infinity</span>
+                    <span class="text-[10px] text-slate-400">System Update 8.0 (Levels 800→1000)</span>
+                </div>
+                <span class="sys-font text-[10px] bg-purple-950 text-[var(--sys-purple)] px-2 py-0.5 border border-[var(--sys-purple)]">INFINITY</span>
+            </button>
+            <button onclick="ProgramManager.switch('week5')" id="btn-week5" class="sl-btn-purple sl-btn w-full text-left p-4 rounded flex justify-between items-center group">
+                <div>
+                    <span class="sys-font text-sm font-black text-white group-hover:text-[var(--sys-purple)] block uppercase">☠️​‼️​🌪️​​ SYSTEM v1000.0 — Infinity</span>
+                    <span class="text-[10px] text-slate-400">System Update 8.0 (Levels 1000→∞)</span>
+                </div>
+                <span class="sys-font text-[10px] bg-purple-950 text-[var(--sys-purple)] px-2 py-0.5 border border-[var(--sys-purple)]">INFINITY</span>
+            </button>
+        </div>
+        
+        <div id="infinity-message" class="hidden mt-3 p-3 bg-cyan-950/40 border border-[var(--sys-cyan)] rounded animate-pulse text-center">
+            <span class="text-[var(--sys-cyan)] font-bold sys-font text-xs block mb-1">[SYSTEM: SOVEREIGN AUTONOMY ACTIVATED]</span>
+            <span class="text-white text-sm font-bold">الآن يمكنك تدبر أمورك بنفسك وقراراتك الآن. هذا هو التحسين الأخير للنظام.</span>
+        </div>
+    </div>
+
+    <main class="max-w-5xl w-full mx-auto flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <aside class="lg:col-span-1 space-y-4">
+            <div class="sl-panel p-4 animate-system-pop" style="animation-delay: 0.3s;">
+                <h3 class="text-sm font-black text-[var(--sys-cyan)] sys-font tracking-widest mb-3 border-b border-slate-800 pb-2">⚡ CURRENT BLOCK</h3>
+                <div id="current-block-info" class="space-y-3">
+                    <div class="text-center py-6 text-slate-500 text-sm">جاري تحليل البروتوكول النشط...</div>
+                </div>
+            </div>
+
+            <div class="sl-panel p-4 animate-system-pop" style="animation-delay: 0.4s;">
+                <h3 class="text-sm font-black text-[var(--sys-purple)] sys-font tracking-widest mb-3 border-b border-slate-800 pb-2">📅 TODAY'S DIRECTIVE</h3>
+                <div id="today-directive" class="space-y-2 text-xs">
+                    </div>
+            </div>
+
+            <div class="sl-panel p-4 animate-system-pop" style="animation-delay: 0.5s;">
+                <h3 class="text-sm font-black text-white sys-font tracking-widest mb-3 border-b border-slate-800 pb-2">📊 SYSTEM METRICS</h3>
+                <div class="space-y-3">
+                    <div>
+                        <div class="flex justify-between text-[10px] text-slate-400 mb-1 sys-font">
+                            <span>LEVEL PROGRESS</span>
+                            <span id="level-pct">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div id="level-progress-bar" class="bg-gradient-to-r from-[var(--sys-cyan)] to-[var(--sys-purple)] h-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-center">
+                        <div class="bg-slate-950/60 p-2 rounded border border-slate-800">
+                            <div class="text-[10px] text-slate-500 sys-font">NEXT LEVEL</div>
+                            <div id="next-level" class="text-lg font-bold text-white sys-font">2</div>
+                        </div>
+                        <div class="bg-slate-950/60 p-2 rounded border border-slate-800">
+                            <div class="text-[10px] text-slate-500 sys-font">XP NEEDED</div>
+                            <div id="xp-needed" class="text-lg font-bold text-[var(--sys-cyan)] sys-font">100</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <section class="lg:col-span-2 flex flex-col gap-4">
+            <div class="sl-panel p-0 flex flex-col flex-grow animate-system-pop" style="animation-delay: 0.3s; min-height: 500px;">
+                <div class="bg-slate-950/50 p-3 border-b border-slate-800 flex items-center gap-3">
+                    <span class="text-[var(--sys-cyan)] text-lg">🤖</span>
+                    <div>
+                        <h3 class="text-sm font-bold text-white sys-font">SOVEREIGN ADVISOR CORE</h3>
+                        <p class="text-[10px] text-slate-500 sys-font">Neural Analysis Engine v8.0 — <span id="ai-mode-label" class="text-[var(--sys-purple)]">LOCAL MODE</span></p>
+                    </div>
+                    <div class="mr-auto flex items-center gap-2">
+                        <span id="ai-status-dot" class="w-2 h-2 rounded-full bg-[var(--sys-gold)] animate-pulse"></span>
+                        <span id="ai-status-text" class="text-[10px] text-[var(--sys-gold)] sys-font font-bold uppercase">STANDBY</span>
+                    </div>
+                </div>
+
+                <div id="chatScreen" class="flex-1 overflow-y-auto space-y-4 p-4 pr-2 min-h-[350px]">
+                    </div>
+
+                <div class="p-3 border-t border-slate-800 bg-slate-950/30">
+                    
+                    <div class="relative">
+                        <input type="text" id="chatInput" placeholder="أدخل أمر النظام، استفسار برامجي، أو اطلب تحليل بروتوكولك..." 
+                               class="w-full bg-slate-950/80 border border-slate-800 focus:border-[var(--sys-cyan)] focus:ring-1 focus:ring-[var(--sys-cyan)] text-slate-100 placeholder-slate-500 rounded-xl px-4 py-3 pl-16 text-sm outline-none transition shadow-inner"
+                               onkeypress="if(event.key==='Enter')SovereignAI.sendMessage()">
+                        <button onclick="SovereignAI.sendMessage()" 
+                                class="absolute left-2 top-1.5 px-4 py-1.5 bg-[var(--sys-cyan)] hover:bg-cyan-400 text-black font-bold text-xs rounded-lg transition uppercase sys-font">
+                            Send
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="text-center text-[10px] text-slate-600 mt-4 sys-font uppercase tracking-widest pb-4">
+        Sovereign Core Intellect Layer Ver 8.0 — Infinity | <span id="footer-conn-status">Local Neural Engine</span> | No Penalties Enforced
+    </footer>
+
+    <script>
+        const PROGRAM_DATA = {
+            week1: {
+                id: 'week1',
+                title: 'Integrated Operations Charter / ميثاق العمليات المتكاملة',
+                version: 'v9.0',
+                range: 'LVL 1 → 450 / المستوى 1 → 450',
+                desc: 'المرحلة التأسيسية الشاملة: بناء القاعدة البرمجية والبدنية والروحية، التأسيس للمسار السيادي الكامل.',
+                schedule: [
+                  { start: 5.0,  end: 6.0,  title: 'Spiritual Exchange Session / جلسة التبادل الروحي قراءة الأذكار الصباحية وتدبر حزبين كاملين سواءا مع الحفظ أو التكرار وتمارين الإطالة والتمدد', desc: 'Quran Recitation (Individual: Meditative / Pairs: New) + Fajr Prayer, Adhkar, and Stretching Exercises / تلاوة القرآن (فردي: تدبر / ثنائي: جديد) + صلاة الفجر، الأذكار، وتمارين الإطالة' },
+                  { start: 6.0,  end: 8.5,  title: 'Advanced Programming / برمجة متقدمة HTML5 و CSS3 و JavaScript',       desc: 'Project (Python/JavaScript) - Architecture and Development / مشروع  (بايثون/جافا سكريبت) - الهيكلة والتطوير' },
+                  { start: 8.5,  end: 10.5, title: 'Academic Courses in Artificial Intelligence /  دورات أكاديمية في الذكاء الاصطناعي و نقل مهاراتك في إكسيل إلى بايثون وفهم لغة الأرقام',        desc: 'Machine Learning, LLM Studies, and Algorithm Applications / تعلم الآلة، دراسات النماذج اللغوية الكبيرة، وتطبيقات الخوارزميات' },
+                  { start: 10.5, end: 12.0, title: 'Mastering English / " إتقان الإنجليزية وهي "الإنغماس الصوتي" و "حفظ المفردات والجمل " و "الكتابة',   desc: 'Technical In-Depth + Vocabulary Building + Practical Application Training / تعمق تقني + بناء المفردات + تدريب على التطبيق العملي' },
+                  { start: 12.0, end: 13.0, title: ' Applied Technical Lab / مختبر تقني تطبيقي و نقل مهاراتك في إكسيل إلى بايثون وفهم لغة الأرقام',                  desc: 'Rest & Recovery / System Architecture Monitoring & Updates / راحة وتعافي / مراقبة وتحديثات هيكل النظام' },
+                  { start: 13.0, end: 15.0, title: 'Long Break / استراحة طويلة + Applied Technical Lab / مختبر تقني تطبيقي و نقل مهاراتك في إكسيل إلى بايثون وفهم لغة الأرقام', desc: 'Rest & Recovery / System Architecture Monitoring & Updates / راحة وتعافي / مراقبة وتحديثات هيكل النظام + Dhuhr Prayer + Protein-Rich Lunch / صلاة الظهر + غداء غني بالبروتين + قيلولة' },
+                  { start: 15.0, end: 16.5, title: 'Advanced Physical Development (PPL) / تطوير بدني متقدم', desc: 'Push/Pull/Leg Exercises  / تمارين الدفع/السحب/الأرجل' },
+                  { start: 16.5, end: 17.5, title: 'Sheikh Al-Raslan / الشيخ الرسلان أو مواعض دينية لشيوخ مختلفة',          desc: 'Sheikh Al-Raslan /  الشيخ الرسلان مواعض دينية' },
+                  { start: 17.5, end: 19.5, title: 'Experimental Sciences / العلوم التجريبية',      desc: 'Academic Focus: Mathematics (Sunday/Wednesday), Science (Monday/Friday), Physics (Tuesday/Saturday) / تركيز أكاديمي: رياضيات (الأحد/الأربعاء)، علوم (الإثنين/الجمعة)، فيزياء (الثلاثاء/السبت)' },
+                  { start: 19.5, end: 20.5, title: 'Mental and Physical Development / تطوير عقلي وبدني',      desc: 'Reading + Documentaries + Brain Games + Physical Rest / قراءة + أفلام وثائقية + ألعاب عقلية + راحة بدنية' },
+                  { start: 20.5, end: 22.0, title: 'System Setup / إعداد النظام',         desc: 'Creating Your Schedule + Evening Adhkar + Muscle and Mind Relaxation (Sleep) / إنشاء جدولك + أذكار المساء + استرخاء العضلات والعقل (النوم)' }
+                ],
+                days: {
+                  0: { sport: '🏀 Basketball / كرة السلة', ppl: 'Pull Exercises (Back & Biceps) / تمارين السحب (الظهر والبايسبس)', cognitive: 'Double Back Exercises + Digital Book (Session 1) / تمارين ظهر مزدوجة + كتاب رقمي (الجلسة 1)', academic: 'Mathematics / رياضيات' },
+                  1: { sport: '🥋 Brazilian Jiu-Jitsu / جيو-جيتسو البرازيل', ppl: 'chest press exercises (upper/lateral/regular/shoulders) / تمارين ضغط الصدر (علوي/جانبي/عادي/أكتاف)', cognitive: 'Chess + Documentary / شطرنج + فيلم وثائقي', academic: 'Natural Sciences / علوم طبيعية' },
+                  2: { sport: '🏀 Basketball / كرة السلة', ppl: 'Pull Exercises (Front &  Triceps) / تمارين السحب (الترايسبس) + تمارين الأرجل (الفخذ )', cognitive: 'Reading Books + Watching Nasser Al-Aqeel / قراءة كتب + مشاهدة ناصر العقيل', academic: 'Physics / فيزياء' },
+                  3: { sport: '⚽ Football Challenge / تحدي كرة القدم', ppl: 'Leg Exercises (Back & Calves) / تمارين الأرجل (سمانة) + تمارين الساعد', cognitive: 'Sudoku + Documentary / سودوكو + فيلم وثائقي', academic: 'Math Review / مراجعة رياضيات' },
+                  4: { sport: '🥋 Brazilian Jiu-Jitsu / جيو-جيتسو البرازيل', ppl: 'Abs and Biceps Exercises / تمارين بطن وبايسبس', cognitive: 'Chess + Watching Nasser Al-Aqeel / شطرنج + مشاهدة ناصر العقيل', academic: 'Islamic Studies/History/Geography / دراسات إسلامية/تاريخ/جغرافيا' },
+                  5: { sport: '🏃 Rest, Recovery, and 1-Hour Run / راحة، تعافي، وجري لمدة ساعة', ppl: 'راحة أيها العاهل الشاب ', cognitive: ' Book Review / مراجعة كتاب', academic: 'Science Review / مراجعة علوم' },
+                  6: { sport: '⚽ Football / كرة القدم', ppl: 'Abdominal Exercises (Six-Pack) and chest / تمارين بطن (سكس باك) وصدر(سفلي / داخلي)', cognitive: 'Sudoku +weekly assessment "Yassine Tia" / سودوكو + تقييم أسبوعي "ياسين تيا"', academic: 'Physics Review / مراجعة فيزياء' }
+                },
+                special: {
+                  1: {
+                    title: 'Fasting Protocol (Monday) / بروتوكول الصيام (الإثنين)',
+                    blocks: [
+                      { time: '02:45-05:00', title: 'Night Prayer and Suhoor / قيام الليل والسحور', desc: 'قيام الليل + سحور غني بالبروتين + ذكر الله + مراجعة ذهنية سريعة' }
+                    ]
+                  },
+                  4: {
+                    title: 'Achievement Thursday (Fasting and Diligence) / خميس الإنجاز (صيام واجتهاد)',
+                    blocks: [
+                      { time: '02:45-05:00', title: 'Night Prayer and Suhoor / قيام الليل والسحور', desc: 'قيام الليل + سحور غني بالبروتين + ذكر الله + مراجعة ذهنية سريعة' },
+                      { time: '05:00-06:30', title: 'Quran Session / جلسة القرآن', desc: 'تلاوة وحفظ القرآن الكريم (1.5 ساعة)' },
+                      { time: '06:30-09:30', title: 'Religious Studies / دراسات دينية', desc: 'كتاب التوحيد + أحكام التجويد (3 ساعات)' },
+                      { time: '09:30-11:30', title: 'Study Marathon / ماراثون دراسي', desc: 'تاريخ، جغرافيا، ولغة فرنسية باستخدام الخرائط الذهنية' },
+                      { time: '11:30-13:30', title: 'Language Skills / مهارات لغوية', desc: 'مراجعة المصطلحات الإنجليزية والتعامل مع القواعد كمنطق برمجي نظامي' },
+                      { time: '13:30-15:00', title: 'Website Development / تطوير المواقع', desc: 'تطوير المواقع وتحقيق الربح' },
+                      { time: '15:00-16:30', title: 'Targeted Muscle Building / بناء عضلي موجه', desc: 'عضلات الأرجل (أفخاذ/سمانة) + أولوية البطن ورؤوس العضلات' },
+                      { time: '16:30-18:30', title: 'Combat / قتال', desc: 'Jiu-Jitsu training / تدريب جيو-جيتسو' },
+                      { time: '18:30-19:30', title: 'Content Creation / صناعة المحتوى', desc: 'إنشاء وصناعة المحتوى يوتيوب وإنستقرام وتيكتوك وفيسبوك' },
+                      { time: '19:30-20:30', title: 'Spiritual Balance / توازن روحي', desc: 'استماع للقرآن + تأمل وتحسين نبرة وعمق الصوت' },
+                      { time: '20:30-22:00', title: ' Mindset / العقلية', desc: ' مشاهدة ناصر العقيل + شطرنج ' }
+                    ]
+                  },
+                  5: {
+                    title: 'Creativity Friday / جمعة الإبداع',
+                    blocks: [
+                      { time: '05:00-08:00', title: 'Spiritual Meditation / تأمل روحي', desc: 'سورة الكهف + أذكار الصباح + مراجعة علوم طبيعية' },
+                      { time: '08:00-10:00', title: 'Mind Reset / إعادة ضبط العقل', desc: 'التحضير لتحرير الفيديو (المونتاج)' },
+                      { time: '10:00-14:00', title: 'Ethical Hacking and Terminology / تهكير أخلاقي ومصطلحات', desc: 'تعلم التهكير الأخلاقي + ماراثون دراسي للغة العربية/الإنجليزية والدراسات الإسلامية باستخدام الخرائط الذهنية' },
+                      { time: '14:00-15:00', title: 'Audio Meditation / تأمل صوتي', desc: 'استماع للقرآن الكريم والتأمل (يشمل تحسين نبرة الصوت)' },
+                      { time: '15:00-16:00', title: 'قيلولة / راحة أيها العاهل الشاب', desc: 'قيلولة راحة أيها العاهل الشاب' },
+                      { time: '16:00-17:00', title: 'Website Management / إدارة المواقع', desc: 'متابعة مشاريع تطوير المواقع المكتملة' },
+                      { time: '17:00-18:30', title: 'Energy Generation / توليد الطاقة', desc: 'جري لمدة ساعة واحدة' },
+                      { time: '18:30-19:30', title: 'Energy Generation / توليد الطاقة', desc: 'كرة القدم: إطلاق كامل الطاقة البدنية في الملعب' },
+                      { time: '19:30-20:30', title: 'System Review, Tactical Planning / مراجعة النظام، تخطيط تكتيكي', desc: 'تطوير ذاتي وتقييم أسبوعي' }
+                    ]
+                  },
+                  6: {
+                    title: 'Mastery Saturday / سبت الإتقان',
+                    blocks: [
+                      { time: '05:00-10:00', title: 'Academic Focus / تركيز أكاديمي', desc: 'مراجعة فيزياء + حفظ قرآن جديد (5 ساعات)' },
+                      { time: '10:00-14:00', title: 'Technical Immersion / انغماس تقني', desc: 'مواصفات متقدمة تهكير أخلاقي متقدم + إتقان الإنجليزية (4 ساعات) + مادة فلسفة' },
+                      { time: '14:00-15:00', title: 'Auditory Meditation / تأمل سمعي', desc: 'استماع للقرآن + تعديل وتحسين الصوت' },
+                      { time: '15:00-16:30', title: 'Fitness & Physical Therapy / لياقة وعلاج طبيعي', desc: 'تمارين بدنية: تمارين البطن (سكس باك) و الصدر' },
+                      { time: '16:30-17:00', title: 'Therapy and Nutrition / علاج وتغذية', desc: 'تناول المغذيات الدقيقة (كالسيوم / مغنيسيوم / زنك)' },
+                      { time: '17:00-18:30', title: 'Competitive Sports / رياضات تنافسية', desc: 'كرة القدم: مباراة كاملة (أقصى مجهود بدني)' },
+                      { time: '18:30-19:30', title: 'Digital Architecture / هيكلة رقمية', desc: 'برمجة النظام ومراقبة وتحديثات مشاريع الويب' },
+                      { time: '19:30-20:30', title: 'Calibration / معايرة', desc: 'سودوكو + معايرة النظام ومراجعة شاملة... تقييم أسبوعي "ياسين تيا"' },
+                      { time: '20:30-22:00', title: 'Maximum Stimulation / تحفيز أقصى', desc: 'تمارين إطالة وتمدد + التحضير للنوم وراحة عميقة' }
+                    ]
+                  }
+                }
+            },
+            week2: {
+                id: 'week2',
+                title: 'System Update 8.0 — Infinity / تحديث النظام 8.0 — اللانهاية',
+                version: '600',
+                range: 'LVL 450 → 600 /  450 → 600  ',
+                desc: 'مرحلة السيادة الكاملة: دمج منطق الشطرنج في AI Agents، الجري الانفجاري، والعمليات التكتيكية المستقلة.',
+                schedule: [
+                  { start: 2.75, end: 5.0,  title: 'Night Prayer & Suhoor / صلاة العشاء والسحور',    desc: 'Qiyam + Protein Suhoor + Adhkar + Mental Review / قيام الليل + سحور غني بالبروتين + ذكر الله + مراجعة ذهنية سريعة' },
+                  { start: 5.0,  end: 6.0,  title: 'Spiritual Session / جلسة حوار روحي',        desc: 'Fajr + Adhkar + Recitation (Odd: Review / Even: New) / تلاوة القرآن (فردي: تأملي / ثنائي: جديد) + صلاة الفجر، الأذكار، وتمارين التمدد' },
+                  { start: 6.0,  end: 8.5,  title: 'Deep Programming / برمجة متقدمة',         desc: 'AiMoha (Python/JS) — Chess Logic into AI Agents / مشروع (بايثون/جافا سكريبت) - تعلم الهندسة المعمارية والتطوير (بناء العقل المدبر (Backend))' },
+                  { start: 8.5,  end: 10.5, title: 'AI Academy / دورات أكاديمية في الذكاء الاصطناعي',               desc: 'Advanced ML + LLMs + Algorithm App / تعلّم الآلة | Machine Learning' },
+                  { start: 10.5, end: 12.0, title: 'English Mastery / إتقان اللغة الإنجليزية',         desc: 'Lex Fridman Podcast + Tech Terms + Shadowing / شرح تقني معمق + مفردات التدريب على البناء والتطبيق العملي' },
+                  { start: 12.0, end: 13.0, title: ' Applied Laboratory / مختبر التطبيقات التقنية',               desc: 'Real AI Projects + Systems Integration / راحة واستجمام ' },
+                  { start: 13.0, end: 15.0, title: ' Grand Rest / استراحة طويلة+ Applied Laboratory / مختبر التطبيقات التقنية',       desc: 'Real AI Projects + Systems Integration / راحة واستجمام / دورات أكاديمية في الذكاء الاصطناعي التعلم العميق والشبكات العصبية (الأسبوع 7 - 10) + Dhuhr + Intense Protein Lunch / صلاة الظهر + غداء غني بالبروتين + قيلولة' },
+                  { start: 15.0, end: 16.5, title: 'PPL Preparation / برنامج التطوير البدني المتقدم (PPL)',          desc: 'Push(Handstand)/Pull(Explosive)/Legs(Jump) + Calisthenics / تمارين الدفع والسحب وتمارين الأرجل + الجمباز والكاليستينكس' },
+                  { start: 16.5, end: 17.5, title: 'Running Block / Relaxation جري خفيف أو راحة  ',            desc: '1 Hour Run (Wolfs Law Activation) جري خفيف إذا كنت تستطيع / Relaxation راحة نفسية وجسدية' },
+                  { start: 17.5, end: 19.5, title: 'Academic Focus / العلوم التجريبية',           desc: 'Math/Science/Physics + Al-Rasoulan + Light Dinner / المناهج الدراسية: الرياضيات (الأحد/الأربعاء)، العلوم (الاثنين/الجمعة)، الفيزياء (الثلاثاء/السبت)' },
+                  { start: 19.5, end: 20.5, title: 'Team Competitions / التنمية الذهنية والبدنية',        desc: 'Full Matches: Basketball/Football (High Intensity) / قراءة + أفلام وثائقية + ألعاب ذهنية + راحة بدنية' },
+                  { start: 20.5, end: 21.5, title: 'Mental Elevation / استكمال الألعاب والتنمية',         desc: 'Chess/Sudoku + Digital Books + Tech Docs / استكمال التنمية الذهنية + سودوكو وأفلام وثائقية' },
+                  { start: 21.5, end: 22.0, title: 'System Prep / إعداد النظام',              desc: 'Tomorrow Planning + Sleep Adhkar + Shutdown / إنشاء جدولك + أذكار المساء + استرخاء العضلات والعقل (نوم)' }
+                ],
+                days: {
+                  0: { sport: '🏀 Basketball (Match) / رياضة سباحة 🏊 أو كرة القدم ⚽ أو مواي تاي 🥊', ppl: 'Pull (Explosive) / تمارين السحب (الظهر والعضلة ذات الرأسين)', cognitive: 'صنع كتاب رقمي (الجلسة 1)', academic: 'Mathematics / رياضيات' },
+                  1: { sport: '🥊 Muay Thai / رياضة سباحة 🏊 أو كرة القدم ⚽ أو مواي تاي 🥊', ppl: 'Legs (Jumps/Wolf) / تمارين الدفع الصدر (العلوي/الجانبي/العادي/الكتفين)', cognitive: 'تعلم الحلاقة 🪒 وألعاب الخفة 🃏♣️ + فيلم وثائقي', academic: 'Natural Sciences / علوم طبيعية' },
+                  2: { sport: '🏀 Basketball (Match) / رياضة سباحة 🏊 أو كرة القدم ⚽ أو مواي تاي 🥊', ppl: 'Push (Handstand) / تمارين السحب (الظهر والعضلة ثلاثية الرؤوس)', cognitive: 'قراءة كتب + مشاهدة تطوير الذات', academic: 'Physics / فيزياء' },
+                  3: { sport: '⚽ Football (Match) / رياضة سباحة 🏊 أو كرة القدم ⚽ أو مواي تاي 🥊', ppl: 'Pull & Abs/Triceps / تمارين للساقين (الأمامية والساقين)', cognitive: 'Dual N-Back + فيلم وثائقي', academic: 'Math Review / مراجعة الرياضيات' },
+                  4: { sport: '🥋 Jiu-Jitsu / رياضة سباحة 🏊 أو كرة القدم ⚽ أو مواي تاي 🥊', ppl: 'Intense Legs (Jumps) / تمارين للبطن والعضلة ذات الرأسين', cognitive: 'تعلم الحلاقة 🪒 وألعاب الخفة 🃏♣️ + مشاهدة تطوير الذات', academic: 'Islamic/History/Geo / دراسات إسلامية/تاريخ/جغرافيا' },
+                  5: { sport: '🚶 Calm Walk (Recovery) / 🏃 راحة واستشفاء وجري لمدة ساعة', ppl: 'Push (Handstand) / تمارين الدفع الصدر (الداخلية/الحوض/السفلي/البطن الست)', cognitive: 'تمارين الظهر المزدوجة + مراجعة كتاب', academic: 'Science Review / مراجعة العلوم' },
+                  6: { sport: '⚽ Football (Match) / رياضة سباحة 🏊 أو كرة القدم ⚽ أو مواي تاي 🥊', ppl: 'Abs (Six-pack) & Triceps / تمارين للبطن (عضلات البطن الست) والعضلة ثلاثية الرؤوس', cognitive: 'Dual N-Back + تقييم أسبوعي "ياسين تيا"', academic: 'Physics Review / مراجعة الفيزياء' }
+                },
+                special: {
+                  4: {
+                    title: 'Achievement Thursday (Fasting and Diligence) / خميس الإنجاز (الصيام والاجتهاد)',
+                    blocks: [
+                      { time: '02:45-05:00', title: 'Night Prayer and Suhoor / صلاة العشاء والسحور', desc: 'Night Prayer + Protein-Rich Suhoor + Remembrance of Allah + Quick Mental Review' },
+                      { time: '05:00-06:30', title: 'Quran Session / جلسة قرآنية', desc: 'تلاوة وحفظ القرآن الكريم (ساعة ونصف)' },
+                      { time: '06:30-09:30', title: 'Religious Studies / دراسات دينية', desc: 'رياض الصالحين + البداية والنهاية + الأربعين نووية (٣ ساعات)' },
+                      { time: '09:30-11:30', title: 'Study Marathon / ماراثون دراسي', desc: 'التاريخ والجغرافيا والفرنسية باستخدام الخرائط الذهنية' },
+                      { time: '11:30-13:30', title: 'Language Skills / مهارات لغوية', desc: 'مراجعة المصطلحات الإنجليزية وفهم قواعد اللغة كجزء من منطق البرمجيات' },
+                      { time: '13:30-15:00', title: 'Website Development / تطوير مواقع الويب', desc: 'تطوير مواقع الويب وتحقيق الربح منها' },
+                      { time: '15:00-16:30', title: 'Targeted Muscle Building / تمارين تقوية العضلات المستهدفة', desc: '((عضلات الساق (الفخذين/الساقين) مهمة جانبية)) + عضلات البطن ورؤوس العضلات' },
+                      { time: '16:30-18:30', title: 'Specific Outdoor Sport / الرياضة الخارجية المحددة', desc: 'Swimming 🏊 or Football ⚽ or Muay Thai 🥊' },
+                      { time: '18:30-19:30', title: 'Content Creation / إنشاء المحتوى', desc: 'إنشاء وصناعة المحتوى يوتيوب وإنستقرام وتيكتوك وفيسبوك' },
+                      { time: '19:30-20:30', title: 'Spiritual Balance / التوازن الروحي', desc: 'الاستماع إلى القرآن الكريم + التأمل وتحسين نبرة الصوت وعمقه' },
+                      { time: '20:30-22:00', title: 'Mindset and Crafts / العقلية والحرف اليدوية', desc: 'مشاهدة تطوير الذات + تعلم الحلاقة 🪒 وألعاب الخفة 🃏♣️' }
+                    ]
+                  },
+                  5: {
+                    title: 'Creativity Friday / جمعة الإبداع',
+                    blocks: [
+                      { time: '05:00-08:00', title: 'Spiritual Meditation / التأمل الروحي', desc: 'سورة الكهف + أذكار الصباح + مراجعة العلوم الطبيعية' },
+                      { time: '08:00-10:00', title: 'Mind Reset / إعادة ضبط الذهن', desc: 'التحضير لمونتاج الفيديو' },
+                      { time: '10:00-14:00', title: 'Ethical Hacking and Terminology / الاختراق الأخلاقي والمصطلحات', desc: 'تعلم الاختراق الأخلاقي + ماراثون دراسي للغة العربية/الإنجليزية والدراسات الإسلامية باستخدام الخرائط الذهنية' },
+                      { time: '14:00-15:00', title: 'Audio Meditation / صوت التأمل', desc: 'الاستماع إلى القرآن الكريم والتأمل (يشمل تحسين نبرة الصوت)' },
+                      { time: '15:00-16:00', title: 'Physical Preparation / التحضير البدني', desc: 'تمارين الضغط (للصدر والكتفين)' },
+                      { time: '16:00-17:00', title: 'Website Management / إدارة الموقع الإلكتروني', desc: 'متابعة مشاريع تطوير الموقع الإلكتروني المنجزة' },
+                      { time: '17:00-18:30', title: 'Energy Generation / توليد الطاقة', desc: 'جري لمدة ساعة واحدة (لاتعمل إذا كانت لديك سباحة بعدها 🏊)' },
+                      { time: '18:30-19:30', title: 'Energy Generation / توليد الطاقة', desc: 'رياضة سباحة 🏊 أو كرة القدم ⚽ أو 🥊 مواي تاي' },
+                      { time: '19:30-20:30', title: 'System Review, Tactical Planning / مراجعة النظام ، التخطيط التكتيكي + Viewing facts', desc: 'التطوير الذاتي والتقييم الأسبوعي + تحديث قائمة "المهام الصعبة" للأسبوع القادم + مشاهدة حقائق (الدحيح أو ريهام عايدي)' }
+                    ]
+                  },
+                  6: {
+                    title: 'Mastery Saturday / سبت الإتقان',
+                    blocks: [
+                      { time: '05:00-10:00', title: 'Academic Focus / التركيز الأكاديمي', desc: 'مراجعة الفيزياء + حفظ القرآن الكريم (٥ الساعات)' },
+                      { time: '10:00-14:00', title: 'Technical Immersion / التعمق التقني', desc: 'الاختراق الأخلاقي المتقدم + إتقان اللغة الإنجليزية (٤ ساعات) + مادة فلسفة' },
+                      { time: '14:00-15:00', title: 'Crafts / الحرف اليدوية', desc: 'تعلم الحلاقة 🪒 وألعاب الخفة 🃏♣️' },
+                      { time: '15:00-16:30', title: 'Fitness & Physical Therapy / اللياقة البدنية والعلاج الطبيعي', desc: 'تمارين بدنية .. تمارين للبطن (عضلات البطن الست) والعضلة ثلاثية الرؤوس' },
+                      { time: '16:30-17:00', title: 'Therapy and Nutrition / العلاج والتغذية', desc: 'تناول المغذيات الدقيقة (الكالسيوم / المغنيسيوم / الزنك)' },
+                      { time: '17:00-18:30', title: 'Competitive Sports / الرياضات التنافسية', desc: 'رياضة سباحة 🏊 أو كرة القدم ⚽ أو 🥊 مواي تاي' },
+                      { time: '18:30-19:30', title: 'Digital Arch & Energy Generation / الهندسة المعمارية الرقمية وتوليد الطاقة', desc: 'كرة القدم: إطلاق كامل الطاقة البدنية في الملعب' },
+                      { time: '19:30-20:30', title: 'System Review, Tactical Planning / مراجعة النظام، تخطيط تكتيكي', desc: 'تطوير ذاتي وتقييم أسبوعي' }
+                    ]
+                  }
+                }
+            },
+            week3: {
+                id: 'week3',
+                title: 'System Update 10.0 — Infinity / تحديث النظام 10.0 — اللانهاية',
+                version: '800',
+                range: 'LVL 600 → 800 /  600 → 800  ',
+                desc: 'مرحلة التعمق التقني المتقدم: بناء المظهر الخارجي (Frontend) والعقل المدبر (Backend)، التعلم العميق والشبكات العصبية.',
+                schedule: [
+                  { start: 5.0,  end: 6.0,  title: 'Spiritual Session / جلسة حوار روحي',        desc: 'تلاوة القرآن (فردي: تأملي / ثنائي: جديد) + صلاة الفجر، الأذكار، وتمارين التمدد' },
+                  { start: 6.0,  end: 8.5,  title: 'Advanced Programming / برمجة متقدمة',         desc: 'مشروع (بايثون/جافا سكريبت) - تعلم الهندسة المعمارية والتطوير..بناء المظهر الخارجي (Frontend) + (بناء العقل المدبر (Backend))' },
+                  { start: 8.5,  end: 10.5, title: 'AI Academy / دورات أكاديمية في الذكاء الاصطناعي', desc: 'التعلم العميق والشبكات العصبية (الأسبوع 7 - 10) تعلّم الآلة | Machine Learning' },
+                  { start: 10.5, end: 12.0, title: 'English Mastery / إتقان اللغة الإنجليزية',        desc: 'شرح تقني معمق + مفردات التدريب على البناء والتطبيق العملي' },
+                  { start: 12.0, end: 13.0, title: ' Rest & Useful Learning / راحة واستجمام وتعلم مفيد',              desc: 'دورات برنامج بلاندر البرتقالي للرسومات التعلم العميق' },
+                  { start: 13.0, end: 15.0, title: ' Grand Rest / استراحة طويلة + Rest & Useful Learning / راحة واستجمام وتعلم مفيد', desc: 'دورات برنامج بلاندر البرتقالي للرسومات التعلم العميق + صلاة الظهر + غداء غني بالبروتين + قيلولة' },
+                  { start: 15.0, end: 16.5, title: 'PPL & Calisthenics / برنامج التطوير البدني المتقدم', desc: 'تمارين الدفع والسحب وتمارين الأرجل + الجمباز والكاليستينكس التمارين الرياضية' },
+                  { start: 16.5, end: 17.5, title: 'Rest & Dinner / راحة من التعب / Sheikh Al-Raslan',       desc: 'راحة من التعب Sheikh Al-Raslan / الشيخ الرسلان أو مواعض دينية لشيوخ مختلفة' },
+                  { start: 17.5, end: 19.5, title: 'Academic Focus / العلوم التجريبية',          desc: 'المناهج الدراسية: الرياضيات (الأحد/الأربعاء)، العلوم (الاثنين/الجمعة)، الفيزياء (الثلاثاء/السبت)' },
+                  { start: 19.5, end: 20.5, title: 'Mental & Physical Dev / التنمية الذهنية والبدنية',  desc: 'قراءة + أفلام وثائقية + ألعاب ذهنية + راحة بدنية' },
+                  { start: 20.5, end: 22.0, title: 'System Prep / إعداد النظام',              desc: 'إنشاء جدولك + أذكار المساء + استرخاء العضلات والعقل' }
+                ],
+                days: {
+                  0: { sport: 'سباحة 🏊 / مواي تاي 🥊 / جيو-جيتسو 🥋', ppl: 'Pull (Back & Biceps) / تمارين السحب', cognitive: 'صنع كتاب رقمي (الجلسة 1)', academic: 'Mathematics / رياضيات' },
+                  1: { sport: 'سباحة 🏊 / مواي تاي 🥊 / جيو-جيتسو 🥋', ppl: 'Push (Chest upper/side/normal) / تمارين الدفع', cognitive: 'تعلم الموسيقى غيتارو بيانو 💎 + فيلم وثائقي', academic: 'Natural Sciences / علوم طبيعية' },
+                  2: { sport: 'سباحة 🏊 / مواي تاي 🥊 / جيو-جيتسو 🥋', ppl: 'Pull (Back & Triceps) / تمارين السحب', cognitive: 'قراءة كتب + مشاهدة تطوير الذات', academic: 'Physics / فيزياء' },
+                  3: { sport: 'كرة السلة 🏀 / كرة القدم ⚽ / 1-Hour Run 🏃', ppl: 'Legs (Front & Calves) / تمارين للساقين', cognitive: 'Dual N-Back + فيلم وثائقي', academic: 'Math Review / مراجعة الرياضيات' },
+                  4: { sport: 'كرة السلة 🏀 / كرة القدم ⚽ / 1-Hour Run 🏃', ppl: 'Abs & Biceps / تمارين للبطن والعضلة ذات الرأسين', cognitive: 'تعلم الموسيقى غيتارو بيانو 💎 + مشاهدة تطوير الذات', academic: 'Islamic/History/Geo / دراسات إسلامية/تاريخ/جغرافيا' },
+                  5: { sport: 'راحة واستشفاء وجري لمدة ساعة 🏃', ppl: 'Push (Chest inner/pelvis/lower) / تمارين الدفع', cognitive: 'Dual N-Back + مراجعة كتاب', academic: 'Science Review / مراجعة العلوم' },
+                  6: { sport: 'كرة السلة 🏀 / كرة القدم ⚽ / 1-Hour Run 🏃', ppl: 'Abs (Six-pack) & Triceps / تمارين للبطن والترايسبس', cognitive: 'Dual N-Back + تقييم أسبوعي "ياسين تيا" + fl studio', academic: 'Physics Review / مراجعة الفيزياء' }
+                },
+                special: { 
+                  4: {
+                    title: 'Achievement Thursday (Fasting and Diligence) / خميس الإنجاز (الصيام والاجتهاد)',
+                    blocks: [
+                      { time: '02:45-05:00', title: 'Night Prayer and Suhoor / صلاة العشاء والسحور', desc: 'صلاة العشاء + سحور غني بالبروتين + ذكر الله + مراجعة ذهنية سريعة' },
+                      { time: '05:00-06:30', title: 'Quran Session / جلسة قرآنية', desc: 'تلاوة وحفظ القرآن الكريم (ساعة ونصف)' },
+                      { time: '06:30-09:30', title: 'Religious Studies / دراسات دينية', desc: 'العقيدة + رياض الصالحين + البداية والنهاية + الأربعين نووية (٣ ساعات)' },
+                      { time: '09:30-11:30', title: 'Study Marathon / ماراثون دراسي', desc: 'التاريخ والجغرافيا والفرنسية باستخدام الخرائط الذهنية' },
+                      { time: '11:30-13:30', title: 'Language Skills / مهارات لغوية', desc: 'مراجعة المصطلحات الإنجليزية وفهم قواعد اللغة كجزء من منطق البرمجيات' },
+                      { time: '13:30-15:00', title: 'Website Development / تطوير مواقع الويب', desc: 'تطوير مواقع الويب وتحقيق الربح منها' },
+                      { time: '15:00-16:30', title: 'Targeted Muscle Building / تمارين تقوية العضلات المستهدفة', desc: 'عضلات الساق (الفخذين/الساقين) مهمة جانبية + عضلات البطن ورؤوس العضلات' },
+                      { time: '16:30-18:30', title: 'Specific Outdoor Sport / الرياضة الخارجية المحددة', desc: '(رياضة سباحة 🏊 أو كرة القدم ⚽ أو 🥊 مواي تاي) و (🏀 Basketball أو 🥋 BJJ أو 🏃 1-Hour Run)' },
+                      { time: '18:30-19:30', title: 'Content Creation / إنشاء وصناعة المحتوى', desc: 'يوتيوب وإنستقرام وتيكتوك وفيسبوك' },
+                      { time: '19:30-20:30', title: 'Study Marathon / ماراثون دراسي', desc: 'التاريخ والجغرافيا والفرنسية باستخدام الخرائط الذهنية' },
+                      { time: '20:30-22:00', title: 'Crafts / الحرف اليدوية', desc: 'تعلم الموسيقى غيتارو بيانو فقط 💎' }
+                    ]
+                  },
+                  5: {
+                    title: 'Creativity Friday / جمعة الإبداع',
+                    blocks: [
+                      { time: '05:00-08:00', title: 'Spiritual Meditation / التأمل الروحي', desc: 'سورة الكهف + أذكار الصباح + مراجعة العلوم الطبيعية' },
+                      { time: '08:00-10:00', title: 'Mind Reset / إعادة ضبط الذهن', desc: 'التحضير لمونتاج الفيديو' },
+                      { time: '10:00-14:00', title: 'Ethical Hacking and Terminology / الاختراق الأخلاقي والمصطلحات', desc: 'تعلم الاختراق الأخلاقي + ماراثون دراسي للغة العربية/الإنجليزية والدراسات الإسلامية باستخدام الخرائط الذهنية' },
+                      { time: '14:00-15:00', title: 'Audio Meditation / صوت التأمل', desc: 'الاستماع إلى القرآن الكريم والتأمل (يشمل تحسين نبرة الصوت)' },
+                      { time: '15:00-16:00', title: 'Physical Preparation / التحضير البدني', desc: 'تمارين الضغط (للصدر والكتفين)' },
+                      { time: '16:00-17:00', title: 'Website Management / إدارة الموقع الإلكتروني', desc: 'متابعة مشاريع تطوير الموقع الإلكتروني المنجزة' },
+                      { time: '17:00-18:30', title: 'Energy Generation / توليد الطاقة', desc: 'جري لمدة ساعة واحدة (لاتعمل إذا كانت لديك سباحة بعدها 🏊)' },
+                      { time: '18:30-19:30', title: 'Energy Generation / توليد الطاقة', desc: '(رياضة سباحة 🏊 أو كرة القدم ⚽ أو 🥊 مواي تاي) و (🏀 Basketball أو 🥋 BJJ أو 🏃 1-Hour Run)' },
+                      { time: '19:30-20:30', title: 'System Review, Tactical Planning / مراجعة النظام ، التخطيط التكتيكي', desc: 'التطوير الذاتي والتقييم الأسبوعي + تحديث قائمة "المهام الصعبة" للأسبوع القادم' }
+                    ]
+                  },
+                  6: {
+                    title: 'Mastery Saturday / سبت الإتقان',
+                    blocks: [
+                      { time: '05:00-10:00', title: 'Academic Focus / التركيز الأكاديمي', desc: 'مراجعة الفيزياء + حفظ القرآن الكريم (٥ الساعات)' },
+                      { time: '10:00-14:00', title: 'Technical Immersion / التعمق التقني/ fl studio', desc: 'الاختراق الأخلاقي +  fl studio (الجلسة الأولى) + إتقان اللغة الإنجليزية (٤ ساعات) + مادة فلسفة' },
+                      { time: '14:00-15:00', title: 'Crafts / الحرف اليدوية/ fl studio ', desc: 'تعلم fl studio (الجلسة الثانية)' },
+                      { time: '15:00-16:30', title: 'Fitness & Physical Therapy / لياقة وعلاج طبيعي', desc: 'تمارين بدنية: تمارين البطن (سكس باك) والترايسبس' },
+                      { time: '16:30-17:00', title: 'Therapy and Nutrition / علاج وتغذية', desc: 'تناول المغذيات الدقيقة (كالسيوم / مغنيسيوم / زنك)' },
+                      { time: '17:00-18:30', title: 'Competitive Sports / رياضات تنافسية', desc: '(رياضة سباحة 🏊 أو كرة القدم ⚽ أو 🥊 مواي تاي) و (🏀 Basketball أو 🥋 BJJ أو 🏃 1-Hour Run)' },
+                      { time: '18:30-19:30', title: 'Digital Architecture / هيكلة رقمية', desc: 'برمجة النظام ومراقبة وتحديثات مشاريع الويب' },
+                      { time: '19:30-20:30', title: 'Calibration / معايرة', desc: 'سودوكو + معايرة النظام ومراجعة شاملة... تقييم أسبوعي "ياسين تيا"' },
+                      { time: '20:30-22:00', title: 'Maximum Stimulation / تحفيز أقصى', desc: 'تمارين إطالة وتمدد + التحضير للنوم وراحة عميقة ومشاهدة مراوغات ومهارات في رياضة كرة السلة وكرة القدم' }
+                    ]
+                  }
+                }
+            },
+            week4: {
+                id: 'week4',
+                title: 'System Update 11.0 — Infinity / تحديث النظام 11.0 — اللانهاية',
+                version: '1000',
+                range: 'LVL 800 → 1000 /  800 → 1000  ',
+                desc: 'مرحلة الإتقان الروحي والتقني: التركيز على العقيدة والتوحيد، المختبر التقني التطبيقي، والإتقان الكامل للغات والمهارات.',
+                schedule: [
+                  { start: 5.0,  end: 6.0,  title: 'Spiritual Session / جلسة حوار روحي',        desc: 'تلاوة القرآن (فردي: تأملي / ثنائي: جديد) + صلاة الفجر، الأذكار، وتمارين التمدد' },
+                  { start: 6.0,  end: 8.5,  title: 'Advanced Programming / برمجة متقدمة',         desc: 'كتاب التوحيد والعقيدة' },
+                  { start: 8.5,  end: 10.5, title: 'AI Academy / أكاديمية في الذكاء الاصطناعي..مختبر تقني تطبيقي', desc: 'مختبر تقني تطبيقي' },
+                  { start: 10.5, end: 12.0, title: 'English Mastery / إتقان اللغة الإنجليزية',        desc: 'شرح تقني معمق + مفردات التدريب على البناء والتطبيق العملي' },
+                  { start: 12.0, end: 13.0, title: 'Rest & Useful Learning / راحة واستجمام وتعلم مفيد',              desc: 'دورات برنامج بلاندر البرتقالي للرسومات التعلم العميق' },
+                  { start: 13.0, end: 15.0, title: ' Grand Rest / استراحة طويلة+ Rest & Useful Learning / راحة واستجمام وتعلم مفيد', desc: 'دورات برنامج بلاندر البرتقالي للرسومات التعلم العميق + صلاة الظهر + غداء غني بالبروتين + قيلولة' },
+                  { start: 15.0, end: 16.5, title: 'PPL & Calisthenics / برنامج التطوير البدني المتقدم', desc: 'تمارين الدفع والسحب وتمارين الأرجل + الجمباز والكاليستينكس التمارين الرياضية' },
+                  { start: 16.5, end: 17.5, title: 'Rest & Dinner / راحة / Sheikh Al-Raslan',       desc: 'راحة من التعب / Sheikh Al-Raslan / الشيخ الرسلان أو مواعض دينية لشيوخ مختلفة' },
+                  { start: 17.5, end: 19.5, title: 'Academic Focus / العلوم التجريبية',          desc: 'المناهج الدراسية: الرياضيات (الأحد/الأربعاء)، العلوم (الاثنين/الجمعة)، الفيزياء (الثلاثاء/السبت)' },
+                  { start: 19.5, end: 20.5, title: 'Mental & Physical Dev / التنمية الذهنية والبدنية',  desc: 'قراءة + أفلام وثائقية + ألعاب ذهنية + راحة بدنية' },
+                  { start: 20.5, end: 22.0, title: 'System Prep / إعداد النظام + Opening the pelvis / فتح الحوض',              desc: 'إنشاء جدولك + أذكار المساء + استرخاء العضلات والعقل + Opening the pelvis / فتح الحوض' }
+                ],
+                days: {
+                  0: { sport: 'سباحة 🏊 / مواي تاي 🥊 / جيو-جيتسو 🥋', ppl: 'Pull (Back & Biceps)  ', cognitive: 'صنع كتاب رقمي (الجلسة 1) / fl studio للقران الكريم ', academic: 'Mathematics / رياضيات' },
+                  1: { sport: 'سباحة 🏊 / مواي تاي 🥊 / جيو-جيتسو 🥋', ppl: 'Push (Chest upper/side/normal) / تمارين الدفع', cognitive: 'فيلم وثائقي / fl studio للقران الكريم ', academic: 'Natural Sciences / علوم طبيعية' },
+                  2: { sport: 'سباحة 🏊 / مواي تاي 🥊 / جيو-جيتسو 🥋', ppl: 'Pull (Back & Triceps) / تمارين السحب', cognitive: 'قراءة كتب + مشاهدة تطوير الذات', academic: 'Physics / فيزياء' },
+                  3: { sport: 'كرة السلة 🏀 / كرة القدم ⚽ / 1-Hour Run 🏃', ppl: 'Legs (Front & Calves) / تمارين للساقين', cognitive: 'فيلم وثائقي', academic: 'Math Review / مراجعة الرياضيات' },
+                  4: { sport: 'كرة السلة 🏀 / كرة القدم ⚽ / 1-Hour Run 🏃', ppl: 'Abs & Biceps / تمارين للبطن والعضلة ذات الرأسين', cognitive: 'مشاهدة تطوير الذات + fl studio للقران الكريم ', academic: 'Islamic/History/Geo / دراسات إسلامية/تاريخ/جغرافيا' },
+                  5: { sport: 'راحة واستشفاء وجري لمدة ساعة 🏃', ppl: 'Push (Chest inner/pelvis/lower) / تمارين الدفع', cognitive: 'Dual N-Back + مراجعة كتاب', academic: 'Science Review / مراجعة العلوم' },
+                  6: { sport: 'كرة السلة 🏀 / كرة القدم ⚽ / 1-Hour Run 🏃', ppl: 'Abs (Six-pack) & Triceps / تمارين للبطن والترايسبس', cognitive: 'Dual N-Back + تقييم أسبوعي "ياسين تيا" + fl studio للقران الكريم', academic: 'Physics Review / مراجعة الفيزياء' }
+                },
+                special: { 
+                  4: {
+                    title: 'Achievement Thursday (Fasting and Diligence) / خميس الإنجاز (الصيام والاجتهاد)',
+                    blocks: [
+                      { time: '02:45-05:00', title: 'Night Prayer and Suhoor / صلاة العشاء والسحور', desc: 'صلاة العشاء + سحور غني بالبروتين + ذكر الله + مراجعة ذهنية سريعة' },
+                      { time: '05:00-06:30', title: 'Quran Session / جلسة قرآنية', desc: 'تلاوة وحفظ القرآن الكريم (ساعة ونصف)' },
+                      { time: '06:30-09:30', title: 'Religious Studies / دراسات دينية', desc: 'رياض الصالحين + البداية والنهاية + الأربعين نووية (٣ ساعات)' },
+                      { time: '09:30-11:30', title: 'Study Marathon / ماراثون دراسي', desc: 'التاريخ والجغرافيا والفرنسية باستخدام الخرائط الذهنية الجلسة الاولى' },
+                      { time: '11:30-13:30', title: 'Language Skills / مهارات لغوية', desc: 'مراجعة المصطلحات الإنجليزية وفهم قواعد اللغة كجزء من منطق البرمجيات' },
+                      { time: '13:30-15:00', title: 'Website Development / تطوير مواقع الويب', desc: 'تطوير مواقع الويب وتحقيق الربح منها' },
+                      { time: '15:00-16:30', title: 'Targeted Muscle Building / تمارين تقوية العضلات المستهدفة', desc: 'عضلات الساق (الفخذين/الساقين) مهمة جانبية + عضلات البطن ورؤوس العضلات' },
+                      { time: '16:30-18:30', title: 'Specific Outdoor Sport / الرياضة الخارجية المحددة', desc: '(رياضة سباحة 🏊 أو كرة القدم ⚽ أو 🥊 مواي تاي) و (🏀 Basketball أو 🥋 BJJ أو 🏃 1-Hour Run)' },
+                      { time: '18:30-19:30', title: 'Content Creation / إنشاء وصناعة المحتوى', desc: 'يوتيوب وإنستقرام وتيكتوك وفيسبوك' },
+                      { time: '19:30-20:30', title: 'Study Marathon / ماراثون دراسي', desc: 'التاريخ والجغرافيا والفرنسية باستخدام الخرائط الذهنية الجلسة الثانية' },
+                      { time: '20:30-22:00', title: 'Crafts / الحرف اليدوية / fl studio', desc: 'fl studio للقران الكريم + Opening the pelvis / فتح الحوض' }
+                    ]
+                  },
+                  5: {
+                    title: 'Creativity Friday / جمعة الإبداع',
+                    blocks: [
+                      { time: '05:00-08:00', title: 'Spiritual Meditation / التأمل الروحي', desc: 'سورة الكهف + أذكار الصباح + مراجعة العلوم الطبيعية' },
+                      { time: '08:00-10:00', title: 'Mind Reset / إعادة ضبط الذهن', desc: 'التحضير لمونتاج الفيديو' },
+                      { time: '10:00-14:00', title: 'Ethical Hacking and Terminology / الاختراق الأخلاقي والمصطلحات', desc: 'تعلم الاختراق الأخلاقي + ماراثون دراسي للغة العربية/الإنجليزية والدراسات الإسلامية باستخدام الخرائط الذهنية' },
+                      { time: '14:00-15:00', title: 'Audio Meditation / صوت التأمل', desc: 'الاستماع إلى القرآن الكريم والتأمل (يشمل تحسين نبرة الصوت)' },
+                      { time: '15:00-16:00', title: 'Physical Preparation / التحضير البدني', desc: 'تمارين الضغط (للصدر والكتفين)' },
+                      { time: '16:00-17:00', title: 'Website Management / إدارة الموقع الإلكتروني', desc: 'متابعة مشاريع تطوير الموقع الإلكتروني المنجزة' },
+                      { time: '17:00-18:30', title: 'تمارين مادة علمية مهمة', desc: 'تمارين مادة علمية مهمة' },
+                      { time: '18:30-19:30', title: 'Energy Generation / توليد الطاقة', desc: '(رياضة سباحة 🏊 أو كرة القدم ⚽ أو 🥊 مواي تاي) و (🏀 Basketball أو 🥋 BJJ أو 🏃 1-Hour Run)' },
+                      { time: '19:30-20:30', title: 'System Review, Tactical Planning', desc: 'التطوير الذاتي والتقييم الأسبوعي + تحديث قائمة "المهام الصعبة" للأسبوع القادم + مشاهدة مباريات ومراوغات للتعلم وأخذ الفائدة+ Opening the pelvis / فتح الحوض' }
+                    ]
+                  },
+                  6: {
+                    title: 'Mastery Saturday / سبت الإتقان',
+                    blocks: [
+                      { time: '05:00-10:00', title: 'Academic Focus / التركيز الأكاديمي', desc: 'مراجعة الفيزياء + حفظ القرآن الكريم (٥ الساعات)' },
+                      { time: '10:00-14:00', title: 'Technical Immersion / التعمق التقني/ fl studio', desc: 'الاختراق الأخلاقي + fl studio (الجلسة الأولى) + إتقان اللغة الإنجليزية (٤ ساعات) + مادة فلسفة' },
+                      { time: '14:00-15:00', title: 'Crafts / الحرف اليدوية/ fl studio للقران الكريم', desc: 'تعلم fl studio (الجلسة الثانية)' },
+                      { time: '15:00-16:30', title: 'Fitness & Physical Therapy / لياقة وعلاج طبيعي', desc: 'تمارين بدنية: تمارين البطن (سكس باك) والترايسبس' },
+                      { time: '16:30-17:00', title: 'Therapy and Nutrition / علاج وتغذية', desc: 'تناول المغغيات الدقيقة (كالسيوم / مغنيسيوم / زنك)' },
+                      { time: '17:00-18:30', title: 'Competitive Sports / رياضات تنافسية', desc: '(رياضة سباحة 🏊 أو كرة القدم ⚽ أو 🥊 مواي تاي) و (🏀 Basketball أو 🥋 BJJ أو 🏃 1-Hour Run)' },
+                      { time: '18:30-19:30', title: 'Digital Architecture / هيكلة رقمية', desc: 'برمجة النظام ومراقبة وتحديثات مشاريع الويب' },
+                      { time: '19:30-20:30', title: 'Calibration / معايرة', desc: 'سودوكو + معايرة النظام ومراجعة شاملة... تقييم أسبوعي "ياسين تيا"' },
+                      { time: '20:30-22:00', title: 'Maximum Stimulation / تحفيز أقصى', desc: 'تمارين إطالة وتمدد + التحضير للنوم وراحة عميقة ومشاهدة مراوغات ومهارات في رياضة كرة السلة وكرة القدم' }
+                    ]
+                  }
+                }
+            },
+            week5: {
+                id: 'week5',
+                title: 'System Update 1000.0 — Infinity / تحديث النظام 1000.0 — اللانهاية',
+                version: '∞',
+                range: 'LVL 1000 → ∞ /  1000 → ∞  ',
+                desc: 'مرحلة السيادة المطلقة والحرية الكاملة: أنت الآن تتحكم في النظام، تختار برامجك بنفسك، وتدبر أمورك باستقلالية تامة.',
+                schedule: [
+                  { start: 5.0,  end: 6.0,  title: 'Spiritual Session / جلسة حوار روحي',        desc: 'تلاوة القرآن (فردي: تأملي / ثنائي: جديد) + صلاة الفجر، الأذكار، وتمارين التمدد' },
+                  { start: 6.0,  end: 8.5,  title: '؟؟؟',                                        desc: 'مخير من البرامج السابقة (لديك حرية الإختيار أيها العاهل الشاب)' },
+                  { start: 8.5,  end: 10.5, title: '؟؟؟',                                        desc: 'مخير من البرامج السابقة (لديك حرية الإختيار أيها العاهل الشاب)' },
+                  { start: 10.5, end: 12.0, title: 'English Mastery / إتقان اللغة الإنجليزية',        desc: 'شرح تقني معمق + مفردات التدريب على البناء والتطبيق العملي' },
+                  { start: 12.0, end: 13.0, title: ' ؟؟؟ ',              desc: 'مخير من البرامج السابقة (لديك حرية الإختيار أيها العاهل الشاب)' },
+                  { start: 13.0, end: 15.0, title: '؟؟؟ + Grand Rest / استراحة طويلة ',                                        desc: 'مخير من البرامج السابقة (لديك حرية الإختيار أيها العاهل الشاب)' },
+                  { start: 15.0, end: 16.5, title: 'PPL & Calisthenics / برنامج التطوير البدني المتقدم', desc: 'تمارين الدفع والسحب وتمارين الأرجل + الجمباز والكاليستينكس التمارين الرياضية' },
+                  { start: 16.5, end: 17.5, title: 'Rest & Dinner / راحة من التعب / Sheikh Al-Raslan',       desc: 'راحة من التعب / Sheikh Al-Raslan / الشيخ الرسلان أو مواعض دينية لشيوخ مختلفة' },
+                  { start: 17.5, end: 19.5, title: 'Academic Focus / العلوم التجريبية',          desc: 'المناهج الدراسية: الرياضيات (الأحد/الأربعاء)، العلوم (الاثنين/الجمعة)، الفيزياء (الثلاثاء/السبت)' },
+                  { start: 19.5, end: 20.5, title: '؟؟؟',                                        desc: 'مخير من البرامج السابقة (لديك حرية الإختيار أيها العاهل الشاب)' },
+                  { start: 20.5, end: 22.0, title: 'System Prep / إعداد النظام + Opening the pelvis / فتح الحوض',              desc: 'إنشاء جدولك + أذكار المساء + استرخاء العضلات والعقل + Opening the pelvis / فتح الحوض' }
+                ],
+                days: {
+                  0: { sport: 'سباحة 🏊 / مواي تاي 🥊 / جيو-جيتسو 🥋', ppl: 'Pull (Back & Biceps) / تمارين السحب', cognitive: 'صنع كتاب رقمي (الجلسة 1) / مخير من البرامج السابقة (لديك حرية الإختيار أيها العاهل الشاب)', academic: 'Mathematics / رياضيات' },
+                  1: { sport: 'سباحة 🏊 / مواي تاي 🥊 / جيو-جيتسو 🥋', ppl: 'Push (Chest upper/side/normal) / تمارين الدفع', cognitive: 'مخير من البرامج السابقة (لديك حرية الإختيار أيها العاهل الشاب)', academic: 'Natural Sciences / علوم طبيعية' },
+                  2: { sport: 'سباحة 🏊 / مواي تاي 🥊 / جيو-جيتسو 🥋', ppl: 'Pull (Back & Triceps) / تمارين السحب', cognitive: 'مخير من البرامج السابقة (لديك حرية الإختيار أيها العاهل الشاب)', academic: 'Physics / فيزياء' },
+                  3: { sport: 'كرة السلة 🏀 / كرة القدم ⚽ / 1-Cycling ​🚴​', ppl: 'Legs (Front & Calves) / تمارين للساقين', cognitive: 'مخير من البرامج السابقة (لديك حرية الإختيار أيها العاهل الشاب)', academic: 'Math Review / مراجعة الرياضيات' },
+                  4: { sport: 'كرة السلة 🏀 / كرة القدم ⚽ / 1-Duel or horseback riding ​🤺 ​🏇​', ppl: 'Abs & Biceps / تمارين للبطن والعضلة ذات الرأسين', cognitive: 'مخير من البرامج السابقة (لديك حرية الإختيار أيها العاهل الشاب)', academic: 'Islamic/History/Geo / دراسات إسلامية/تاريخ/جغرافيا' },
+                  5: { sport: 'راحة واستشفاء وجري لمدة ساعة 🏃', ppl: 'Push (Chest inner/pelvis/lower) / تمارين الدفع', cognitive: 'مخير من البرامج السابقة (لديك حرية الإختيار أيها العاهل الشاب)', academic: 'Science Review / مراجعة العلوم' },
+                  6: { sport: 'كرة السلة 🏀 / كرة القدم ⚽ / 1- Karate 🐉​👘​​', ppl: 'Abs (Six-pack) & Triceps / تمارين للبطن والترايسبس', cognitive: 'مخير من البرامج السابقة (لديك حرية الإختيار أيها العاهل الشاب)', academic: 'Physics Review / مراجعة الفيزياء' }
+                },
+                special: { 
+                  4: {
+                    title: 'Achievement Thursday (Fasting and Diligence) / خميس الإنجاز (الصيام والاجتهاد)',
+                    blocks: [
+                      { time: '02:45-05:00', title: 'Night Prayer and Suhoor / صلاة العشاء والسحور', desc: 'صلاة العشاء + سحور غني بالبروتين + ذكر الله + مراجعة ذهنية سريعة' },
+                      { time: '05:00-06:30', title: 'Quran Session / جلسة قرآنية', desc: 'تلاوة وحفظ القرآن الكريم (ساعة ونصف)' },
+                      { time: '06:30-09:30', title: '؟؟؟', desc: 'مخير من البرامج السابقة (لديك حرية الإختيار أيها العاهل الشاب)' },
+                      { time: '09:30-11:30', title: 'Study Marathon / ماراثون دراسي', desc: 'التاريخ والجغرافيا والفرنسية باستخدام الخرائط الذهنية الجلسة الاولى' },
+                      { time: '11:30-13:30', title: 'Language Skills / مهارات لغوية', desc: 'مراجعة المصطلحات الإنجليزية وفهم قواعد اللغة كجزء من منطق البرمجيات' },
+                      { time: '13:30-15:00', title: 'Website Development / تطوير مواقع الويب', desc: 'تطوير مواقع الويب وتحقيق الربح منها' },
+                      { time: '15:00-16:30', title: 'Targeted Muscle Building / تمارين تقوية العضلات المستهدفة', desc: 'عضلات الساق (الفخذين/الساقين) مهمة جانبية + عضلات البطن ورؤوس العضلات' },
+                      { time: '16:30-18:30', title: 'Specific Outdoor Sport / الرياضة الخارجية المحددة', desc: 'مخير من البرامج السابقة (لديك حرية الإختيار أيها العاهل الشاب)' },
+                      { time: '18:30-19:30', title: 'Content Creation / إنشاء وصناعة المحتوى', desc: 'يوتيوب وإنستقرام وتيكتوك وفيسبوك' },
+                      { time: '19:30-20:30', title: 'Study Marathon / ماراثون دراسي', desc: 'التاريخ والجغرافيا والفرنسية باستخدام الخرائط الذهنية الجلسة الثانية' },
+                      { time: '20:30-22:00', title: '؟؟؟ + Opening the pelvis', desc: 'مخير من البرامج السابقة (لديك حرية الإختيار أيها العاهل الشاب) يفضل مراجعة مادة علمية + Opening the pelvis / فتح الحوض' }
+                    ]
+                  },
+                  5: {
+                    title: 'Creativity Friday / جمعة الإبداع',
+                    blocks: [
+                      { time: '05:00-08:00', title: 'Spiritual Meditation / التأمل الروحي', desc: 'سورة الكهف + أذكار الصباح + مراجعة العلوم الطبيعية' },
+                      { time: '08:00-10:00', title: 'Mind Reset / إعادة ضبط الذهن', desc: 'التحضير لمونتاج الفيديو' },
+                      { time: '10:00-14:00', title: 'Ethical Hacking and Terminology / الاختراق الأخلاقي والمصطلحات', desc: 'تعلم الاختراق الأخلاقي + ماراثون دراسي للغة العربية/الإنجليزية والدراسات الإسلامية باستخدام الخرائط الذهنية' },
+                      { time: '14:00-15:00', title: 'Audio Meditation / صوت التأمل', desc: 'الاستماع إلى القرآن الكريم والتأمل (يشمل تحسين نبرة الصوت)' },
+                      { time: '15:00-16:00', title: 'Physical Preparation / التحضير البدني', desc: 'تمارين الضغط (للصدر والكتفين)' },
+                      { time: '16:00-17:00', title: 'Website Management / إدارة الموقع الإلكتروني', desc: 'متابعة مشاريع تطوير الموقع الإلكتروني المنجزة' },
+                      { time: '17:00-18:30', title: 'تمارين مادة علمية مهمة', desc: 'تمارين مادة علمية مهمة' },
+                      { time: '18:30-19:30', title: 'Energy Generation / توبيد الطاقة', desc: 'مخير من البرامج السابقة (لديك حرية الإختيار أيها العاهل الشاب)' },
+                      { time: '19:30-20:30', title: '؟؟؟ + Opening the pelvis / فتح الحوض', desc: 'مخير من البرامج السابقة (لديك حرية الإختيار أيها العاهل الشاب) + Opening the pelvis / فتح الحوض' }
+                    ]
+                  },
+                  6: {
+                    title: 'Mastery Saturday / سبت الإتقان',
+                    blocks: [
+                      { time: '05:00-10:00', title: 'Academic Focus / التركيز الأكاديمي', desc: 'مراجعة الفيزياء + حفظ القرآن الكريم (٥ الساعات)' },
+                      { time: '10:00-14:00', title: 'Technical Immersion / التعمق التقني/ fl studio', desc: 'الاختراق الأخلاقي + تمارين مادة علمية مهمة + إتقان اللغة الإنجليزية (٤ ساعات) + مادة فلسفة' },
+                      { time: '14:00-15:00', title: 'Crafts / الحرف اليدوية/ fl studio للقران الكريم', desc: 'تمارين مادة علمية مهمة (الجلسة الثانية)' },
+                      { time: '15:00-16:30', title: 'Fitness & Physical Therapy / لياقة وعلاج طبيعي', desc: 'تمارين بدنية: تمارين البطن (سكس باك) والترايسبس' },
+                      { time: '16:30-17:00', title: 'Therapy and Nutrition / علاج وتغذية', desc: 'تناول المغذيات الدقيقة (كالسيوم / مغنيسيوم / زنك)' },
+                      { time: '17:00-18:30', title: 'Competitive Sports / رياضات تنافسية', desc: 'مخير من البرامج السابقة (لديك حرية الإختيار أيها العاهل الشاب)' },
+                      { time: '18:30-19:30', title: 'Digital Architecture / هيكلة رقمية', desc: 'برمجة النظام ومراقبة وتحديثات مشاريع الويب' },
+                      { time: '19:30-20:30', title: '؟؟؟', desc: 'مخير من البرامج السابقة (لديك حرية الإختيار أيها العاهل الشاب)' },
+                      { time: '20:30-22:00', title: 'Maximum Stimulation / تحفيز أقصى', desc: 'تمارين إطالة وتمدد + التحضير للنوم وراحة عميقة ومشاهدة مراوغات ومهارات في رياضة كرة السلة وكرة القدم' }
+                    ]
+                  }
+                }
+            }
+        };
+
+        const Utils = {
+            formatDecimalTime(dec) {
+                const h = Math.floor(dec);
+                const m = Math.floor((dec - h) * 60);
+                return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+            },
+            getCurrentDecimalTime() {
+                const now = new Date();
+                return now.getHours() + now.getMinutes() / 60;
+            },
+            getDayName(idx) {
+                const days = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+                return days[idx];
+            },
+            verifyDayConsistency() {
+                const now = new Date();
+                const jsDay = now.getDay();
+                const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+                console.log(`[DAY VERIFICATION] JS getDay()=${jsDay} => ${dayNames[jsDay]} (${this.getDayName(jsDay)})`);
+                return { jsDay, arabicName: this.getDayName(jsDay), englishName: dayNames[jsDay] };
+            }
+        };
+
+        const AIConnection = {
+            config: { provider: 'local', apiKey: '', model: 'gemini-1.5-flash', endpoint: '' },
+            isConnected: false,
+            isTesting: false,
+            init() {
+                const saved = localStorage.getItem('sovereign_ai_config');
+                if (saved) {
+                    try { this.config = JSON.parse(saved); this.updateConnectionUI(this.config.provider === 'local' ? 'local' : 'online'); } catch(e) {}
+                }
+            },
+            toggleSettings() {
+                const modal = document.getElementById('apiSettingsModal');
+                if (!modal) return;
+                modal.classList.toggle('hidden');
+                if (!modal.classList.contains('hidden')) {
+                    document.getElementById('apiProvider').value = this.config.provider;
+                    document.getElementById('apiKey').value = this.config.apiKey || '';
+                    document.getElementById('apiModel').value = this.config.model;
+                    this.updateModelOptions();
+                }
+            },
+            updateModelOptions() {
+                const provider = document.getElementById('apiProvider').value;
+                const modelSelect = document.getElementById('apiModel');
+                if (!modelSelect) return;
+                modelSelect.innerHTML = '';
+                if (provider === 'gemini') {
+                    modelSelect.innerHTML = `
+                        <option value="gemini-1.5-flash">Gemini 1.5 Flash (Fast & Free)</option>
+                        <option value="gemini-1.5-pro">Gemini 1.5 Pro (Advanced)</option>
+                        <option value="gemini-2.0-flash">Gemini 2.0 Flash (Latest)</option>
+                    `;
+                } else if (provider === 'openai') {
+                    modelSelect.innerHTML = `
+                        <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                        <option value="gpt-4">GPT-4</option>
+                        <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                    `;
+                } else {
+                    modelSelect.innerHTML = `<option value="local">Local Neural Engine (Offline)</option>`;
+                }
+            },
+            saveSettings() {
+                this.config.provider = document.getElementById('apiProvider').value;
+                this.config.apiKey = document.getElementById('apiKey').value.trim();
+                this.config.model = document.getElementById('apiModel').value;
+                localStorage.setItem('sovereign_ai_config', JSON.stringify(this.config));
+                this.toggleSettings();
+                if (this.config.provider === 'local') {
+                    this.setLocalMode();
+                    Toast.show('تم الحفظ: وضع المحاكاة المحلي', 'info');
+                } else {
+                    this.testConnection();
+                }
+            },
+            setLocalMode() {
+                this.isConnected = false;
+                this.config.provider = 'local';
+                this.updateConnectionUI('local');
+                if(document.getElementById('ai-mode-label')) {
+                    document.getElementById('ai-mode-label').textContent = 'LOCAL MODE';
+                    document.getElementById('ai-mode-label').className = 'text-[var(--sys-gold)]';
+                }
+                if(document.getElementById('footer-conn-status')) {
+                    document.getElementById('footer-conn-status').textContent = 'Local Neural Engine';
+                }
+            },
+            async testConnection() {
+                if (this.isTesting) return;
+                this.isTesting = true;
+                const statusText = document.getElementById('conn-status-text');
+                const statusDetail = document.getElementById('conn-detail');
+                const connIcon = document.getElementById('conn-icon');
+                const bar = document.getElementById('connection-bar');
+                if (statusText) statusText.textContent = 'TESTING CONNECTION...';
+                if (statusDetail) statusDetail.textContent = 'جاري اختبار الاتصال بالنواة العصبية...';
+                if (connIcon) connIcon.textContent = '🔄';
+                if (this.config.provider === 'gemini') await this.testGeminiConnection();
+                else if (this.config.provider === 'openai') await this.testOpenAIConnection();
+                else this.setLocalMode();
+                this.isTesting = false;
+            },
+            async testGeminiConnection() {
+                try {
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${this.config.model}:generateContent?key=${this.config.apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: [{ parts: [{ text: 'Say "Sovereign AI Link Established" in Arabic.' }] }] })
+                    });
+                    if (response.ok) {
+                        this.isConnected = true;
+                        this.updateConnectionUI('online');
+                        Toast.show('✅ تم الاتصال بنجاح بـ Gemini API', 'success');
+                    } else throw new Error(`HTTP ${response.status}`);
+                } catch (error) {
+                    this.isConnected = false;
+                    this.updateConnectionUI('offline');
+                    Toast.show(`❌ فشل الاتصال: ${error.message}`, 'error');
+                }
+            },
+            async testOpenAIConnection() {
+                try {
+                    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.config.apiKey}` },
+                        body: JSON.stringify({ model: this.config.model, messages: [{ role: 'user', content: 'Say "Sovereign AI Link Established"' }], max_tokens: 20 })
+                    });
+                    if (response.ok) {
+                        this.isConnected = true;
+                        this.updateConnectionUI('online');
+                        Toast.show('✅ تم الاتصال بنجاح بـ OpenAI API', 'success');
+                    } else throw new Error(`HTTP ${response.status}`);
+                } catch (error) {
+                    this.isConnected = false;
+                    this.updateConnectionUI('offline');
+                    Toast.show(`❌ فشل الاتصال: ${error.message}`, 'error');
+                }
+            },
+            updateConnectionUI(status) {
+                const bar = document.getElementById('connection-bar');
+                const icon = document.getElementById('conn-icon');
+                const text = document.getElementById('conn-status-text');
+                const detail = document.getElementById('conn-detail');
+                if (!bar) return;
+                bar.classList.remove('online', 'offline', 'local');
+                if (status === 'online') {
+                    bar.classList.add('online'); if (icon) icon.textContent = '🟢'; if (text) text.textContent = 'NEURAL LINK ACTIVE'; if (detail) detail.textContent = `متصل بـ ${this.config.provider.toUpperCase()} — ${this.config.model}`;
+                } else if (status === 'offline') {
+                    bar.classList.add('offline'); if (icon) icon.textContent = '🔴'; if (text) text.textContent = 'CONNECTION FAILED'; if (detail) detail.textContent = 'فشل الاتصال — تحقق من المفتاح أو حاول لاحقاً';
+                } else {
+                    bar.classList.add('local'); if (icon) icon.textContent = '⚡'; if (text) text.textContent = 'LOCAL NEURAL ENGINE'; if (detail) detail.textContent = 'وضع المحاكاة المحلي — اضغط الإعدادات لتفعيل Gemini API';
+                }
+            }
+        };
+
+        const PlayerSync = {
+            data: { level: 1, xp: 0, gold: 0, stats: { str: 10, vit: 10, agi: 10, int: 10, sen: 10 } },
+            init() {
+                this.load(); this.updateUI();
+                window.addEventListener('storage', (e) => { if (e.key === 'monarch_system_data') { this.load(); this.updateUI(); } });
+            },
+            load() {
+                try {
+                    const saved = JSON.parse(localStorage.getItem('monarch_system_data') || '{}');
+                    this.data.level = saved.level || 1;
+                    this.data.xp = saved.xp || 0;
+                    this.data.gold = saved.gold || 0;
+                    this.data.stats = saved.stats || { str: 10, vit: 10, agi: 10, int: 10, sen: 10 };
+                } catch(e) {}
+            },
+            updateUI() {
+                const lvlEl = document.getElementById('ai-player-level');
+                const xpEl = document.getElementById('ai-player-xp');
+                const goldEl = document.getElementById('ai-player-gold');
+                const barEl = document.getElementById('level-progress-bar');
+                const pctEl = document.getElementById('level-pct');
+                const nextLvlEl = document.getElementById('next-level');
+                const xpNeededEl = document.getElementById('xp-needed');
+                if(lvlEl) lvlEl.textContent = this.data.level;
+                if(xpEl) xpEl.textContent = this.data.xp;
+                if(goldEl) goldEl.textContent = this.data.gold;
+                const needed = this.data.level * 100;
+                const pct = Math.min((this.data.xp / needed) * 100, 100);
+                if(barEl) barEl.style.width = `${pct}%`;
+                if(pctEl) pctEl.textContent = `${Math.round(pct)}%`;
+                if(nextLvlEl) nextLvlEl.textContent = this.data.level + 1;
+                if(xpNeededEl) xpNeededEl.textContent = needed - this.data.xp;
+            }
+        };
+
+        const ProgramManager = {
+            activeProgramId: 'week1',
+            init() {
+                const saved = localStorage.getItem('sovereign_active_program');
+                if (saved) this.activeProgramId = saved;
+                else {
+                    const lvl = PlayerSync.data.level;
+                    if (lvl >= 1000) this.activeProgramId = 'week5';
+                    else if (lvl >= 800) this.activeProgramId = 'week4';
+                    else if (lvl >= 600) this.activeProgramId = 'week3';
+                    else if (lvl >= 450) this.activeProgramId = 'week2';
+                    else this.activeProgramId = 'week1';
+                }
+                this.renderButtons();
+                this.renderCurrentBlock();
+                this.renderTodayDirective();
+            },
+            switch(id) {
+                if (this.activeProgramId === id) return;
+                this.activeProgramId = id;
+                localStorage.setItem('sovereign_active_program', id);
+                if (document.getElementById('ai-active-program')) {
+                    document.getElementById('ai-active-program').textContent = id.toUpperCase();
+                }
+                this.renderButtons();
+                this.renderCurrentBlock();
+                this.renderTodayDirective();
+            },
+            renderButtons() {
+                ['week1', 'week2', 'week3', 'week4', 'week5'].forEach(id => {
+                    const btn = document.getElementById(`btn-${id}`);
+                    if(btn) btn.classList.toggle('active', this.activeProgramId === id);
+                });
+                const infMsg = document.getElementById('infinity-message');
+                if (infMsg) infMsg.classList.toggle('hidden', this.activeProgramId !== 'week5');
+            },
+            renderCurrentBlock() {
+                const infoContainer = document.getElementById('current-block-info');
+                if (!infoContainer) return;
+                const now = new Date();
+                const ctx = {
+                    dayIndex: now.getDay(),
+                    dayName: Utils.getDayName(now.getDay()),
+                    currentTime: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+                };
+                infoContainer.innerHTML = SovereignAI.getCurrentBlockAnalysis(ctx);
+            },
+            renderTodayDirective() {
+                const dirContainer = document.getElementById('today-directive');
+                if (!dirContainer) return;
+                const now = new Date();
+                const day = now.getDay();
+                const prog = PROGRAM_DATA[this.activeProgramId];
+                if (!prog) return;
+                let html = '';
+                if (prog.days && prog.days[day]) {
+                    const todayData = prog.days[day];
+                    html += `<div class="p-2 bg-slate-950/60 rounded border border-slate-800 mb-1"><span class="text-[var(--sys-cyan)] font-bold">🎯 الرياضة:</span> ${todayData.sport || 'لا يوجد'}</div>`;
+                    html += `<div class="p-2 bg-slate-950/60 rounded border border-slate-800 mb-1"><span class="text-[var(--sys-purple)] font-bold">💪 التطوير البدني:</span> ${todayData.ppl || 'لا يوجد'}</div>`;
+                    html += `<div class="p-2 bg-slate-950/60 rounded border border-slate-800 mb-1"><span class="text-amber-400 font-bold">🧠 التنمية الذهنية:</span> ${todayData.cognitive || 'لا يوجد'}</div>`;
+                    html += `<div class="p-2 bg-slate-950/60 rounded border border-slate-800"><span class="text-emerald-400 font-bold">📚 الجانب الأكاديمي:</span> ${todayData.academic || 'لا يوجد'}</div>`;
+                } else {
+                    html = '<div class="text-center py-4 text-slate-500">لا توجد توجيهات محددة اليوم.</div>';
+                }
+                dirContainer.innerHTML = html;
+            }
+        };
+
+        const SovereignAI = {
+            userName: localStorage.getItem('sovereign_user_name') || null,
+            awaitingName: false,
+            init() {
+                const screen = document.getElementById('chatScreen');
+                if (!screen) return;
+                screen.innerHTML = '';
+                if (!this.userName) {
+                    this.awaitingName = true;
+                    const welcomeMsg = `<b>[SYSTEM INITIALIZED]</b><br><br>مرحباً بك في <b>Sovereign System</b>، منصة تطوير الذات وإدارة التقدم الشخصي الشاملة. أنا المستشار الذكي ودليلك في هذه المنصة. 🤖<br><br>لتخصيص تجربتك وبدء الاتصال العصبي، يرجى إخباري:<br><span class="text-[var(--sys-cyan)] font-bold">ما هو اسمك ولقبك؟ (Please enter your name)</span>`;
+                    this.addMessage(welcomeMsg, 'ai', false, false);
+                } else {
+                    this.awaitingName = false; this.sendWelcomeBack();
+                }
+            },
+            sendWelcomeBack() {
+                const isCreator = this.userName.toLowerCase().includes('lucian') || this.userName.toLowerCase().includes('mohamad') || this.userName.includes('محمد') || this.userName.includes('عيساوي');
+                const role = isCreator ? `<span class="text-[var(--sys-purple)] font-black">[CREATOR / SHADOW MONARCH]</span>` : `[SOVEREIGN USER]`;
+                const msg = `مرحباً بعودتك يا <b>${this.userName}</b>! ${role} 👑<br><br>أنا المستشار الذكي للمنصة. دليلك الشامل لجميع وحدات النظام. كيف يمكنني توجيهك اليوم؟` + this.getSuggestedQuestions();
+                this.addMessage(msg, 'ai', false, false);
+            },
+            getSuggestedQuestions() {
+                return `<br><div class="mt-4 pt-3 border-t border-slate-800/50">
+                    <span class="text-[10px] text-slate-500 sys-font mb-2 block">⚡ أوامر واستفسارات مقترحة (SUGGESTED QUERIES):</span>
+                    <div class="flex flex-wrap gap-1.5">
+                        <button onclick="SovereignAI.quickAsk('شرح المهام النشطة')" class="px-2 py-1 bg-slate-900 border border-slate-700 hover:border-[var(--sys-cyan)] text-[10px] text-slate-300 rounded transition sys-font">⚔️ المهام النشطة</button>
+                        <button onclick="SovereignAI.quickAsk('كيف تعمل زنازين التدريب؟')" class="px-2 py-1 bg-slate-900 border border-slate-700 hover:border-[var(--sys-cyan)] text-[10px] text-slate-300 rounded transition sys-font">🌋 الزنازين</button>
+                        <button onclick="SovereignAI.quickAsk('شرح إحصائيات العقل')" class="px-2 py-1 bg-slate-900 border border-slate-700 hover:border-[var(--sys-cyan)] text-[10px] text-slate-300 rounded transition sys-font">🧠 إحصائيات العقل</button>
+                        <button onclick="SovereignAI.quickAsk('ما هو المصحف الرقمي؟')" class="px-2 py-1 bg-slate-900 border border-slate-700 hover:border-[var(--sys-cyan)] text-[10px] text-slate-300 rounded transition sys-font">🕋 الجانب الروحي</button>
+                        <button onclick="SovereignAI.quickAsk('ما هي لوحة القيادة؟')" class="px-2 py-1 bg-slate-900 border border-slate-700 hover:border-[var(--sys-cyan)] text-[10px] text-slate-300 rounded transition sys-font">🏠 لوحة القيادة</button>
+                    </div>
+                </div>`;
+            },
+            sendMessage() {
+                const input = document.getElementById('chatInput'); if (!input) return;
+                const text = input.value.trim(); if (!text) return;
+                this.addMessage(text, 'user'); input.value = ''; this.showTyping();
+                setTimeout(() => { this.processMessage(text); }, 600);
+            },
+            quickAsk(text) {
+                const input = document.getElementById('chatInput');
+                if (input) { input.value = text; this.sendMessage(); }
+            },
+            processMessage(text) {
+                this.hideTyping();
+                if (this.awaitingName) {
+                    this.userName = text; localStorage.setItem('sovereign_user_name', this.userName);
+                    this.awaitingName = false; this.sendWelcomeBack(); return;
+                }
+                const response = this.generateLocalResponse(text);
+                this.addMessage(response, 'ai', false, true);
+            },
+            generateLocalResponse(input) {
+                const query = input.toLowerCase().replace(/أ/g, 'ا').replace(/إ/g, 'ا').replace(/ة/g, 'ه');
+                const checkMatch = (keywords) => keywords.some(kw => query.includes(kw));
+
+               // =====================================================================================
+// المحرك المعرفي المطور لتطوير الذات العقلية — ULTIMATE COGNITIVE DEVELOPMENT ENGINE
+// =====================================================================================
+
+// --- [1] إرشاد التطوير الفكري وعقلية النمو (Mindset & Intellectual Growth) ---
+if (checkMatch([
+    'نصيحه', 'تطور', 'تطوير', 'ارشاد', 'توجيه', 'ترقية', 'ارتقاء', 'نصائح', 'تثقيف', 'توسيع_المدارك', 'عقلية_النمو', 'تطوير_الذكاء', 'ترقية_الفكر', 'بناء_العقل', 'تحسين_التفكير', 'كيف_اتطور', 'استراتيجية_الفكر', 'ارشادات', 'توجيهات', 'نصيحة_اليوم', 'طريقة_التطوير', 'خطوات_النمو', 'تنمية_فكرية', 'كوتشينج_عقلي', 'نصيحه_ذكاء', 'تحديث_العقل', 'تطوير_ذاتي', 'تطوير_الذات', 'تنمية_بشرية', 'توسيع_الفكر', 'حكمة_اليوم', 'مسار_النمو', 'توجيه_فكري', 'نصائح_مستقبلية', 'كيف_انمو', 'رفع_الكفاءة', 'تحسين_ذاتي', 'توسيع_الوعي', 'منهجية_التفكير', 'تطوير_عقلي',
+    'advice', 'development', 'upgrade', 'progression', 'growth', 'guide', 'evolve', 'improvement', 'mindset_growth', 'cognitive_upgrade', 'intellectual_advancement', 'brain_coaching', 'how_to_think', 'mental_evolution', 'self_improvement', 'personal_growth', 'mindset_shift', 'mental_upgrade', 'intellectual_growth', 'mentorship', 'coaching_tips', 'growth_hacks', 'brain_expansion', 'self_actualization', 'metacognition_tips', 'cognitive_booster', 'actionable_advice', 'masterclass', 'brain_hacks', 'daily_wisdom', 'intellect_evolution', 'mind_hacking'
+])) {
+    return this.getMentalGrowthAdvice(PlayerSync.data.level, ProgramManager.activeProgramId);
+}
+
+// --- [2] تشخيص وتحليل الوضع الذهني اللحظي (Real-Time Cognitive Status & Focus Audit) ---
+if (checkMatch([
+    'وضعي', 'تقييم', 'حالي', 'تقرير', 'فحص', 'مستواي', 'تشخيص', 'الوضعية', 'حالة_الانتباه', 'مستوى_التركيز', 'فحص_الوعي', 'تشتت_ذهني', 'تقرير_عقلي', 'وضعي_الفكري', 'مستوى_اليقظة', 'تحليل_الاداء_الذهني', 'وضعي_الحالي', 'كيف_احوالي', 'تقييم_مستواي', 'فحص_دماغي', 'وضعية_التركيز', 'اختبار_التركيز', 'تقرير_الانتباه', 'مستواى', 'حالتنا_الذهنية', 'تحليل_الوعي', 'مستواي_الحالي', 'شيك_اب_عقلي', 'رادار_التركيز', 'مؤشر_التشتت', 'حالة_الدماغ_الآن', 'فحص_الانتاجية', 'تقييم_ادائي', 'مراجعة_ذهنية', 'مستوى_استيعابي', 'هل_انا_مشتت',
+    'evaluation', 'status', 'profile', 'assessment', 'report', 'audit', 'my_state', 'condition', 'checkup', 'cognitive_audit', 'focus_check', 'mental_clarity_status', 'attention_span', 'brain_fog_check', 'mind_state', 'current_status', 'performance_report', 'mental_efficiency', 'focus_level', 'diagnostic_report', 'my_profile', 'cognitive_assessment', 'am_i_focused', 'clarity_check', 'productivity_audit', 'distraction_score', 'alertness_level', 'real_time_status', 'brain_health_status', 'cognitive_efficiency'
+])) {
+    return this.getMentalStatusEvaluation({ stats: PlayerSync.data.stats });
+}
+
+// --- [3] فسيولوجيا الدماغ وقانون التكيف تحت الضغط (Neuroplasticity & Overload Law) ---
+if (checkMatch([
+    'وولف', 'عظام', 'قانون', 'ولف', 'مرونة_عصبية', 'تكييف_العقل', 'الجهد_الذهني', 'تحمل_عقلي', 'بناء_المسارات_العصبية', 'المقاومة_الفكرية', 'تكيف_الدماغ', 'المرونة_المعرفية', 'الجهد_المعرفي', 'قانون_وولف', 'تكيف_عصبي', 'الضغط_الذهني', 'تحمل_معرفي', 'مرونه_عصبيه', 'اعادة_تأسيس_العقل', 'قانون_الجهد', 'المقاومة_العقلية', 'الجهد_العصبي', 'خلايا_عصبية', 'نمو_المشابك', 'نظرية_التكيف', 'اجهاد_عقلي', 'قانون_التكيف', 'كيف_يتكيف_الدماغ', 'ديناميكية_العقل', 'توسيع_الروابط_العصبية',
+    'wolff', 'bone', 'neuroplasticity', 'cognitive_friction', 'mental_wolff_law', 'brain_rewiring', 'synaptic_plasticity', 'mental_load', 'cognitive_adaptation', 'brain_malleability', 'neural_growth', 'mental_friction', 'neuroplastic_adaptation', 'mental_resistance', 'cognitive_load', 'synaptic_growth', 'brain_plasticity', 'neural_pathways', 'cognitive_flexibility', 'mental_endurance_law', 'brain_molding', 'hebbian_learning', 'mental_adaptation_theory', 'neurogenesis'
+])) {
+    return this.getNeuroplasticityExplanation();
+}
+
+// --- [4] المهام الفكرية وتحديات الانضباط المعرفي (Cognitive Quests & Execution Drills) ---
+if (checkMatch([
+    'مهام', 'مهمه', 'نشط', 'تاسك', 'مهمات', 'واجبات', 'تحديات', 'الأهداف_اليومية', 'جدول_اليوم', 'المهمة_النشطة', 'تاسكات_عقلية', 'مهمة_تركيز', 'تمارين_ذهنية_نشطة', 'كويست_فكري', 'انجاز_معرفي', 'مهمات_اليوم', 'تاسكاتي', 'قائمة_المهام', 'مهمتي_النشطة', 'التحدي_اليومي', 'تارغت_اليوم', 'اهداف_يومية', 'تحديات_ذهنية', 'المهمه_النشطه', 'المهام_المطلوبة', 'جدول_التحديات', 'كويستات', 'لستة_المهام', 'ماذا_افعل_الآن', 'تاسك_اليوم', 'اجندة_العقل', 'المهام_الذهنية',
+    'quest', 'quests', 'task', 'tasks', 'mission', 'missions', 'active', 'daily_objectives', 'todo', 'mental_quests', 'cognitive_drills', 'focus_tasks', 'daily_brain_targets', 'intellectual_missions', 'active_quest', 'todo_list', 'daily_challenges', 'active_missions', 'cognitive_tasks', 'brain_drills', 'focus_drills', 'mental_workout', 'daily_routine', 'executive_tasks', 'objective_list', 'current_targets', 'task_manager', 'grind_today', 'focus_blueprint'
+])) {
+    return `<b>[وحدة المهام الذهنية النشطة — COGNITIVE QUESTS] ⚔️</b><br><br>هذه الواجهة هي غرفة العمليات لإدارة تمارينك الفكرية اليومية. تتكون من تتبع تقدمك المعرفي مع مؤقت لتركيزك العميق (Deep Work)، ونظام المكافآت لزيادة الانضباط. إكمال المهام يرفع من خبرتك العقلية.`;
+}
+
+// --- [5] زنازين المنطق ومحاكاة الذكاء الاستراتيجي (Strategic Logic & Tactical Dungeons) ---
+if (checkMatch([
+    'زنزان', 'دنجن', 'شطرنج', 'هانوي', 'لعب', 'زنازين', 'لعبة', 'لغز', 'الغاز', 'متاهة', 'أبراج_هانوي', 'تحدي_عقلي', 'ذكاء_اصطناعي', 'لعب_شطرنج_منطقي', 'محاكاة_المنطق', 'ميدان_التكتيك', 'دنجنات', 'متاهات_عقلية', 'لعبة_الشطرنج', 'لعبة_هانوي', 'حل_الغاز', 'العاب_ذكاء', 'تدريب_تكتيكي', 'تحديات_الذكاء', 'زنزانة_الذكاء', 'العاب_منطقية', 'غرف_الالغاز', 'اختبار_تكتيكي', 'محاكاة_ستراتيجية', 'دنجن_المنطق', 'الغاز_رياضية', 'تحدي_شطرنج',
+    'dungeon', 'dungeons', 'chess', 'hanoi', 'puzzle', 'puzzles', 'minigame', 'mental_training', 'game', 'brain_games', 'tower_of_hanoi', 'tactical_dungeons', 'logic_puzzles', 'strategic_chess', 'cognitive_arena', 'mind_games', 'chess_ai', 'puzzle_solving', 'tactical_arena', 'logic_games', 'strategic_dungeon', 'problem_solving_arena', 'chess_match', 'hanoi_tower', 'riddle', 'riddles', 'brainTeasers', 'algorithmic_puzzles'
+])) {
+    return `<b>[زنازين التدريب التكتيكي — MENTAL DUNGEONS] 🌋</b><br><br>هذا القسم مصمم خصيصاً لاختبار وتوسيع حدود ذكائك التكتيكي والاستراتيجي عبر الشطرنج المتقدم ضد خوارزميات الذكاء الاصطناعي، أو لغز أبراج هانوي الرياضي المعقد لبناء قدرات حل المشكلات.`;
+}
+
+// --- [6] اليقظة الذهنية والصفاء الروحي وتقليل الضجيج (Mindfulness & Neuro-Serenity) ---
+if (checkMatch([
+    'صلاه', 'قران', 'مصحف', 'روح', 'صلوات', 'أذكار', 'عبادة', 'روحاني', 'القرآن', 'إيماني', 'صفاء_ذهني', 'تدبر', 'تركيز_روحي', 'هدوء_عقلي', 'سلام_داخلي', 'يقظة_عقلية', 'تأمل_إيماني', 'اذكار', 'سلام_نفسي', 'هدوء_نفسي', 'سكينة', 'طمأنينة', 'تأمل_روحي', 'تخفيف_التوتر', 'القران_الكريم', 'تصفية_الذهن', 'الروحانيات', 'صفاء_العقل', 'شحن_روحي', 'ازالة_القلق', 'سكون_نفسي', 'تركيز_عميق_روحي', 'توازن_نفسي', 'تأمل_عقلي', 'تخفيض_الضوضاء', 'استرخاء_ذهني',
+    'prayer', 'quran', 'spiritual', 'soul', 'faith', 'dhikr', 'worship', 'spirituality', 'inner_peace', 'mindfulness', 'mental_serenity', 'spiritual_focus', 'cognitive_calm', 'meditative_state', 'serenity', 'soul_healing', 'calmness', 'mental_peace', 'spirit_upgrade', 'faith_booster', 'anxiety_relief', 'stress_reduction', 'meditation', 'deep_calm', 'divine_connection', 'emotional_balance', 'mental_decompress', 'stoic_calm'
+])) {
+    return this.getSpiritualMentalAdvice(PlayerSync.data.level);
+}
+
+// --- [7] مصفوفة الإحصائيات الحيوية والسمات المعرفية السيادية (Core Attributes & Cognitive Metrics) ---
+if (checkMatch([
+    'احصاء', 'عقل', 'سمات', 'خصائص', 'إحصائيات', 'السمات_السيادية', 'القدرات', 'ارقام', 'مؤشرات', 'مستوى_الذكاء', 'الخصائص_الخمسة', 'البنية_المعرفية', 'سمات_الذكاء', 'إحصائيات_الدماغ', 'تحليل_النمط_المعرفي', 'احصائيات', 'ستاتس', 'ارقامي', 'مؤشراتي', 'خصائص_العقل', 'السمات_الخمسة', 'تحليل_السمات', 'بياناتي_العقلية', 'لوحة_التحكم_العقلية', 'مؤشرات_الأداء', 'سماتي', 'نقاط_القوة', 'ارقام_الذكاء', 'رادار_السمات', 'لوحة_الاحصائيات', 'مستويات_السمات', 'نقاط_الخصائص', 'بيانات_المعالجة',
+    'brain', 'stats', 'attributes', 'statistics', 'int', 'sen', 'str', 'vit', 'agi', 'capabilities', 'parameters', 'core_stats', 'stat_analysis', 'cognitive_attributes', 'brain_stats', 'intellectual_metrics', 'cognitive_profile', 'mind_metrics', 'ability_scores', 'performance_stats', 'attribute_points', 'neuro_stats', 'mental_parameters', 'stat_dashboard', 'skill_tree_stats', 'cognitive_inventory'
+])) {
+    return `<b>[وحدة إحصائيات المعالجة العقلية — BRAIN STATS] 🧠</b><br><br>واجهة تحليلية متقدمة تراقب تطور السمات السيادية الخمس من منظور عقلي (الذكاء INT، الاستشعار والتركيز SEN، الإرادة الذهنية STR، مرونة التحمل النفسي VIT، وسرعة البديهة AGI) لتحديد نمط تفكيرك السائد.`;
+}
+// =====================================================================================
+// الدفعة الأولى: توسعة الأنظمة الإدراكية — COGNITIVE SUBSYSTEMS (BATCH 1/10)
+// =====================================================================================
+
+// --- [8] نظام ترقية الذاكرة والتخزين طويل المدى (Memory & Retention Upgrade) ---
+if (checkMatch([
+    'ذاكرة', 'تذكر', 'حفظ', 'استرجاع', 'قصر_المدى', 'طويل_المدى', 'نسيان', 'تقوية_الذاكرة', 'عقل_مظلم', 'قصر_الذاكرة', 'مخرن_المعلومات', 'ارتباط_صوري', 'تثبيت_الحفظ', 'تقنيات_التذكر', 'نسيت', 'ضعف_الذاكرة', 'تخزين_معرفي',
+    'memory', 'retention', 'mnemonics', 'recall', 'long_term_memory', 'short_term_memory', 'memorization', 'forgetting', 'memory_palace', 'spaced_repetition', 'information_storage', 'cognitive_retrieval', 'working_memory'
+])) {
+    return this.getMemoryTrainingProtocol();
+}
+
+// --- [9] معالجة المعلومات وسرعة البديهة اللحظية (Information Processing Speed) ---
+if (checkMatch([
+    'بديهة', 'بديهية', 'سرعة_المعالجة', 'فهم_سريع', 'استيعاب_لمحي', 'رد_فعل_عقلي', 'سرعة_الفهم', 'لقط', 'نباهة', 'النباهة', 'تحليل_سريع', 'المعالجة_الذهنية', 'سرعة_الدماغ', 'البديهه', 'سرعه_المعالجه', 'استجابة_فورية',
+    'processing_speed', 'cognitive_speed', 'quick_wit', 'mental_reflexes', 'rapid_comprehension', 'brain_throughput', 'reaction_time', 'information_processing', 'fast_thinking', 'mental_agility_speed', 'instant_processing'
+])) {
+    return this.getProcessingSpeedDrills();
+}
+
+// --- [10] التفكير النقدي ورصد المغالطات المنطقية (Critical Thinking & Fallacy Detection) ---
+if (checkMatch([
+    'نقدي', 'تفكير_نقدي', 'مغالطة', 'مغالطات', 'منطق', 'تحليل_منطقي', 'فحص_الافكار', 'كشف_التضليل', 'مغالطه_منطقيه', 'تحيز', 'تحيزات_معرفية', 'فلكرة_الاراء', 'تفكير_موضوعي', 'تمحيص', 'تفنيد', 'تفكير_منهجي',
+    'critical_thinking', 'fallacy', 'logical_fallacy', 'fallacies', 'cognitive_bias', 'objectivity', 'analytical_thinking', 'fact_checking', 'argument_analysis', 'debiasing', 'mental_filtering', 'rational_thinking'
+])) {
+    return this.getCriticalThinkingMetrics();
+}
+
+// --- [11] المرونة النفسية وإدارة الضغوط المعرفية (Mental Resilience & Stress Tolerance) ---
+if (checkMatch([
+    'مرونة', 'تحمل_الضغوط', 'صمود_عقلي', 'مقاومة_الانهيار', 'احباط', 'توتر_معرفي', 'مرونه_نفسيه', 'صلابة_ذهنية', 'ادارة_الازمات_العقلية', 'التحكم_بالقلق', 'ثبات_انفعالي', 'مواجهة_الضغط', 'استنزاف_عقلي', 'امتصاص_الصدمات',
+    'resilience', 'mental_toughness', 'stress_tolerance', 'cognitive_resilience', 'burnout_prevention', 'coping_mechanisms', 'emotional_regulation', 'grit', 'mental_fortitude', 'pressure_handling', 'stoicism_practice'
+])) {
+    return this.getStressToleranceMatrix();
+}
+
+// --- [12] هندسة القرارات الاستراتيجية وحل المشكلات (Strategic Decision Making) ---
+if (checkMatch([
+    'قرار', 'اتخاذ_قرار', 'قرارات', 'حل_مشكلة', 'خيارات', 'تخطيط_استراتيجي', 'صنع_القرار', 'حل_المشكلات', 'شجرة_القرارات', 'مفاضلة', 'عواقب', 'حسم', 'تردد_فكري', 'تحليل_المخاطر', 'بدائل_ذكية', 'حلول_جذرية',
+    'decision_making', 'problem_solving', 'strategic_choices', 'decision_tree', 'risk_analysis', 'problem_resolution', 'decisiveness', 'choice_architecture', 'weighted_decisions', 'analytical_solutions'
+])) {
+    return this.getStrategicDecisionProtocol();
+}
+
+// --- [13] القراءة السريعة واستيعاب النصوص الفائق (Speed Reading & Meta-Comprehension) ---
+if (checkMatch([
+    'قراءة', 'قراءه_سريعه', 'قراءة_سريعة', 'استيعاب_النصوص', 'تصفح_سريع', 'التقاط_الكلمات', 'قراءة_ذكية', 'تحليل_الكتب', 'معدل_القراءة', 'كلمة_في_الدقيقة', 'فهم_المقروء', 'قراءه_ذكيه', 'تطوير_القراءة', 'السرعة_القرائية',
+    'speed_reading', 'comprehension_rate', 'skimming', 'scanning_text', 'words_per_minute', 'wpm', 'meta_reading', 'photo_reading', 'text_processing', 'book_absorption', 'deep_reading_skills'
+])) {
+    return this.getSpeedReadingAnalytics();
+}
+
+// --- [14] التفكير الإبداعي والجانبي خارج الصندوق (Creativity & Lateral Thinking) ---
+if (checkMatch([
+    'ابداع', 'إبداع', 'خارج_الصندوق', 'تفكير_جانبي', 'ابتكار', 'توليد_افكار', 'افكار_جديدة', 'عصف_ذهني', 'خيال_فكري', 'ابتكاري', 'تفكير_ابداعي', 'افكار_خلاقة', 'المرونة_الابداعية', 'اصالة_الفكر', 'ذكاء_ابداعي',
+    'creativity', 'lateral_thinking', 'innovation', 'brainstorming', 'ideation', 'divergent_thinking', 'outside_the_box', 'creative_intelligence', 'originality', 'insight_generation', 'imagination_drills'
+])) {
+    return this.getLateralThinkingSandbox();
+}
+
+// --- [15] إدارة الوقت الفكري والتنظيم المعرفي (Cognitive Time & Energy Management) ---
+if (checkMatch([
+    'وقت_عقلي', 'تنظيم_الوقت', 'المصفوفة_الزمنية', 'إنتاجية_الوقت', 'بومودورو', 'ساعة_بيولوجية', 'ترتيب_الاولويات', 'ادارة_الطاقة_الذهنية', 'توفير_الجهد', 'جدولة_العقل', 'استغلال_اليوم', 'تنظيم_الفكر_الزمني',
+    'chronothinking', 'time_blocking', 'pomodoro_mental', 'cognitive_pacing', 'energy_management', 'priority_matrix', 'productivity_hacking', 'mental_schedule', 'circadian_alignment', 'time_efficiency'
+])) {
+    return this.getChronoThinkingSchedule();
+}
+
+// --- [16] التلعيب العقلي وبناء العادات الذهنية (Cognitive Gamification & Habit Loop) ---
+if (checkMatch([
+    'عادة_عقلية', 'بناء_العادات', 'روتين_ذهني', 'تلعيب_العقل', 'حلقة_العادة', 'انضباط_ذاتي', 'عادات_الناجحين', 'تثبيت_العادات', 'التخلص_من_البرود', 'محفز_عقلي', 'سلوك_معرفي', 'الالتزام_الذاتي', 'بناء_روتين',
+    'gamification', 'habit_loop', 'routine_building', 'neuro_habits', 'self_discipline', 'habit_stacking', 'cue_craving_response', 'behavioral_design', 'consistency_booster', 'willpower_drills'
+])) {
+    return this.getCognitiveHabitLoop();
+}
+
+// --- [17] الفضول المعرفي وآلية التعلم الذاتي المستمر (Epistemic Curiosity & Autodidactism) ---
+if (checkMatch([
+    'فضول', 'تعلم_ذاتي', 'شغف_المعرفة', 'حب_الاستطلاع', 'البحث_العلمي', 'تثقيف_ذاتي', 'المتعلم_الذاتي', 'نهم_القراءة', 'فضول_معرفي', 'تعلم_كيف_تتعلم', 'اكتساب_مهارات', 'استكشاف_فكري', 'عقلية_المستكشف',
+    'curiosity', 'autodidactism', 'self_education', 'epistemic_curiosity', 'learning_how_to_learn', 'skill_acquisition', 'knowledge_seeking', 'lifelong_learning', 'intellectual_exploration', 'meta_learning'
+])) {
+    return this.getContinuousLearningPath();
+}
+// =====================================================================================
+// الدفعة الثانية: الأنظمة المعرفية المتقدمة — ADVANCED COGNITIVE MATRIX (BATCH 2/10)
+// =====================================================================================
+
+// --- [18] الذكاء العاطفي والتنظيم الوجداني الإدراكي (Emotional Intelligence & Affective Regulation) ---
+if (checkMatch([
+    'ذكاء_عاطفي', 'تنظيم_المشاعر', 'وعي_ذاتي', 'تعاطف', 'إدارة_الانفعالات', 'اتزان_وجداني', 'تفكير_عاطفي', 'عواطف_العقل', 'التحكم_بالمشاعر', 'فهم_الذات_العاطفية', 'ذكاء_وجداني', 'النضج_العاطفي', 'الادراك_العاطفي',
+    'emotional_intelligence', 'eq', 'emotional_regulation', 'self_awareness', 'empathy', 'emotional_processing', 'affective_cognition', 'emotional_maturity', 'mood_management', 'intrapersonal_skills', 'impulse_control'
+])) {
+    return this.getEmotionalIntelligenceProtocol();
+}
+
+// --- [19] الميتا-معرفة والتفكير في آلية التفكير (Metacognition & Cognitive Monitoring) ---
+if (checkMatch([
+    'ميتا_معرفة', 'تفكير_في_التفكير', 'مراقبة_الذات', 'الوعي_بالمعرفة', 'تقييم_الفهم', 'مراقبة_الافكار', 'الميتا_معرفة', 'وعي_فوق_معرفي', 'تحليل_آلية_تفكيري', 'كيف_افكر', 'رصد_الوعي', 'الهندسة_العكسية_للفكر',
+    'metacognition', 'meta_cognition', 'thinking_about_thinking', 'cognitive_monitoring', 'self_reflection_cognition', 'cognitive_control', 'meta_analysis_mind', 'reflective_thinking', 'mental_self_regulation'
+])) {
+    return this.getMetacognitionAnalysis();
+}
+
+// --- [20] النمذجة العقلية والأطر الفكرية الاستراتيجية (Mental Models & Frameworks) ---
+if (checkMatch([
+    'نماذج_عقلية', 'نموذج_عقلي', 'اطر_فكرية', 'المبادئ_الأولى', 'منطق_الأنظمة', 'النمذجة_العقلية', 'اطر_ذهنية', 'نظريات_التفكير', 'مصفوفات_ذهنية', 'نموذج_فكري', 'هيكلة_المفاهيم', 'ادوات_التفكير',
+    'mental_models', 'mental_framework', 'first_principles', 'systems_thinking', 'cognitive_models', 'conceptual_frameworks', 'thought_frameworks', 'inversion_principle', 'second_order_thinking'
+])) {
+    return this.getMentalModelsSandbox();
+}
+
+// --- [21] التركيز الفائق وحالة التدفق الذهني العميق (Hyper-Focus & Flow State Blueprint) ---
+if (checkMatch([
+    'تدفق_ذهني', 'تركيز_فائق', 'حالة_التدفق', 'اندماج_كامل', 'استغراق_عقلي', 'التركيز_العميق', 'زون_ذهني', 'الاندماج_المعرفي', 'التحليق_العقلي', 'الانغماس_الذهني', 'الانتاجية_القصوى', 'قمة_التركيز',
+    'flow_state', 'hyper_focus', 'hyperfocus', 'deep_flow', 'optimal_experience', 'mental_immersion', 'zone_state', 'deep_work_state', 'cognitive_absorption', 'peak_focus_flow'
+])) {
+    return this.getFlowStateBlueprint();
+}
+
+// --- [22] اتساع المدى المعرفي والشمولية الموسوعية (Cognitive Span & Intellectual Depth) ---
+if (checkMatch([
+    'مدى_معرفي', 'عمق_فكري', 'اتساع_المدارك', 'ثقافة_عميقة', 'شمولية_التفكير', 'معرفة_موسوعية', 'تعددية_المواهب', 'توسيع_الافق', 'افق_ذهني', 'العمق_المعرفي', 'التفكير_الموسوعي', 'تعدد_الاهتمامات_الفكرية',
+    'cognitive_span', 'intellectual_depth', 'intellectual_breadth', 'encyclopedic_mind', 'cognitive_horizon', 'mental_scope', 'polymathy', 'generalist_mind', 'deep_knowledge_span'
+])) {
+    return this.getIntellectualDepthMatrix();
+}
+
+// --- [23] المرونة الإدراكية والتخلي عن القناعات البالية (Cognitive Flexibility & Unlearning) ---
+if (checkMatch([
+    'تخلي_عن_المعرفة', 'الغاء_التعلم', 'مرونة_ادراكية', 'تغيير_القناعات', 'فك_الارتباط_الذهني', 'تبديل_النماذج', 'تحديث_الافكار', 'التحرر_الفكري', 'تعديل_الاراء', 'الهدم_المعرفي_البناء', 'تفكيك_المفاهيم',
+    'unlearning', 'unlearn', 'cognitive_flexibility_shift', 'paradigm_shift', 'cognitive_rewiring_beliefs', 'belief_updating', 'intellectual_adaptability', 'reframing_cognition', 'concept_deconstruction'
+])) {
+    return this.getUnlearningProtocol();
+}
+
+// --- [24] الذاكرة العاملة وإدارة التحميل الذهني المؤقت (Working Memory & Cognitive Load) ---
+if (checkMatch([
+    'ذاكرة_عاملة', 'تحميل_ذهني', 'اجهاد_المعالجة', 'السعة_المؤقتة', 'تخزين_مؤقت', 'مساحة_العمل_الذهنية', 'تحميل_معرفي_زائد', 'معالجة_البيانات_اللحظية', 'تشتت_الذاكرة_العاملة', 'ذاكرة_مؤقتة',
+    'working_memory_capacity', 'cognitive_load_theory', 'mental_buffer', 'short_term_buffer', 'cognitive_overload_prevention', 'working_memory_drills', 'mental_bandwidth', 'information_holding'
+])) {
+    return this.getWorkingMemoryOptimizer();
+}
+
+// --- [25] التفكير التجريدي والمنطق الرياضي غير المادي (Abstract Thinking & Symbolic Reasoning) ---
+if (checkMatch([
+    'تفكير_تجريدي', 'تجريد', 'منطق_رياضي', 'مفاهيم_لامادية', 'تفكير_رمزي', 'بناء_الافتراضات', 'تجريد_الافكار', 'المنطق_المجرد', 'فلسفة_الرموز', 'تفكير_لا_مادي', 'التخيل_الرمزي',
+    'abstract_thinking', 'abstraction', 'mathematical_logic', 'symbolic_reasoning', 'conceptual_thinking', 'non_concrete_logic', 'theoretical_reasoning', 'formal_logic', 'hypothetical_thinking'
+])) {
+    return this.getAbstractThinkingSandbox();
+}
+
+// --- [26] اليقظة الإدراكية ورصد الأوهام الحسية (Perceptual Vigilance & Illusion Shattering) ---
+if (checkMatch([
+    'يقظة_ادراكية', 'خداع_بصري', 'خداع_عقلي', 'أوهام_الحواس', 'وعي_حسي', 'رصد_الاوهام', 'يقظه_ادراكيه', 'انحياز_الادراك', 'الوعي_البيئي', 'فحص_المدخلات_الحسية', 'اوهام_العقل', 'حقيقة_الادراك',
+    'perceptual_vigilance', 'cognitive_illusion', 'optical_illusion_detection', 'sensory_awareness', 'perception_bias', 'illusion_shattering', 'perceptual_acuity', 'sensory_discernment', 'reality_testing'
+])) {
+    return this.getPerceptualVigilanceMetrics();
+}
+
+// --- [27] هندسة المحادثة والمنطق الحواري السقراطي (Conversational Logic & Dialectics) ---
+if (checkMatch([
+    'منطق_حواري', 'جدلية', 'هندسة_المحادثة', 'حوار_منطقي', 'اقناع', 'تفكير_حججي', 'مناظرة_ذهنية', 'المنهج_السقراطي', 'بناء_الحجج', 'تفكيك_النقاش', 'بلاغة_ذهنية', 'دحض_الحجج',
+    'dialectics', 'conversational_logic', 'argumentation_theory', 'rhetoric_cognition', 'persuasive_logic', 'socratic_dialogue', 'debate_intelligence', 'discourse_analysis', 'argument_mapping'
+])) {
+    return this.getConversationalLogicProtocol();
+}
+// =====================================================================================
+// الدفعة الثالثة: أنظمة المعالجة والطاقة الذهنية — COGNITIVE ENERGETICS (BATCH 3/10)
+// =====================================================================================
+
+// --- [28] التحمل المعرفي المستدام وعتبة الإجهاد (Cognitive Endurance & Fatigue Threshold) ---
+if (checkMatch([
+    'تحمل_ذهني', 'عتبة_الإجهاد', 'لياقة_الدماغ', 'استدامة_التركيز', 'تعب_عقلي', 'اجهاد_الدماغ', 'طاقة_المعالجة', 'صمود_معرفي', 'مقاومة_التعب', 'مجهود_فكري_طويل', 'لياقه_الدماغ', 'اجهاد_ذهني',
+    'cognitive_endurance', 'mental_stamina', 'fatigue_threshold', 'brain_fitness', 'sustained_attention', 'mental_exhaustion', 'cognitive_stamina', 'brain_endurance', 'intellectual_fatigue'
+])) {
+    return this.getCognitiveEnduranceProtocol();
+}
+
+// --- [29] التعرف على الأنماط والاستدلال الاستقرائي (Pattern Recognition & Inductive Reasoning) ---
+if (checkMatch([
+    'التعرف_على_الأنماط', 'نمط', 'أنماط', 'استقراء', 'استدلال_استقرائي', 'ربط_الاحداث', 'مهارة_الربط', 'كشف_التكرار', 'استكشاف_الأنماط', 'انماط', 'فك_الشفيرة_السلوكية', 'رصد_التكرار',
+    'pattern_recognition', 'inductive_reasoning', 'pattern_matching', 'trend_analysis', 'sequence_detection', 'inductive_logic', 'pattern_discernment', 'behavioral_patterns', 'clue_linking'
+])) {
+    return this.getPatternRecognitionMetrics();
+}
+
+// --- [30] الارتجاع العصبي وتحسين موجات الدماغ (Neurofeedback & Brainwave Optimization) ---
+if (checkMatch([
+    'ارتجاع_عصبي', 'موجات_الدماغ', 'الفا', 'بيتا', 'ثيتا', 'تحفيز_الدماغ', 'ترددات_موجات_الدماغ', 'تنظيم_عصبي', 'ترددات_العقل', 'موجات_ألفا', 'رسم_المخ_البرمجي', 'تحسين_موجات_العقل',
+    'neurofeedback', 'brainwaves', 'alpha_waves', 'beta_waves', 'theta_waves', 'eeg_training', 'brainwave_entrainment', 'neuroregulation', 'gamma_waves', 'brain_frequency_tuning'
+])) {
+    return this.getBrainwaveOptimizationSandbox();
+}
+
+// --- [31] التخيل الصوري والمحاكاة الذهنية للمواقف (Creative Visualization & Mental Simulation) ---
+if (checkMatch([
+    'تخيل_صوري', 'محاكاة_ذهنية', 'رؤية_عقلية', 'تجسيد_الافكار', 'تخيل_ابداعي', 'عين_العقل', 'محاكاة_المواقف', 'سيناريو_ذهني', 'رسم_ذهني', 'التخيل_الموجه', 'توقع_بصري_عقلي',
+    'visualization', 'mental_simulation', 'mind_eye', 'creative_imagery', 'guided_imagery', 'mental_rehearsal', 'scenario_planning', 'cognitive_mapping_vis', 'internal_theater'
+])) {
+    return this.getMentalSimulationBlueprint();
+}
+
+// =====================================================================================
+// الدفعة الثالثة: أنظمة المعالجة والطاقة الذهنية — COGNITIVE ENERGETICS (BATCH 3/10)
+// =====================================================================================
+
+// --- [28] التحمل المعرفي المستدام وعتبة الإجهاد (Cognitive Endurance & Fatigue Threshold) ---
+if (checkMatch([
+    'تحمل_ذهني', 'عتبة_الإجهاد', 'لياقة_الدماغ', 'استدامة_التركيز', 'تعب_عقلي', 'اجهاد_الدماغ', 'طاقة_المعالجة', 'صمود_معرفي', 'مقاومة_التعب', 'مجهود_فكري_طويل', 'لياقه_الدماغ', 'اجهاد_ذهني',
+    'cognitive_endurance', 'mental_stamina', 'fatigue_threshold', 'brain_fitness', 'sustained_attention', 'mental_exhaustion', 'cognitive_stamina', 'brain_endurance', 'intellectual_fatigue'
+])) {
+    return this.getCognitiveEnduranceProtocol();
+}
+
+// --- [29] التعرف على الأنماط والاستدلال الاستقرائي (Pattern Recognition & Inductive Reasoning) ---
+if (checkMatch([
+    'التعرف_على_الأنماط', 'نمط', 'أنماط', 'استقراء', 'استدلال_استقرائي', 'ربط_الاحداث', 'مهارة_الربط', 'كشف_التكرار', 'استكشاف_الأنماط', 'انماط', 'فك_الشفيرة_السلوكية', 'رصد_التكرار',
+    'pattern_recognition', 'inductive_reasoning', 'pattern_matching', 'trend_analysis', 'sequence_detection', 'inductive_logic', 'pattern_discernment', 'behavioral_patterns', 'clue_linking'
+])) {
+    return this.getPatternRecognitionMetrics();
+}
+
+// --- [30] الارتجاع العصبي وتحسين موجات الدماغ (Neurofeedback & Brainwave Optimization) ---
+if (checkMatch([
+    'ارتجاع_عصبي', 'موجات_الدماغ', 'الفا', 'بيتا', 'ثيتا', 'تحفيز_الدماغ', 'ترددات_موجات_الدماغ', 'تنظيم_عصبي', 'ترددات_العقل', 'موجات_ألفا', 'رسم_المخ_البرمجي', 'تحسين_موجات_العقل',
+    'neurofeedback', 'brainwaves', 'alpha_waves', 'beta_waves', 'theta_waves', 'eeg_training', 'brainwave_entrainment', 'neuroregulation', 'gamma_waves', 'brain_frequency_tuning'
+])) {
+    return this.getBrainwaveOptimizationSandbox();
+}
+
+// --- [31] التخيل الصوري والمحاكاة الذهنية للمواقف (Creative Visualization & Mental Simulation) ---
+if (checkMatch([
+    'تخيل_صوري', 'محاكاة_ذهنية', 'رؤية_عقلية', 'تجسيد_الافكار', 'تخيل_ابداعي', 'عين_العقل', 'محاكاة_المواقف', 'سيناريو_ذهني', 'رسم_ذهني', 'التخيل_الموجه', 'توقع_بصري_عقلي',
+    'visualization', 'mental_simulation', 'mind_eye', 'creative_imagery', 'guided_imagery', 'mental_rehearsal', 'scenario_planning', 'cognitive_mapping_vis', 'internal_theater'
+])) {
+    return this.getMentalSimulationBlueprint();
+}
+
+// --- [32] الذكاء اللغوي والتركيب الدلالي المعقد (Linguistic Intelligence & Semantic Processing) ---
+if (checkMatch([
+    'ذكاء_لغوي', 'مرونة_لغوية', 'تعلم_اللغات', 'تركيب_دلالي', 'بلاغة_الفاظ', 'استيعاب_لغوي', 'اللغويات', 'صياغة_المفاهيم', 'ثروة_لفظية', 'فصاحة_ذهنية', 'ذكاء_لفظي',
+    'linguistic_intelligence', 'polyglotism', 'language_acquisition', 'semantic_processing', 'verbal_fluency', 'philology', 'linguistic_flexibility', 'vocabulary_span', 'syntax_cognition'
+])) {
+    return this.getLinguisticIntelligenceMatrix();
+}
+
+// --- [33] فلترة المعلومات وهندسة الانتباه الانتقائي (Information Filtering & Selective Attention) ---
+if (checkMatch([
+    'فلترة_المعلومات', 'تصفية_الضجيج', 'غربلة_المعرفة', 'هندسة_الانتباه', 'تقليل_المدخلات', 'حمية_المعلومات', 'انتقاء_البيانات', 'انتباه_انتقائي', 'تقليص_الازدحام_المعرفي', 'فلتر_العقل',
+    'information_filtering', 'signal_to_noise', 'attention_engineering', 'information_diet', 'data_curation', 'cognitive_clutter_relief', 'selective_attention', 'noise_reduction_mind'
+])) {
+    return this.getInformationFilteringSystem();
+}
+
+// --- [34] الذكاء الحدسي ومعالجة العقل الباطن (Intuitive Intelligence & Subconscious Processing) ---
+if (checkMatch([
+    'حدس', 'ذكاء_لاواعي', 'عقل_باطن', 'تفكير_تلقائي', 'حدس_عقلي', 'الالهام', 'شعور_داخلي', 'معالجة_خفية', 'ذكاء_حدسي', 'العقل_اللاواعي', 'ادراك_خفي', 'الهام_مفاجئ',
+    'intuition_optimization', 'subconscious_processing', 'gut_feeling', 'implicit_learning', 'unconscious_cognition', 'intuitive_insight', 'heuristics_intuition', 'subconscious_drift'
+])) {
+    return this.getIntuitiveIntelligenceProtocol();
+}
+
+// --- [35] الاستدلال بالقياس والتفكير التماثلي (Analogical Reasoning & Metaphorical Thinking) ---
+if (checkMatch([
+    'استدلال_بالقياس', 'تفكير_تماثلي', 'مجاز', 'استعارة_مفاهيمية', 'ربط_المفاهيم_المتباعدة', 'القياس_المنطقي', 'تفكير_مجازي', 'اسقاط_المفاهيم', 'تشابه_بنيوي', 'مقاربة_منطقية',
+    'analogical_reasoning', 'metaphorical_thinking', 'analogy_mapping', 'conceptual_blending', 'metaphor_cognition', 'structural_alignment_mind', 'comparative_logic'
+])) {
+    return this.getAnalogicalReasoningSandbox();
+}
+
+// --- [36] الذكاء الكمي والحس العددي الفائق (Quantitative Cognition & Numerical Literacy) ---
+if (checkMatch([
+    'ذكاء_كمي', 'حس_عددي', 'تفكير_رياضياتي', 'تحليل_بيانات_رقمية', 'ارقام_واحصاء', 'عقلية_رقمية', 'منطق_رقمي', 'الحس_العددي', 'التحليل_الكمي_الذهني', 'رياضيات_ذهنية',
+    'quantitative_cognition', 'numerical_literacy', 'innumeracy_cure', 'mathematical_fluency', 'statistical_thinking', 'number_sense', 'quantitative_reasoning', 'mental_math_skills'
+])) {
+    return this.getQuantitativeCognitionMetrics();
+}
+
+// --- [37] البيئة المعرفية وتقنين التشتت الرقمي (Cognitive Ergonomics & Digital Detox) ---
+if (checkMatch([
+    'بيئة_معرفية', 'تشتت_رقمي', 'ديتوكس_رقمي', 'سموم_التكنولوجيا', 'هندسة_بيئة_العمل', 'راحة_العقل', 'صيام_الدوپامين', 'صيام_الدوبامين', 'تقنين_الشاشات', 'حماية_الانتباه_الرقمي',
+    'cognitive_ergonomics', 'digital_detox', 'dopamine_fasting', 'technological_distraction', 'mindful_tech', 'attention_economy_shield', 'digital_overload_fix', 'cyber_serenity'
+])) {
+    return this.getCognitiveErgonomicsMatrix();
+}
+
+// --- استجابة النظام الافتراضية في حال عدم المطابقة ---
+return `عذراً يا <b>${this.userName || 'المفكر'}</b>، لم يتم رصد الكلمات المفتاحية في مصفوفة الإدخال. يرجى استخدام مصطلحات الأقسام العقلية بوضوح (نصائح التطوير، تقييم الوضع، المرونة العصبية، المهام اليومية، زنازين المنطق، الصفاء الروحي، لوحة الإحصائيات).`;},
+            
+
+
+
+addMessage(text, sender, isRealAI = false, appendMenu = false) {
+                const screen = document.getElementById('chatScreen'); if (!screen) return;
+                const div = document.createElement('div');
+                div.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'} message-enter mb-3 w-full`;
+                if (sender === 'user') {
+                    div.innerHTML = `<div class="bg-slate-800 text-white px-4 py-2 rounded-lg max-w-[85%] text-sm border border-slate-700 shadow-md break-words">${this.escapeHtml(text)}</div>`;
+                } else {
+                    const finalHtml = appendMenu ? text : text;
+                    div.innerHTML = `
+                        <div class="flex gap-3 max-w-[95%]">
+                            <div class="w-8 h-8 mt-1 rounded-full bg-[var(--sys-cyan)]/20 border border-[var(--sys-cyan)] flex items-center justify-center flex-shrink-0 text-sm shadow-[0_0_10px_rgba(0,240,255,0.2)]">🤖</div>
+                            <div class="bg-slate-900/90 text-slate-200 px-4 py-3 rounded-lg text-sm border border-[var(--sys-cyan)]/40 shadow-[0_0_15px_rgba(0,240,255,0.08)] leading-relaxed font-medium tracking-wide">
+                                ${finalHtml}
+                            </div>
+                        </div>`;
+                }
+                screen.appendChild(div); screen.scrollTo({ top: screen.scrollHeight, behavior: 'smooth' });
+            },
+            showTyping() {
+                const screen = document.getElementById('chatScreen'); if (!screen) return;
+                const typingDiv = document.createElement('div'); typingDiv.id = 'typing-indicator'; typingDiv.className = 'flex gap-3 message-enter mb-3 w-full';
+                typingDiv.innerHTML = `
+                    <div class="w-8 h-8 rounded-full bg-[var(--sys-cyan)]/20 border border-[var(--sys-cyan)] flex items-center justify-center flex-shrink-0 text-sm">🤖</div>
+                    <div class="bg-slate-900/80 px-4 py-3 rounded-lg border border-[var(--sys-cyan)]/30">
+                        <div class="typing-indicator"><span></span><span></span><span></span></div>
+                    </div>`;
+                screen.appendChild(typingDiv); screen.scrollTo({ top: screen.scrollHeight, behavior: 'smooth' });
+            },
+            hideTyping() { const indicator = document.getElementById('typing-indicator'); if (indicator) indicator.remove(); },
+            escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; },
+            parseTimeStr(str) {
+                if(!str) return 0;
+                const parts = str.split(':');
+                return parseInt(parts[0]) + (parseInt(parts[1]) / 60);
+            },
+            getCurrentBlockAnalysis(ctx) {
+                if (typeof PROGRAM_DATA === 'undefined') return '<b>[ERROR]</b> قاعدة البيانات التشغيلية غير متوفرة.';
+                const prog = PROGRAM_DATA[ProgramManager.activeProgramId];
+                if (!prog) return '<b>[ERROR]</b> تفاصيل بروتوكول الأسبوع الحالي غير متوفرة.';
+                let blocks = [];
+                const day = ctx.dayIndex;
+                const currentTime = Utils.getCurrentDecimalTime();
+                if (prog.special && prog.special[day]) {
+                    blocks = prog.special[day].blocks.map(b => ({
+                        start: this.parseTimeStr(b.time.split('-')[0]),
+                        end: this.parseTimeStr(b.time.split('-')[1]),
+                        title: b.title, desc: b.desc, timeStr: b.time
+                    }));
+                } else if (prog.schedule) {
+                    blocks = prog.schedule.map(s => ({
+                        start: s.start, end: s.end, title: s.title, desc: s.desc,
+                        timeStr: `${Utils.formatDecimalTime(s.start)} - ${Utils.formatDecimalTime(s.end)}`
+                    }));
+                }
+                for (let block of blocks) {
+                    if (currentTime >= block.start && currentTime < block.end) {
+                        return `<b>[الكتلة النشطة الحالية — يوم ${ctx.dayName}]</b><br><br><span class="text-[var(--sys-cyan)] font-bold text-lg">${block.title}</span><br><p class="mt-2 text-slate-300">${block.desc}</p><br><span class="text-emerald-400 text-[11px] sys-font">النطاق الزمني للكتلة: ${block.timeStr}</span><br><br><b>توجيه النواة الفوري:</b> امنع أي تسريب في التركيز، وافصل عقلك تماماً عن المشتتات المحيطة.`;
+                    }
+                }
+                return `<b>[حالة ترقب — لا توجد كتلة نشطة حالياً]</b><br><br>قم بمراجعة جدولك العام، أو ابدأ فترة استشفاء سريعة تجهيزاً لكتلة البناء التالية.`;
+            },
+            getDevelopmentAdvice(level, programId) {
+                let advice = `<b>[توجيه التطوير الاستراتيجي المتزامن للمستوى]</b><br><br>`;
+                if (level < 450) {
+                    advice += `• <b>البروتوكول النشط:</b> بروتوكول التأسيس والانضباط التام (Week 1).<br>• <b>التوجيه السيادي:</b> ركز بكامل قوتك التشغيلية على الانضباط والأساسيات البرمجية والبدنية دون تشتيت.`;
+                } else if (level >= 450 && level < 600) {
+                    advice += `• <b>البروتوكول النشط:</b> المطور السيادي المتكامل (Week 2).<br>• <b>التوجيه السيادي:</b> تركيزك الكلي يجب أن يوجه نحو تطبيقات الويب المتقدمة والربط بقواعد البيانات وشطرنج الـ AI Agents.`;
+                } else {
+                    advice += `• <b>البروتوكول النشط:</b> مستوى السيادة المتقدمة (Week 3-5).<br>• <b>التوجيه السيادي:</b> الحفاظ التام على الهيمنة المطلقة ومتابعة تدفق الإنتاجية العالية وإطلاق كامل طاقتك الكامنة.`;
+                }
+                return advice;
+            },
+            getStatusEvaluation(ctx) {
+                const stats = (ctx && ctx.stats) || { str: 10, vit: 10, agi: 10, int: 10, sen: 10 };
+                return `<b>[مصفوفة السمات الحالية وتوجيهات القوة]</b><br><br>• <b>القوة (STR) [${stats.str}]:</b> تتقدم بثبات، استمر في الـ Calisthenics وتمارين الـ PPL.<br>• <b>الحيوية (VIT) [${stats.vit}]:</b> العمود الفقري لقدرة التحمل والجري.<br>• <b>الرشاقة (AGI) [${stats.agi}]:</b> جوهر ركلات الـ Muay Thai والإفلات الأرضي.<br>• <b>الذكاء (INT) [${stats.int}]:</b> وقود التحكم البرمجي ودراستك العلمية الأكاديمية.<br>• <b>الإدراك (SEN) [${stats.sen}]:</b> يزداد رسوخاً بالدراسة الشرعية والالتزام بالصلاة والقرآن.`;
+            },
+            getSpiritualAdvice(level) {
+                return `<b>[المدد الروحي والدراسة الشرعية الراسخة]</b><br><br>• <b>التأصيل المعرفي:</b> خصص وقتاً يومياً راسخاً لطلب العلم الشرعي وحفظ القرآن الكريم.<br>• <b>الورد والذكر:</b> اجعل لك حصناً يومياً لا تنازل عنه من قراءة كتاب الله بتدبر وحفظ.<br>• <b>الصلوات:</b> المقياس الحقيقي لالتزام عاهل الظلال هو المحافظة التامة والقطعية على الصلوات الخمس في وقتها.`;
+            },
+            getWolffLawExplanation() {
+                return `<b>[قانون وولف لتكيف وتصلب العظام — WOLFF'S LAW]</b><br><br>• <b>الفسيولوجيا:</b> العظام الحية تتكيف وتنمو وتزداد كثافتها بشكل مباشر استجابة للأحمال والضغوط الميكانيكية التي تقع عليها.<br>• <b>التطبيق في الـ Muay Thai:</b> ركل الأكياس الثقيلة يصنع تمزقات ميكروسكوبية في قصبة الساق، محولاً إياها لأدوات فولاذية.<br>• <b>فلسفة عاهل الظلال:</b> الضغط والشدائد هما ما يصنعان الهيمنة المطلقة! عقلك ومهاراتك البرمجية تحتاج لمواجهة الصعاب لتكتسب قوة حقيقية.`;
+            }
+        };
+
+        const Toast = {
+            show(message, type = 'info') {
+                alert(`[${type.toUpperCase()}] ${message}`);
+            }
+        };
+
+        const SoundEffects = {
+            track1: new Audio('SHADOWBORN.mp3'), track2: new Audio('Kingdom_of_Iron.mp3'),
+            currentTrackNumber: null, isMusicPlaying: false,
+            init() { this.track1.loop = true; this.track2.loop = true; },
+            toggleMusic(trackNumber) {
+                const icon1 = document.getElementById('musicIcon1'); const icon2 = document.getElementById('musicIcon2');
+                if (this.isMusicPlaying && this.currentTrackNumber === trackNumber) { this.stopAllAudio(); return; }
+                if (this.isMusicPlaying) this.stopAllAudio();
+                this.isMusicPlaying = true; this.currentTrackNumber = trackNumber;
+                if (trackNumber === 1) {
+                    this.track1.play().catch(e => console.log(e));
+                    if (icon1) icon1.textContent = '⏸️'; if (icon2) icon2.textContent = '🎼';
+                } else if (trackNumber === 2) {
+                    this.track2.play().catch(e => console.log(e));
+                    if (icon1) icon1.textContent = '🎵'; if (icon2) icon2.textContent = '⏸️';
+                }
+            },
+            stopAllAudio() {
+                this.track1.pause(); this.track1.currentTime = 0; this.track2.pause(); this.track2.currentTime = 0;
+                const icon1 = document.getElementById('musicIcon1'); const icon2 = document.getElementById('musicIcon2');
+                if (icon1) icon1.textContent = '🎵'; if (icon2) icon2.textContent = '🎼';
+                this.isMusicPlaying = false; this.currentTrackNumber = null;
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            Utils.verifyDayConsistency();
+            PlayerSync.init();
+            ProgramManager.init();
+            AIConnection.init();
+            SovereignAI.init();
+            SoundEffects.init();
+            
+            setInterval(() => {
+                ProgramManager.renderCurrentBlock();
+            }, 60000);
+        });
+    </script>
+    <script>
+        const savedAura = localStorage.getItem('sovereign_aura_color');
+        if(savedAura) {
+            document.documentElement.style.setProperty('--sys-cyan', savedAura);
+            document.documentElement.style.setProperty('--sys-cyan-glow', savedAura + '99');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1675 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tower of Hanoi | Sovereign System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'sys-dark': '#000000',
+                        'sys-cyan': '#00f0ff',
+                        'sys-purple': '#b026ff',
+                        'sys-white': '#ffffff',
+                        'sys-green': '#10b981',
+                        'sys-rose': '#e11d48',
+                        'sys-gold': '#ffd700',
+                        'rank-b': '#b026ff',
+                    },
+                    fontFamily: {
+                        'cairo': ['Cairo', 'sans-serif'],
+                        'orbitron': ['Orbitron', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --sys-cyan: #00f0ff;
+            --sys-purple: #b026ff;
+            --rank-b: #b026ff;
+            --sys-gold: #ffd700;
+            --sys-green: #10b981;
+            --sys-rose: #e11d48;
+        }
+
+        * { scrollbar-width: thin; scrollbar-color: var(--rank-b) #000000; }
+        *::-webkit-scrollbar { width: 6px; }
+        *::-webkit-scrollbar-track { background: #000000; }
+        *::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--rank-b), var(--sys-purple)); border-radius: 3px; }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--sys-bg-dark);
+            color: #e2e8f0;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .bg-grid-pattern {
+                    }
+
+        .scanline {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent 50%, rgba(255, 255, 255, 0.02) 50%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.5;
+        }
+
+        .neon-border-b {
+            border: 1px solid rgba(176, 38, 255, 0.2);
+            box-shadow: 0 0 20px rgba(176, 38, 255, 0.06), inset 0 0 20px rgba(176, 38, 255, 0.03);
+            transition: all 0.3s ease;
+        }
+        .neon-border-b:hover {
+            border-color: rgba(176, 38, 255, 0.6);
+            box-shadow: 0 0 30px rgba(176, 38, 255, 0.2), 0 0 60px rgba(176, 38, 255, 0.08), inset 0 0 30px rgba(176, 38, 255, 0.1);
+        }
+
+        .sys-btn {
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .sys-btn::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+        .sys-btn:hover::after { left: 100%; }
+
+        .glitch-text {
+            position: relative;
+            animation: glitch 3s infinite;
+        }
+        @keyframes glitch {
+            0%, 100% { text-shadow: 0 0 10px var(--rank-b), 0 0 20px var(--rank-b); }
+            50% { text-shadow: 0 0 20px var(--sys-purple), 0 0 40px var(--sys-purple), -2px 0 var(--rank-b), 2px 0 var(--sys-purple); }
+        }
+
+        .particle-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .phase-transition {
+            animation: phaseIn 0.5s ease-out;
+        }
+        @keyframes phaseIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Tower of Hanoi Specific */
+        .tower-container {
+            position: relative;
+            min-height: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding-bottom: 20px;
+        }
+
+        .tower-rod {
+            width: 8px;
+            height: 200px;
+            background: linear-gradient(to top, rgba(176, 38, 255, 0.3), rgba(176, 38, 255, 0.1));
+            border-radius: 4px;
+            position: absolute;
+            bottom: 40px;
+            box-shadow: 0 0 15px rgba(176, 38, 255, 0.2);
+            z-index: 1;
+        }
+
+        .tower-base {
+            width: 100%;
+            height: 12px;
+            background: linear-gradient(90deg, rgba(176, 38, 255, 0.4), rgba(0, 240, 255, 0.2), rgba(176, 38, 255, 0.4));
+            border-radius: 6px;
+            position: absolute;
+            bottom: 30px;
+            box-shadow: 0 0 20px rgba(176, 38, 255, 0.15);
+            z-index: 1;
+        }
+
+        .disk {
+            height: 28px;
+            border-radius: 14px;
+            position: relative;
+            z-index: 2;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            margin-bottom: 2px;
+        }
+        .disk:hover {
+            filter: brightness(1.3);
+            transform: scale(1.02);
+        }
+        .disk.selected {
+            box-shadow: 0 0 25px var(--sys-cyan), 0 0 50px var(--sys-cyan);
+            border-color: var(--sys-cyan);
+            transform: translateY(-10px);
+            filter: brightness(1.4);
+        }
+
+        .disk-1 { width: 60px; background: linear-gradient(90deg, #00f0ff, #00d4ff); color: #000; }
+        .disk-2 { width: 90px; background: linear-gradient(90deg, #00d4ff, #0099ff); color: #fff; }
+        .disk-3 { width: 120px; background: linear-gradient(90deg, #0099ff, #b026ff); color: #fff; }
+        .disk-4 { width: 150px; background: linear-gradient(90deg, #b026ff, #ff00ff); color: #fff; }
+        .disk-5 { width: 180px; background: linear-gradient(90deg, #ff00ff, #ff0066); color: #fff; }
+
+        .tower-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            min-height: 280px;
+            position: relative;
+            border-radius: 16px;
+            border: 1px solid rgba(176, 38, 255, 0.1);
+            background: rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .tower-area:hover {
+            border-color: rgba(176, 38, 255, 0.3);
+            background: rgba(176, 38, 255, 0.03);
+        }
+        .tower-area.valid-target {
+            border-color: var(--sys-green);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.15), inset 0 0 20px rgba(16, 185, 129, 0.05);
+        }
+        .tower-area.invalid-target {
+            border-color: var(--sys-rose);
+            box-shadow: 0 0 20px rgba(225, 29, 72, 0.15), inset 0 0 20px rgba(225, 29, 72, 0.05);
+        }
+
+        .level-badge {
+            font-family: 'Orbitron', sans-serif;
+            clip-path: polygon(10% 0, 100% 0, 100% 100%, 0 100%, 0 30%);
+        }
+
+        .stat-glow {
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        .xp-bar-fill {
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px var(--rank-b), 0 0 20px var(--rank-b);
+        }
+
+        .move-counter {
+            font-family: 'Orbitron', monospace;
+        }
+
+        @keyframes diskAppear {
+            from { opacity: 0; transform: translateY(-20px) scale(0.8); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .disk-appear {
+            animation: diskAppear 0.3s ease-out;
+        }
+        /* ==========================================
+   SOVEREIGN VIDEO BACKGROUND SYSTEM
+   ========================================== */
+.sovereign-video-bg-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2; /* ليكون خلف جزيئات الـ Canvas وخلف كل محتوى المتجر */
+    overflow: hidden;
+    background-color: #000000; /* خلفية احتياطية سوداء في حال تأخر تحميل الفيديو */
+}
+
+.sovereign-video-element {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+    
+     /* ميزة التضبيب المطلوبة (مضببة قليلاً فقط لتمنح عمقاً بصرياً فخماً) */
+    filter: blur(0.1px) brightness(1); 
+    
+    /* نسبة شفافية متوازنة لكي لا تؤثر الحركة على تركيزك أثناء قراءة الألقاب والمخططات */
+    opacity: 1; 
+    transition: opacity 1s ease-in-out;
+}
+
+.sovereign-video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* تدرج ظلي يسحب الضوء نحو الأطراف ليعطي تأثير بوابات الزنازين Dark Rpg */
+    background: radial-gradient(circle, transparent 30%, rgba(0, 0, 0, 0.85) 100%);
+    pointer-events: none;
+}
+    </style>
+<base target="_blank">
+    <link rel="stylesheet" href="index11.css">
+    <script src="monarch-core.js"></script>
+</head>
+<body class="relative">
+<div class="sov-secondary-bg" aria-hidden="true"></div>
+    <canvas id="particles" class="particle-canvas"></canvas>
+    <div class="scanline"></div>
+<div class="fixed top-6 left-6 z-50 flex gap-4 items-center color: #dedede; /* لون أرجواني سيادي */
+    text-shadow: 0 0 8px rgb(133, 133, 133);
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-left: 10px;
+    padding: 3px 10px;
+    
+
+    
+    letter-spacing: 1px;">
+    <button onclick="SoundEffects.toggleMusic(1)" class="w-10 h-10 flex items-center justify-center bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-[var(--sys-cyan)] rounded-full transition-all shadow-[0_0_10px_rgba(0,0,0,0.5)]">
+        <span id="musicIcon1" class="text-lg animate-pulse">🎵</span>
+    </button>
+    <button onclick="SoundEffects.toggleMusic(2)" class="w-10 h-10 flex items-center justify-center bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-[var(--sys-cyan)] rounded-full transition-all shadow-[0_0_10px_rgba(0,0,0,0.5)]">
+        <span id="musicIcon2" class="text-lg animate-pulse">🎼</span>
+    </button>
+    <a href="https://aissaouimohamad62-glitch.github.io/proto/" target="_blank" class="px-4 py-2 bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-white text-xs font-black uppercase tracking-widest rounded flex items-center gap-2 shadow-[0_0_10px_rgba(0,0,0,0.5)] transition-all">
+        <span>𝐏𝐎𝐑𝐓𝐅𝐎𝐋𝐈𝐎</span> <span class="text-[var(--sys-cyan)]">📍</span>
+    </a>
+    <a href="https://aissaouimohamad62-glitch.github.io/booksoverhaul.dz/" target="_blank" class="px-4 py-2 bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-white text-xs font-black uppercase tracking-widest rounded flex items-center gap-2 shadow-[0_0_10px_rgba(0,0,0,0.5)] transition-all">
+        <span>𝐋𝐈𝐁𝐑𝐀𝐑𝐘</span> <span class="text-[var(--sys-cyan)]">📒</span>
+    </a>
+    
+</div>
+    <!-- Header -->
+    <header class="relative z-10 max-w-7xl mx-auto mb-6 p-4">
+        <div class="bg-black/80 backdrop-blur-xl border border-white/10 rounded-xl p-4 flex flex-wrap justify-between items-center gap-4 neon-border-b">
+            <div class="flex items-center gap-4">
+                <button onclick="window.location.href='dungeons.html'" class="sys-btn text-xs bg-black/80 px-4 py-2 border border-white/20 hover:border-rank-b hover:text-rank-b transition rounded-lg flex items-center gap-2 text-white/70">
+                    <span>↩</span> <span>العودة للزنازين</span>
+                </button>
+                <div class="flex flex-col">
+                    <span class="font-orbitron text-[10px] text-white/30 tracking-[0.3em] uppercase">Sovereign System</span>
+                    <h1 class="font-orbitron text-xl font-black tracking-widest text-rank-b uppercase glitch-text">🏗️ TOWER OF HANOI</h1>
+                </div>
+            </div>
+            <nav class="flex flex-wrap gap-2 justify-center md:justify-start">
+            <a href="index11.html" class="px-4 py-2 text-xs font-mono sovereign-panel rounded hover:bg-[var(--sys-cyan)] hover:text-black transition duration-300 text-slate-300">
+                🏠 DASHBOARD
+            </a>
+            <a href="active-quests.html" class="px-4 py-2 text-xs font-mono bg-cyan-950/40 border border-[var(--sys-cyan)] text-[var(--sys-cyan)] rounded font-bold shadow-[0_0_10px_rgba(0,240,255,0.1)]">
+                ⚔️ ACTIVE QUESTS
+            </a>
+            <a href="brain-stats.html" class="px-4 py-2 text-xs font-mono sovereign-panel rounded hover:bg-[var(--sys-cyan)] hover:text-black transition duration-300 text-slate-300">
+                🧠 BRAIN STATS
+            </a>
+            <a href="operational-charter.html" class="px-4 py-2 text-xs font-mono sovereign-panel rounded hover:bg-[var(--sys-cyan)] hover:text-black transition duration-300 text-slate-300">
+                📜 CHARTER
+            </a>
+            <a href="monarch-ai.html" class="px-4 py-2 text-xs font-mono sovereign-panel rounded hover:bg-[var(--sys-cyan)] hover:text-black transition duration-300 text-slate-300">
+                🤖 MONARCH AI
+            </a>
+            <a href="system-logs.html" class="px-4 py-2 text-xs font-mono sovereign-panel rounded hover:bg-[var(--sys-cyan)] hover:text-black transition duration-300 text-slate-300">
+                📊 SYSTEM LOGS
+            </a>
+        </nav>
+
+
+            <div class="flex items-center gap-6 flex-wrap justify-center">
+                <div class="flex flex-col items-center min-w-[80px]">
+                    <span class="font-orbitron text-[10px] text-white/40 tracking-wider uppercase">Level</span>
+                    <span id="currentLevel" class="font-orbitron text-2xl font-bold text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">1</span>
+                </div>
+                <div class="flex flex-col items-center min-w-[100px]">
+                    <span class="font-orbitron text-[10px] text-white/40 tracking-wider uppercase">XP</span>
+                    <div class="flex items-center gap-2">
+                        <span id="currentXP" class="font-orbitron text-lg font-bold text-white/80">0</span>
+                        <span class="text-white/30 text-xs">/</span>
+                        <span id="xpNeeded" class="font-orbitron text-xs text-white/40">100</span>
+                    </div>
+                    <div class="w-20 h-1 bg-white/5 rounded-full overflow-hidden mt-1">
+                        <div id="xpBar" class="h-full bg-rank-b xp-bar-fill rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="flex flex-col items-center min-w-[60px]">
+                    <span class="font-orbitron text-[10px] text-white/40 tracking-wider uppercase">INT</span>
+                    <span id="stat-int" class="font-orbitron text-lg font-bold text-sys-purple drop-shadow-[0_0_8px_rgba(176,38,255,0.4)]">10</span>
+                </div>
+                <div class="flex flex-col items-center min-w-[60px]">
+                    <span class="font-orbitron text-[10px] text-white/40 tracking-wider uppercase">Gold</span>
+                    <span id="stat-gold" class="font-orbitron text-lg font-bold text-sys-gold drop-shadow-[0_0_8px_rgba(255,215,0,0.4)]">0</span>
+                </div>
+                <div class="flex flex-col items-center min-w-[60px]">
+                    <span class="font-orbitron text-[10px] text-white/40 tracking-wider uppercase">Authority</span>
+                    <span id="stat-auth" class="font-orbitron text-lg font-bold text-sys-cyan drop-shadow-[0_0_8px_rgba(0,240,255,0.4)]">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Game Container -->
+    <main class="relative z-10 max-w-5xl mx-auto px-4 pb-10">
+
+        <!-- Phase: Menu -->
+        <div id="phase-menu" class="phase-transition">
+            <div class="text-center mb-8">
+                <div class="font-orbitron text-rank-b tracking-[0.4em] text-xs mb-3">RANK: B — STRATEGIC STRUCTURE</div>
+                <h2 class="font-orbitron text-4xl md:text-5xl font-black text-white mb-4 glitch-text">Tower of Hanoi</h2>
+                <p class="font-cairo text-white/50 text-sm max-w-xl mx-auto leading-relaxed mb-2">
+                    لعبة <span class="text-rank-b">المنطق الكلاسيكية</span>. انقل الأقراص من البرج الأول إلى الثالث بأقل عدد من الحركات.
+                </p>
+                <p class="font-cairo text-white/30 text-xs max-w-lg mx-auto leading-relaxed">
+                    القاعدة: لا يمكن وضع قرص أكبر فوق قرص أصغر. الحد الأدنى للحركات = 2^n - 1.
+                </p>
+            </div>
+
+            <!-- Disk Count Selector -->
+            <div class="bg-black/60 border border-white/10 rounded-2xl p-6 mb-6 max-w-md mx-auto neon-border-b">
+                <div class="font-orbitron text-white/60 text-xs tracking-wider mb-4 text-center">اختر عدد الأقراص</div>
+                <div class="flex justify-center gap-3">
+                    <button onclick="HanoiApp.setDisks(3)" id="btn-d3" class="disk-btn px-6 py-3 bg-black border border-rank-b rounded-xl font-orbitron text-lg font-bold text-rank-b transition shadow-[0_0_15px_rgba(176,38,255,0.2)]">
+                        3
+                    </button>
+                    <button onclick="HanoiApp.setDisks(4)" id="btn-d4" class="disk-btn px-6 py-3 bg-black border border-white/10 rounded-xl font-orbitron text-lg font-bold text-white/50 hover:border-rank-b hover:text-rank-b transition">
+                        4
+                    </button>
+                    <button onclick="HanoiApp.setDisks(5)" id="btn-d5" class="disk-btn px-6 py-3 bg-black border border-white/10 rounded-xl font-orbitron text-lg font-bold text-white/50 hover:border-rank-b hover:text-rank-b transition">
+                        5
+                    </button>
+                </div>
+                <div id="disk-description" class="text-center mt-4 text-xs text-white/40 font-cairo">
+                    7 حركات كحد أدنى — سهل
+                </div>
+            </div>
+
+            <!-- Rewards Preview -->
+            <div class="bg-black/40 border border-white/5 rounded-xl p-4 mb-6 max-w-md mx-auto">
+                <div class="font-orbitron text-[10px] text-white/30 tracking-wider mb-3 text-center">المكافآت المتوقعة عند النصر</div>
+                <div class="flex justify-center gap-6">
+                    <div class="text-center">
+                        <div class="text-rank-b font-orbitron text-lg font-bold stat-glow">+80</div>
+                        <div class="text-[10px] text-white/40 font-orbitron">XP</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-sys-purple font-orbitron text-lg font-bold stat-glow">+2</div>
+                        <div class="text-[10px] text-white/40 font-orbitron">INT</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-sys-gold font-orbitron text-lg font-bold stat-glow">+20</div>
+                        <div class="text-[10px] text-white/40 font-orbitron">GOLD</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button onclick="HanoiApp.startCountdown()" class="sys-btn px-10 py-4 bg-rank-b/10 border border-rank-b/50 text-rank-b hover:bg-rank-b hover:text-white transition rounded-xl text-sm shadow-[0_0_20px_rgba(176,38,255,0.15)]">
+                    ENTER THE STRUCTURE
+                </button>
+            </div>
+        </div>
+
+        <!-- Phase: Countdown -->
+        <div id="phase-countdown" class="hidden text-center py-20">
+            <div class="font-orbitron text-white/30 text-sm tracking-widest mb-8">INITIALIZING LOGIC ENGINE...</div>
+            <div id="countdown-number" class="font-orbitron text-8xl font-black text-rank-b drop-shadow-[0_0_30px_rgba(176,38,255,0.5)]">3</div>
+        </div>
+
+        <!-- Phase: Game -->
+        <div id="phase-game" class="hidden">
+            <!-- Game HUD -->
+            <div class="flex flex-wrap justify-between items-center mb-6 px-2 gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="font-orbitron text-rank-b text-xs tracking-wider">
+                        <span class="text-white/30">DISKS:</span> <span id="game-disks" class="text-rank-b font-bold">3</span>
+                    </div>
+                    <div class="font-orbitron text-white/40 text-xs">
+                        <span class="text-white/30">MIN:</span> <span id="min-moves" class="text-white/60">7</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="move-counter font-orbitron text-white/40 text-xs">
+                        <span class="text-white/30">MOVES:</span> 
+                        <span id="move-count" class="text-white font-bold text-lg">0</span>
+                        <span class="text-white/30">/</span>
+                        <span id="move-limit" class="text-white/40">15</span>
+                    </div>
+                    <button onclick="HanoiApp.giveUp()" class="text-[10px] font-orbitron text-sys-rose/60 hover:text-sys-rose border border-sys-rose/20 hover:border-sys-rose/60 px-3 py-1 rounded transition">
+                        استسلام
+                    </button>
+                </div>
+            </div>
+
+            <!-- Status Message -->
+            <div class="text-center mb-4 h-8">
+                <div id="game-status" class="font-cairo text-sm text-white/40">اختر قرصاً لنقله...</div>
+            </div>
+
+            <!-- Towers -->
+            <div class="flex justify-center gap-2 md:gap-4 mb-8">
+                <div id="tower-0" class="tower-area w-1/3 max-w-[220px] p-2" onclick="HanoiApp.clickTower(0)">
+                    <div class="tower-container w-full">
+                        <div class="tower-rod"></div>
+                        <div class="tower-base"></div>
+                        <div id="disks-0" class="flex flex-col-reverse items-center w-full relative z-10 pb-8"></div>
+                    </div>
+                    <div class="text-center mt-2 font-orbitron text-[10px] text-white/30 tracking-widest">SOURCE</div>
+                </div>
+                <div id="tower-1" class="tower-area w-1/3 max-w-[220px] p-2" onclick="HanoiApp.clickTower(1)">
+                    <div class="tower-container w-full">
+                        <div class="tower-rod"></div>
+                        <div class="tower-base"></div>
+                        <div id="disks-1" class="flex flex-col-reverse items-center w-full relative z-10 pb-8"></div>
+                    </div>
+                    <div class="text-center mt-2 font-orbitron text-[10px] text-white/30 tracking-widest">AUXILIARY</div>
+                </div>
+                <div id="tower-2" class="tower-area w-1/3 max-w-[220px] p-2" onclick="HanoiApp.clickTower(2)">
+                    <div class="tower-container w-full">
+                        <div class="tower-rod"></div>
+                        <div class="tower-base"></div>
+                        <div id="disks-2" class="flex flex-col-reverse items-center w-full relative z-10 pb-8"></div>
+                    </div>
+                    <div class="text-center mt-2 font-orbitron text-[10px] text-white/30 tracking-widest">TARGET</div>
+                </div>
+            </div>
+
+            <!-- Hint -->
+            <div class="text-center">
+                <p class="text-[10px] text-white/20 font-cairo">انقر على البرج لتحديد القرص العلوي، ثم انقر على البرج الهدف للنقل</p>
+            </div>
+        </div>
+
+        <!-- Phase: Results -->
+        <div id="phase-results" class="hidden text-center">
+            <div class="font-orbitron text-rank-b tracking-[0.4em] text-xs mb-4">DUNGEON CLEARED</div>
+            <h2 id="result-title" class="font-orbitron text-3xl font-black text-white mb-2 glitch-text">STRUCTURE CONQUERED</h2>
+            <p id="result-subtitle" class="font-cairo text-white/50 text-sm mb-6">لقد حللت اللغز بكفاءة استراتيجية!</p>
+
+            <!-- Rank Display -->
+            <div class="bg-black/60 border border-white/10 rounded-2xl p-6 max-w-md mx-auto mb-6 neon-border-b">
+                <div class="flex justify-center mb-4">
+                    <div class="level-badge bg-rank-b/20 text-rank-b text-lg px-6 py-2 border border-rank-b/40 shadow-[0_0_15px_rgba(176,38,255,0.3)]">
+                        RANK: B
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-black/40 border border-white/5 rounded-xl p-3">
+                        <div class="font-orbitron text-[10px] text-rank-b mb-1">MOVES USED</div>
+                        <div id="result-moves" class="font-orbitron text-2xl font-bold text-white">7</div>
+                        <div id="result-min" class="text-[10px] text-white/40">min: 7</div>
+                    </div>
+                    <div class="bg-black/40 border border-white/5 rounded-xl p-3">
+                        <div class="font-orbitron text-[10px] text-rank-b mb-1">EFFICIENCY</div>
+                        <div id="result-efficiency" class="font-orbitron text-2xl font-bold text-white">100%</div>
+                        <div id="result-rating" class="text-[10px] text-sys-green">PERFECT</div>
+                    </div>
+                </div>
+
+                <!-- Rewards -->
+                <div class="border-t border-white/5 pt-4">
+                    <div class="font-orbitron text-[10px] text-white/30 tracking-wider mb-3">REWARDS ACQUIRED</div>
+                    <div class="flex justify-center gap-8">
+                        <div class="text-center">
+                            <div id="reward-xp" class="text-rank-b font-orbitron text-2xl font-bold stat-glow">+80</div>
+                            <div class="text-[10px] text-white/40 font-orbitron">XP</div>
+                        </div>
+                        <div class="text-center">
+                            <div id="reward-int" class="text-sys-purple font-orbitron text-2xl font-bold stat-glow">+2</div>
+                            <div class="text-[10px] text-white/40 font-orbitron">INT</div>
+                        </div>
+                        <div class="text-center">
+                            <div id="reward-gold" class="text-sys-gold font-orbitron text-2xl font-bold stat-glow">+20</div>
+                            <div class="text-[10px] text-white/40 font-orbitron">GOLD</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Level Up Notification -->
+            <div id="level-up-banner" class="hidden mb-6">
+                <div class="bg-sys-gold/10 border border-sys-gold/40 rounded-xl p-4 max-w-md mx-auto">
+                    <div class="font-orbitron text-sys-gold text-lg font-bold tracking-wider">⚡ LEVEL UP!</div>
+                    <div class="text-white/60 text-sm font-cairo mt-1">لقد ارتقيت إلى مستوى أعلى! +3 AP متاحة للتوزيع.</div>
+                </div>
+            </div>
+
+            <div class="flex justify-center gap-3">
+                <button onclick="HanoiApp.showMenu()" class="sys-btn px-6 py-3 bg-black border border-white/20 text-white/70 hover:border-rank-b hover:text-rank-b transition rounded-lg text-xs">
+                    تغيير الإعدادات
+                </button>
+                <button onclick="HanoiApp.startCountdown()" class="sys-btn px-6 py-3 bg-rank-b/10 border border-rank-b/50 text-rank-b hover:bg-rank-b hover:text-white transition rounded-lg text-xs shadow-[0_0_15px_rgba(176,38,255,0.15)]">
+                    إعادة المحاولة
+                </button>
+            </div>
+        </div>
+
+        <!-- Phase: Failure -->
+        <div id="phase-failure" class="hidden text-center">
+            <div class="font-orbitron text-sys-rose tracking-[0.4em] text-xs mb-4">DUNGEON FAILED</div>
+            <h2 class="font-orbitron text-3xl font-black text-sys-rose mb-2">STRUCTURE COLLAPSED</h2>
+            <p id="fail-reason" class="font-cairo text-white/50 text-sm mb-6">استنفدت جميع محاولاتك أو استسلمت.</p>
+
+            <div class="bg-black/60 border border-sys-rose/20 rounded-2xl p-6 max-w-md mx-auto mb-6">
+                <div class="font-orbitron text-[10px] text-white/30 tracking-wider mb-3">PARTIAL REWARDS</div>
+                <div class="flex justify-center gap-6">
+                    <div class="text-center">
+                        <div id="fail-xp" class="text-white/60 font-orbitron text-lg font-bold">+10</div>
+                        <div class="text-[10px] text-white/40 font-orbitron">XP</div>
+                    </div>
+                    <div class="text-center">
+                        <div id="fail-gold" class="text-white/60 font-orbitron text-lg font-bold">+5</div>
+                        <div class="text-[10px] text-white/40 font-orbitron">GOLD</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-center gap-3">
+                <button onclick="HanoiApp.showMenu()" class="sys-btn px-6 py-3 bg-black border border-white/20 text-white/70 hover:border-rank-b hover:text-rank-b transition rounded-lg text-xs">
+                    العودة للقائمة
+                </button>
+                <button onclick="HanoiApp.startCountdown()" class="sys-btn px-6 py-3 bg-sys-rose/10 border border-sys-rose/50 text-sys-rose hover:bg-sys-rose hover:text-white transition rounded-lg text-xs shadow-[0_0_15px_rgba(225,29,72,0.15)]">
+                    إعادة المحاولة
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+<script>
+// ==========================================
+// PARTICLE SYSTEM
+// ==========================================
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+class Particle {
+    constructor() {
+        this.reset();
+    }
+    reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 0.5;
+        this.speedX = (Math.random() - 0.5) * 0.3;
+        this.speedY = (Math.random() - 0.5) * 0.3;
+        this.opacity = Math.random() * 0.5 + 0.1;
+        this.color = Math.random() > 0.6 ? '176, 38, 255' : (Math.random() > 0.5 ? '0, 240, 255' : '255, 255, 255');
+    }
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.reset();
+    }
+    draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`;
+        ctx.fill();
+    }
+}
+
+for (let i = 0; i < 60; i++) particles.push(new Particle());
+
+function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+// ==========================================
+// PLAYER STATE (RPG SYSTEM)
+// ==========================================
+const PlayerState = {
+    data: {
+        level: 1,
+        xp: 0,
+        ap: 0,
+        stats: { str: 10, agi: 10, vit: 10, int: 10, sen: 10 },
+        gold: 0,
+        authority: 0,
+        clearedDungeons: { Memory: 0, Hanoi: 0, Sudoku: 0, Math: 0, Chess: 0, NBack: 0 }
+    },
+
+    init() {
+        const saved = localStorage.getItem('monarch_system_data');
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            this.data = { ...this.data, ...parsed };
+            if (!this.data.clearedDungeons) {
+                this.data.clearedDungeons = { Memory: 0, Hanoi: 0, Sudoku: 0, Math: 0, Chess: 0, NBack: 0 };
+            }
+            if (!this.data.stats) {
+                this.data.stats = { str: 10, agi: 10, vit: 10, int: 10, sen: 10 };
+            }
+        }
+        this.updateUI();
+    },
+
+    save() {
+        if (window.SovereignCore) {
+            SovereignCore.save(this.data);
+        } else {
+            localStorage.setItem('monarch_system_data', JSON.stringify(this.data));
+        }
+        this.updateUI();
+    },
+
+    updateUI() {
+        const lvl = this.data.level || 1;
+        const xp = this.data.xp || 0;
+        const need = lvl * 100;
+        const pct = Math.min((xp / need) * 100, 100);
+
+        document.getElementById('currentLevel').textContent = lvl;
+        document.getElementById('currentXP').textContent = xp;
+        document.getElementById('xpNeeded').textContent = need;
+        document.getElementById('xpBar').style.width = pct + '%';
+        document.getElementById('stat-int').textContent = this.data.stats?.int || 10;
+        document.getElementById('stat-gold').textContent = this.data.gold || 0;
+        document.getElementById('stat-auth').textContent = this.data.authority || 0;
+    },
+
+    reward(xp, int, gold, auth) {
+        const oldLevel = this.data.level;
+        this.data.xp = (this.data.xp || 0) + xp;
+        this.data.stats.int = (this.data.stats.int || 10) + int;
+        this.data.gold = (this.data.gold || 0) + gold;
+        this.data.authority = (this.data.authority || 0) + (auth || 0);
+        this.data.clearedDungeons.Hanoi = (this.data.clearedDungeons.Hanoi || 0) + 1;
+
+        let leveledUp = false;
+        while (this.data.xp >= this.data.level * 100) {
+            this.data.xp -= this.data.level * 100;
+            this.data.level++;
+            this.data.ap = (this.data.ap || 0) + 3;
+            leveledUp = true;
+        }
+        this.save();
+        return { leveledUp, oldLevel, newLevel: this.data.level };
+    },
+
+    partialReward(xp, gold) {
+        this.data.xp = (this.data.xp || 0) + xp;
+        this.data.gold = (this.data.gold || 0) + gold;
+
+        while (this.data.xp >= this.data.level * 100) {
+            this.data.xp -= this.data.level * 100;
+            this.data.level++;
+            this.data.ap = (this.data.ap || 0) + 3;
+        }
+        this.save();
+    }
+};
+
+// ==========================================
+// TOWER OF HANOI GAME ENGINE
+// ==========================================
+const HanoiApp = {
+    numDisks: 3,
+    towers: [[], [], []],
+    selectedTower: -1,
+    moves: 0,
+    moveLimit: 0,
+    isPlaying: false,
+
+    setDisks(n) {
+        this.numDisks = n;
+        document.querySelectorAll('.disk-btn').forEach(btn => {
+            btn.classList.remove('border-rank-b', 'text-rank-b', 'shadow-[0_0_15px_rgba(176,38,255,0.2)]');
+            btn.classList.add('border-white/10', 'text-white/50');
+        });
+        const active = document.getElementById('btn-d' + n);
+        active.classList.remove('border-white/10', 'text-white/50');
+        active.classList.add('border-rank-b', 'text-rank-b', 'shadow-[0_0_15px_rgba(176,38,255,0.2)]');
+
+        const minMoves = Math.pow(2, n) - 1;
+        const limit = Math.floor(minMoves * 1.5);
+        document.getElementById('disk-description').textContent = `${minMoves} حركات كحد أدنى — ${n === 3 ? 'سهل' : n === 4 ? 'متوسط' : 'صعب'}`;
+    },
+
+    showPhase(phase) {
+        ['menu', 'countdown', 'game', 'results', 'failure'].forEach(p => {
+            document.getElementById('phase-' + p).classList.add('hidden');
+        });
+        document.getElementById('phase-' + phase).classList.remove('hidden');
+        document.getElementById('phase-' + phase).classList.add('phase-transition');
+    },
+
+    showMenu() {
+        this.showPhase('menu');
+    },
+
+    startCountdown() {
+        this.showPhase('countdown');
+        let count = 3;
+        const el = document.getElementById('countdown-number');
+        el.textContent = count;
+        el.className = 'font-orbitron text-8xl font-black text-rank-b drop-shadow-[0_0_30px_rgba(176,38,255,0.5)] countdown-number';
+
+        const interval = setInterval(() => {
+            count--;
+            if (count > 0) {
+                el.textContent = count;
+                el.classList.remove('countdown-number');
+                void el.offsetWidth;
+                el.classList.add('countdown-number');
+            } else {
+                clearInterval(interval);
+                this.startGame();
+            }
+        }, 1000);
+    },
+
+    startGame() {
+        this.towers = [[], [], []];
+        for (let i = this.numDisks; i >= 1; i--) {
+            this.towers[0].push(i);
+        }
+        this.selectedTower = -1;
+        this.moves = 0;
+        this.moveLimit = Math.floor((Math.pow(2, this.numDisks) - 1) * 1.5);
+        this.isPlaying = true;
+
+        this.showPhase('game');
+        this.updateHUD();
+        this.renderTowers();
+        document.getElementById('game-status').textContent = 'اختر برجاً لتحديد القرص العلوي...';
+        document.getElementById('game-status').className = 'font-cairo text-sm text-white/60';
+    },
+
+    updateHUD() {
+        document.getElementById('game-disks').textContent = this.numDisks;
+        document.getElementById('min-moves').textContent = Math.pow(2, this.numDisks) - 1;
+        document.getElementById('move-count').textContent = this.moves;
+        document.getElementById('move-limit').textContent = this.moveLimit;
+    },
+
+    renderTowers() {
+        for (let t = 0; t < 3; t++) {
+            const container = document.getElementById('disks-' + t);
+            container.innerHTML = '';
+
+            // Show disks from bottom to top (reverse order for visual)
+            const disks = [...this.towers[t]];
+            disks.forEach((diskSize, idx) => {
+                const disk = document.createElement('div');
+                disk.className = `disk disk-${diskSize} disk-appear`;
+                disk.textContent = diskSize;
+                disk.style.animationDelay = (idx * 0.05) + 's';
+
+                // Highlight selected
+                if (this.selectedTower === t && idx === disks.length - 1) {
+                    disk.classList.add('selected');
+                }
+
+                container.appendChild(disk);
+            });
+        }
+
+        // Highlight valid targets
+        for (let t = 0; t < 3; t++) {
+            const area = document.getElementById('tower-' + t);
+            area.classList.remove('valid-target', 'invalid-target');
+
+            if (this.selectedTower !== -1 && this.selectedTower !== t) {
+                const sourceTop = this.getTopDisk(this.selectedTower);
+                const targetTop = this.getTopDisk(t);
+
+                if (targetTop === null || sourceTop < targetTop) {
+                    area.classList.add('valid-target');
+                } else {
+                    area.classList.add('invalid-target');
+                }
+            }
+        }
+    },
+
+    getTopDisk(towerIdx) {
+        if (this.towers[towerIdx].length === 0) return null;
+        return this.towers[towerIdx][this.towers[towerIdx].length - 1];
+    },
+
+    clickTower(towerIdx) {
+        if (!this.isPlaying) return;
+
+        if (this.selectedTower === -1) {
+            // Select source tower
+            if (this.towers[towerIdx].length === 0) {
+                this.setStatus('البرج فارغ! اختر برجاً يحتوي على أقراص.', 'text-sys-rose');
+                this.playTone(200, 0.2, 'sawtooth');
+                return;
+            }
+            this.selectedTower = towerIdx;
+            this.setStatus(`القرص ${this.getTopDisk(towerIdx)} محدد — اختر البرج الهدف`, 'text-sys-cyan');
+            this.playTone(440, 0.1);
+            this.renderTowers();
+        } else if (this.selectedTower === towerIdx) {
+            // Deselect
+            this.selectedTower = -1;
+            this.setStatus('تم إلغاء التحديد — اختر برجاً', 'text-white/60');
+            this.renderTowers();
+        } else {
+            // Move disk
+            const sourceTop = this.getTopDisk(this.selectedTower);
+            const targetTop = this.getTopDisk(towerIdx);
+
+            if (targetTop !== null && sourceTop > targetTop) {
+                this.setStatus('لا يمكن وضع قرص أكبر فوق قرص أصغر!', 'text-sys-rose');
+                this.playTone(150, 0.3, 'sawtooth');
+                // Shake animation on target tower
+                const area = document.getElementById('tower-' + towerIdx);
+                area.style.animation = 'none';
+                void area.offsetWidth;
+                area.style.animation = 'wrongShake 0.4s ease';
+                return;
+            }
+
+            // Valid move
+            this.towers[this.selectedTower].pop();
+            this.towers[towerIdx].push(sourceTop);
+            this.moves++;
+            this.selectedTower = -1;
+            this.playTone(600, 0.15);
+            setTimeout(() => this.playTone(800, 0.1), 100);
+
+            this.setStatus(`تم النقل! الحركة ${this.moves}`, 'text-sys-green');
+            this.updateHUD();
+            this.renderTowers();
+
+            // Check win
+            if (this.checkWin()) {
+                setTimeout(() => this.gameOver(true), 500);
+                return;
+            }
+
+            // Check move limit
+            if (this.moves >= this.moveLimit) {
+                setTimeout(() => this.gameOver(false, 'move_limit'), 500);
+                return;
+            }
+        }
+    },
+
+    checkWin() {
+        return this.towers[2].length === this.numDisks;
+    },
+
+    giveUp() {
+        if (!this.isPlaying) return;
+        this.gameOver(false, 'give_up');
+    },
+
+    setStatus(msg, colorClass) {
+        const el = document.getElementById('game-status');
+        el.textContent = msg;
+        el.className = 'font-cairo text-sm ' + colorClass;
+    },
+
+    gameOver(won, reason) {
+        this.isPlaying = false;
+
+        if (won) {
+            const minMoves = Math.pow(2, this.numDisks) - 1;
+            const efficiency = Math.max(0, Math.round((minMoves / this.moves) * 100));
+
+            // Calculate rewards based on efficiency
+            let xpReward = 80, intReward = 2, goldReward = 20, authReward = 3;
+
+            if (efficiency >= 95) {
+                xpReward = 120;
+                intReward = 3;
+                goldReward = 35;
+                authReward = 5;
+            } else if (efficiency >= 80) {
+                xpReward = 100;
+                intReward = 2;
+                goldReward = 25;
+                authReward = 4;
+            }
+
+            const result = PlayerState.reward(xpReward, intReward, goldReward, authReward);
+
+            document.getElementById('result-moves').textContent = this.moves;
+            document.getElementById('result-min').textContent = 'min: ' + minMoves;
+            document.getElementById('result-efficiency').textContent = efficiency + '%';
+
+            const ratingEl = document.getElementById('result-rating');
+            if (efficiency >= 95) {
+                ratingEl.textContent = 'PERFECT';
+                ratingEl.className = 'text-[10px] text-sys-gold';
+            } else if (efficiency >= 80) {
+                ratingEl.textContent = 'EXCELLENT';
+                ratingEl.className = 'text-[10px] text-sys-green';
+            } else {
+                ratingEl.textContent = 'PASSED';
+                ratingEl.className = 'text-[10px] text-rank-b';
+            }
+
+            document.getElementById('reward-xp').textContent = '+' + xpReward;
+            document.getElementById('reward-int').textContent = '+' + intReward;
+            document.getElementById('reward-gold').textContent = '+' + goldReward;
+
+            if (result.leveledUp) {
+                document.getElementById('level-up-banner').classList.remove('hidden');
+                document.getElementById('level-up-banner').querySelector('.font-orbitron').textContent = 
+                    `⚡ LEVEL UP! ${result.oldLevel} → ${result.newLevel}`;
+            } else {
+                document.getElementById('level-up-banner').classList.add('hidden');
+            }
+
+            this.showPhase('results');
+            // منح مكافآت الرتبة B لتطهير زنزانة برج هانوي
+
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#b026ff', '#ff00ff', '#ffd700', '#ffffff']
+            });
+        } else {
+           
+
+            const reasonText = reason === 'move_limit' 
+                ? 'لقد تجاوزت الحد الأقصى للحركات!' 
+                : 'لقد استسلمت أمام التحدي.';
+            document.getElementById('fail-reason').textContent = reasonText;
+            document.getElementById('fail-xp').textContent = '+' + partialXP;
+            document.getElementById('fail-gold').textContent = '+' + partialGold;
+            this.showPhase('failure');
+            
+        }
+    },
+
+    // ==========================================
+    // AUDIO
+    // ==========================================
+    audioContext: null,
+
+    initAudio() {
+        if (!this.audioContext) {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    },
+
+    playTone(freq, duration, type = 'sine') {
+        this.initAudio();
+        const osc = this.audioContext.createOscillator();
+        const gain = this.audioContext.createGain();
+        osc.connect(gain);
+        gain.connect(this.audioContext.destination);
+        osc.frequency.value = freq;
+        osc.type = type;
+        gain.gain.setValueAtTime(0.1, this.audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + duration);
+        osc.start(this.audioContext.currentTime);
+        osc.stop(this.audioContext.currentTime + duration);
+    }
+};
+
+// ==========================================
+// INIT
+// ==========================================
+window.addEventListener('DOMContentLoaded', () => {
+    PlayerState.init();
+    HanoiApp.setDisks(3);
+    // وتأكد أن الكائن في الأسفل يحتوي على: data.clearedDungeons.Hanoi
+});
+const UI = {
+    toggleTimerSettings() {
+        if (typeof SoundEffects !== 'undefined') SoundEffects.playSystemClick();
+        document.getElementById('timerModal').classList.toggle('hidden');
+    }
+};
+
+const Toast = {
+    show(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+        const toast = document.createElement('div');
+        const colors = {
+            success: 'border-emerald-500 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)]',
+            error: 'border-rose-500 text-rose-400 shadow-[0_0_15px_rgba(225,29,72,0.3)]',
+            info: 'border-[var(--sys-cyan)] text-[var(--sys-cyan)] shadow-[0_0_15px_rgba(0,240,255,0.3)]'
+        };
+        toast.className = `pointer-events-auto px-5 py-3 bg-[#02040a]/95 border backdrop-blur-md text-sm font-bold sys-font tracking-wide animate-system-pop ${colors[type] || colors.info}`;
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 4000);
+    }
+};
+    // ==========================================
+// SYSTEM RESET ENGINE (HARD RESET)
+// ==========================================
+const SystemReset = {
+    confirmAndReset() {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        
+        // رسالة التحذير الأولى
+        const firstConfirm = confirm("⚠️ تحذير أمني سيادي: هل أنت متأكد أنك تريد مسح جميع البيانات؟\n(سيعود المستوى إلى 1، وتفقد كل الذهب، الخبرة، المهام، والسجلات ولن يمكنك استرجاعها).");
+        if (!firstConfirm) return;
+
+        // رسالة التأكيد النهائية
+        const secondConfirm = confirm("‼️ تأكيد نهائي: هذه العملية ستعيد النظام إلى نقطة الصفر. هل تريد تنفيذ 'مسح الذاكرة'؟");
+        if (!secondConfirm) return;
+
+        // قائمة المفاتيح المخزنة في النظام لمسحها
+        const keysToReset = [
+            'monarch_system_data', 
+            'sovereign_active_quest', 
+            'directive_start_time', 
+            'sovereign_active_program', 
+            'SL_QUESTS', 
+            'sovereign_system_logs',
+            'sovereign_titles_index'
+        ];
+
+        // تنفيذ المسح
+        keysToReset.forEach(key => localStorage.removeItem(key));
+
+        // مسح أي تخزين مؤقت للألقاب والمقايضات
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('title_cache_')) {
+                localStorage.removeItem(key);
+            }
+        });
+
+        alert("🔄 تم مسح الذاكرة وإعادة ضبط النظام بالكامل. سيتم إعادة تشغيل الواجهة.");
+        
+        // إعادة تحميل الصفحة لتطبيق حالة الصفر
+        window.location.reload();
+    }
+};
+
+// ==========================================
+// SOUND EFFECTS
+// ==========================================
+const SoundEffects = {
+    track1: new Audio('SHADOWBORN.mp3'),
+    track2: new Audio('Kingdom_of_Iron.mp3'),
+    currentTrackNumber: null,
+    isMusicPlaying: false,
+
+    init() {
+        this.track1.loop = true;
+        this.track2.loop = true;
+    },
+
+    toggleMusic(trackNumber) {
+        const icon1 = document.getElementById('musicIcon1');
+        const icon2 = document.getElementById('musicIcon2');
+
+        if (this.isMusicPlaying && this.currentTrackNumber === trackNumber) {
+            this.stopAllAudio();
+            return;
+        }
+        if (this.isMusicPlaying) this.stopAllAudio();
+
+        this.isMusicPlaying = true;
+        this.currentTrackNumber = trackNumber;
+
+        if (trackNumber === 1) {
+            this.track1.play().catch(err => console.log("Auto-play blocked:", err));
+            if (icon1) icon1.textContent = '⏸️';
+            if (icon2) icon2.textContent = '🎼';
+        } else if (trackNumber === 2) {
+            this.track2.play().catch(err => console.log("Auto-play blocked:", err));
+            if (icon1) icon1.textContent = '🎵';
+            if (icon2) icon2.textContent = '⏸️';
+        }
+    },
+
+    stopAllAudio() {
+        this.track1.pause(); this.track1.currentTime = 0;
+        this.track2.pause(); this.track2.currentTime = 0;
+        const icon1 = document.getElementById('musicIcon1');
+        const icon2 = document.getElementById('musicIcon2');
+        if (icon1) icon1.textContent = '🎵';
+        if (icon2) icon2.textContent = '🎼';
+        this.isMusicPlaying = false;
+        this.currentTrackNumber = null;
+    },
+
+    playSystemClick() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            gain.gain.setValueAtTime(0.05, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.start(); osc.stop(ctx.currentTime + 0.1);
+        } catch(e) {}
+    },
+
+    playSuccess() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((freq, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.1);
+                gain.gain.setValueAtTime(0.1, ctx.currentTime + i * 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.1 + 0.3);
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.start(ctx.currentTime + i * 0.1);
+                osc.stop(ctx.currentTime + i * 0.1 + 0.3);
+            });
+        } catch(e) {}
+    },
+
+    playLevelUp() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const notes = [440, 554, 659, 880, 1108];
+            notes.forEach((freq, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.15);
+                gain.gain.setValueAtTime(0.08, ctx.currentTime + i * 0.15);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.15 + 0.4);
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.start(ctx.currentTime + i * 0.15);
+                osc.stop(ctx.currentTime + i * 0.15 + 0.4);
+            });
+        } catch(e) {}
+    }
+};
+SoundEffects.init();
+
+// ==========================================
+// DIRECTIVE TIMER ENGINE
+// ==========================================
+const DirectiveTimer = {
+    startTime: null,
+    timerInterval: null,
+    isRunning: false,
+
+    start(savedStartTime) {
+        if (this.isRunning) return;
+        this.startTime = savedStartTime || Date.now();
+        this.isRunning = true;
+        localStorage.setItem('directive_start_time', this.startTime.toString());
+        this.update();
+        this.timerInterval = setInterval(() => this.update(), 1000);
+    },
+
+    stop() {
+        clearInterval(this.timerInterval);
+        this.isRunning = false;
+        this.startTime = null;
+        localStorage.removeItem('directive_start_time');
+    },
+
+    update() {
+        if (!this.startTime) return;
+        const elapsed = Date.now() - this.startTime;
+        const timerEl = document.getElementById('directiveTimer');
+        const progressEl = document.getElementById('directiveProgressBar');
+        if (timerEl) timerEl.textContent = this.formatTime(elapsed);
+        if (progressEl) {
+            const progress = Math.min((elapsed / (25 * 60 * 1000)) * 100, 100);
+            progressEl.style.width = `${progress}%`;
+        }
+    },
+
+    formatTime(ms) {
+        const totalSeconds = Math.floor(ms / 1000);
+        const hours = Math.floor(totalSeconds / 3600).toString().padStart(2, '0');
+        const minutes = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
+        const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+        return `${hours}:${minutes}:${seconds}`;
+    },
+
+    reset() {
+        this.stop();
+        const timerEl = document.getElementById('directiveTimer');
+        const progressEl = document.getElementById('directiveProgressBar');
+        if (timerEl) timerEl.textContent = '00:00:00';
+        if (progressEl) progressEl.style.width = '0%';
+    }
+};
+
+// ==========================================
+// ANIME POPUP ENGINE
+// ==========================================
+const AnimePopup = {
+    currentQuest: null,
+    questStartTime: null,
+    playerLevel: 1,
+    playerXP: 0,
+    playerGold: 0,
+
+    show(title, description, timeLimit, rewardXP) {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        this.syncPlayerState();
+
+        this.currentQuest = { 
+            title: title, 
+            rewardXP: rewardXP || 10, 
+            timeLimit: timeLimit || "25:00",
+            type: this.inferQuestType(title),
+            details: description,
+            acceptedAt: null,
+            active: false
+        };
+
+        document.getElementById('animePopupTitle').textContent = title;
+        document.getElementById('animePopupDesc').innerHTML = description;
+        document.getElementById('animePopupTime').textContent = `TIME: ${this.currentQuest.timeLimit}`;
+        document.getElementById('animePopupReward').textContent = `REWARD: +${this.currentQuest.rewardXP} EXP`;
+        document.getElementById('directiveTargetTime').textContent = this.currentQuest.timeLimit;
+
+        const modal = document.getElementById('animeSystemPopup');
+        modal.classList.remove('hidden');
+    },
+
+    inferQuestType(title) {
+        const t = title.toLowerCase();
+        if (t.match(/برمج|code|هندس|ai|تطوير|برمجية/)) return 'coding_ai';
+        if (t.match(/رياض|بدني|ppl|جري|تدريب|قتال/)) return 'sports';
+        if (t.match(/لغة|إنجليز|english|كتاب|قرآن|روح|شرع/)) return 'languages_books';
+        if (t.match(/زنزان|dungeon|ذهن|شطرنج|سودوكو|ذاكرة/)) return 'dungeons';
+        return 'coding_ai';
+    },
+
+    syncPlayerState() {
+        try {
+            const coreData = JSON.parse(localStorage.getItem('monarch_system_data')) || {};
+            this.playerLevel = coreData.level || 1;
+            this.playerXP = coreData.xp || 0;
+            this.playerGold = coreData.gold || 0;
+        } catch(e) {}
+    },
+
+    acceptQuest() {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        document.getElementById('animeSystemPopup').classList.add('hidden');
+        if(this.currentQuest) {
+            this.currentQuest.acceptedAt = Date.now();
+            this.currentQuest.active = true;
+            localStorage.setItem('sovereign_active_quest', JSON.stringify(this.currentQuest));
+
+            document.getElementById('activeDirectiveText').textContent = this.currentQuest.title;
+            document.getElementById('activeDirectiveBar').classList.remove('hidden');
+            DirectiveTimer.start(this.currentQuest.acceptedAt);
+
+            if(window.SovereignEngine) SovereignEngine.state.activeQuest = this.currentQuest;
+            if(window.Toast) Toast.show('تم تفعيل المهمة: ' + this.currentQuest.title, 'success');
+        }
+    },
+
+  completeQuest() {
+        let quest = this.currentQuest || (window.SovereignEngine ? SovereignEngine.state.activeQuest : null);
+        if (!quest) {
+            try { quest = JSON.parse(localStorage.getItem('sovereign_active_quest')); } catch(e){}
+        }
+        if (!quest) {
+            document.getElementById('activeDirectiveBar').classList.add('hidden');
+            if (window.DirectiveTimer) DirectiveTimer.stop();
+            return;
+        }
+
+        const questType = quest.type || 'coding_ai';
+        const baseReward = (window.SovereignEngine ? SovereignEngine.config.weights[questType] : null) || 10;
+        const acceptedAt = quest.acceptedAt || Date.now();
+        const elapsedMinutes = Math.floor((Date.now() - acceptedAt) / 60000);
+
+        let timeBonus = 0;
+        if (elapsedMinutes >= 25) timeBonus = 10;
+        if (elapsedMinutes >= 60) timeBonus = 25;
+
+        const totalXP = baseReward + timeBonus;
+        const goldReward = totalXP * 2;
+
+        if(window.PlayerState) {
+            PlayerState.addXP(totalXP);
+            PlayerState.addGold(goldReward);
+        }
+
+        if(window.SovereignEngine) {
+            SovereignEngine.logToSystem('quest', `تصفية مهمة: [${quest.title}] | +${totalXP} XP`);
+        }
+
+    
+        document.getElementById('activeDirectiveBar').classList.add('hidden');
+        if (window.DirectiveTimer) DirectiveTimer.stop();
+        localStorage.removeItem('sovereign_active_quest');
+        localStorage.removeItem('directive_start_time');
+        if(window.SovereignEngine) SovereignEngine.state.activeQuest = null;
+        this.currentQuest = null;
+
+  
+        if (typeof confetti === 'function') {
+            
+            confetti({
+                particleCount: 140,
+                spread: 80,
+                origin: { y: 0.5 },
+                colors: ['#00f0ff', '#7000ff', '#120024'], 
+                scalar: 0.5,     
+                gravity: 0.8,     
+                startVelocity: 45, 
+                ticks: 80
+            });
+
+            // النبضة الثانية: هالة ذهبية ناعمة تطفو بعد ربع ثانية (ترمز للمكافأة العاهلية)
+            setTimeout(() => {
+                confetti({
+                    particleCount: 40,
+                    spread: 360,
+                    origin: { y: 0.45 },
+                    colors: ['#ffb700', '#ffffff'], // ذهبي ملكي وأبيض ناصع
+                    scalar: 0.4,
+                    gravity: 0.2,       // جاذبية خفيفة جداً تجعل الذهب يطفو كالغبار السحري
+                    startVelocity: 15,  // حركة هادئة
+                    ticks: 120
+                });
+            }, 250);
+        }
+
+        // إشعار النظام الصارم (System Notification)
+        if(window.Toast) {
+        
+            Toast.show(systemMessage, 'success');
+        }
+    },
+
+    cancelQuest() {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        let questToCancel = this.currentQuest || (window.SovereignEngine ? SovereignEngine.state.activeQuest : null);
+        if (!questToCancel) {
+            try { questToCancel = JSON.parse(localStorage.getItem('sovereign_active_quest')); } catch(e){}
+        }
+
+        DirectiveTimer.stop();
+        document.getElementById('activeDirectiveBar').classList.add('hidden');
+
+        if(questToCancel && window.PlayerState) {
+            PlayerState.addXP(-10);
+            if(window.SovereignEngine) SovereignEngine.logToSystem('penalty', `إلغاء مهمة: [${questToCancel.title}] | -10 XP`);
+            if(window.Toast) Toast.show('تم إلغاء المهمة! عقوبة: -10 XP', 'error');
+        }
+
+        localStorage.removeItem('sovereign_active_quest');
+        localStorage.removeItem('directive_start_time');
+        if(window.SovereignEngine) SovereignEngine.state.activeQuest = null;
+        this.currentQuest = null;
+    }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+SoundEffects.init();
+
+// ==========================================
+// DIRECTIVE TIMER ENGINE
+// ==========================================
+
+// ==========================================
+// PLAYER STATE (RPG MECHANICS - DATA OVERWRITE SHIELD APPLIED)
+// ==========================================
+
+
+
+// ==========================================
+// QUEST SYSTEM
+// ==========================================
+const QuestSystem = {
+    tasks: [],
+    filter: 'all', // 'all' | 'active'
+    init() {
+        const saved = localStorage.getItem('SL_QUESTS');
+        this.tasks = saved ? JSON.parse(saved) : [];
+        this.render();
+    },
+    setFilter(mode) {
+        this.filter = mode;
+        this.render();
+    },
+    addTask() {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        const inp = document.getElementById('taskInput');
+        const prio = document.getElementById('prioritySelect').value;
+        const statSelect = document.getElementById('statSelect').value;
+        if(!inp || !inp.value.trim()) return;
+        const task = { id: Date.now(), text: inp.value.trim(), priority: prio, completed: false, stat: statSelect, createdAt: new Date().toISOString() };
+        this.tasks.unshift(task);
+        inp.value = '';
+        this.save();
+        this.render();
+        Toast.show('Quest deployed to system window', 'success');
+    },
+    toggleTask(id) {
+        const taskIndex = this.tasks.findIndex(t => t.id === id);
+        if (taskIndex === -1) return;
+        const task = this.tasks[taskIndex];
+        let xpReward = task.priority === 'high' ? 100 : task.priority === 'medium' ? 50 : 20;
+        let goldReward = task.priority === 'high' ? 30 : task.priority === 'medium' ? 15 : 5;
+        let authorityReward = task.priority === 'high' ? 10 : task.priority === 'medium' ? 5 : 2;
+
+        if (!task.completed) {
+            task.completed = true;
+            if(window.PlayerState) {
+                PlayerState.data.authority = (PlayerState.data.authority || 0) + authorityReward;
+                PlayerState.addXP(xpReward);
+                PlayerState.addGold(goldReward);
+                PlayerState.addStat(task.stat || 'int', 1);
+            }
+            Toast.show(`Quest Cleared! +${xpReward} EXP`, 'success');
+            if(window.SoundEffects) SoundEffects.playSuccess();
+            if(typeof confetti === 'function') confetti({particleCount: 80, spread: 60, origin: {y: 0.7}, colors: ['#00f0ff','#9d4edd']});
+        } else {
+            task.completed = false;
+            if(window.PlayerState) {
+                PlayerState.data.authority = Math.max(0, (PlayerState.data.authority || 0) - authorityReward);
+                PlayerState.addXP(-xpReward);
+                PlayerState.addGold(-goldReward);
+                if (PlayerState.data.gold < 0) PlayerState.data.gold = 0;
+                PlayerState.addStat(task.stat || 'int', -1);
+            }
+            Toast.show(`Quest Reversed! Rewards Deducted.`, 'error');
+            if(window.SoundEffects) SoundEffects.playSystemClick();
+        }
+        this.save();
+        this.render();
+    },
+    deleteTask(id) {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        this.tasks = this.tasks.filter(t => t.id !== id);
+        this.save();
+        this.render();
+    },
+    render() {
+        const container = document.getElementById('taskContainer');
+        const titleEl = document.getElementById('taskListTitle');
+        const backBtn = document.getElementById('backToAllBtn');
+        if(!container) return;
+        container.innerHTML = '';
+
+        // Update title and back button based on filter
+        if (titleEl) {
+            titleEl.textContent = this.filter === 'active' ? '⚔️ ACTIVE ENGAGEMENTS (Incomplete)' : '⚔️ Active Directives Log';
+            titleEl.className = this.filter === 'active' 
+                ? 'font-black text-sm text-amber-400 tracking-wide uppercase sys-font' 
+                : 'font-black text-sm text-[var(--sys-cyan)] tracking-wide uppercase sys-font';
+        }
+        if (backBtn) {
+            backBtn.classList.toggle('hidden', this.filter !== 'active');
+        }
+
+        let activeCount = 0; let completedCount = 0;
+
+        // Filter tasks
+        const displayTasks = this.filter === 'active' 
+            ? this.tasks.filter(t => !t.completed) 
+            : this.tasks;
+
+        if (displayTasks.length === 0) {
+            const emptyMsg = this.filter === 'active' 
+                ? '<p>[NO INCOMPLETE ENGAGEMENTS DETECTED]</p><p class="text-[10px] mt-2">All directives have been cleared.</p>'
+                : '<p>[NO ACTIVE QUESTS DETECTED]</p>';
+            container.innerHTML = `<div class="text-center py-10 opacity-30 sys-font">${emptyMsg}</div>`;
+            this.updateStatsUI(0, 0, 0);
+            return;
+        }
+        const statColors = { 'int': 'text-[var(--sys-cyan)]', 'str': 'text-rose-500', 'vit': 'text-emerald-500', 'agi': 'text-sky-400', 'sen': 'text-[var(--sys-purple)]' };
+        displayTasks.forEach(task => {
+            task.completed ? completedCount++ : activeCount++;
+            const escapedText = task.text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            const div = document.createElement('div');
+            div.className = `task-card flex items-center justify-between p-4 bg-slate-900/80 backdrop-blur-sm border-y border-y-slate-800 transition-all ${task.completed ? 'completed opacity-50' : ''}`;
+            div.innerHTML = `
+                <div class="flex items-center gap-4">
+                    <button onclick="QuestSystem.toggleTask(${task.id})" class="w-6 h-6 rounded border-2 border-[var(--sys-cyan)] flex items-center justify-center hover:bg-[var(--sys-cyan)] hover:bg-opacity-20 transition-colors ${task.completed ? 'bg-[var(--sys-cyan)]' : ''}">
+                        ${task.completed ? '<span class="text-black text-xs font-black">✓</span>' : ''}
+                    </button>
+                    <div>
+                        <div class="font-bold text-white text-sm ${task.completed ? 'line-through text-slate-500' : ''}">${escapedText}</div>
+                        <div class="flex gap-2 mt-1">
+                            <span class="sys-font text-[10px] px-2 py-0.5 border border-slate-700 bg-black/50 ${statColors[task.stat || 'int']} uppercase tracking-widest">+1 ${(task.stat || 'int').toUpperCase()}</span>
+                            <span class="sys-font text-[10px] px-2 py-0.5 border border-slate-700 bg-black/50 text-amber-400 uppercase tracking-widest">RANK: ${(task.priority || 'medium').toUpperCase()}</span>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="QuestSystem.deleteTask(${task.id})" class="text-slate-600 hover:text-rose-500 transition-colors p-2">🗑️</button>
+            `;
+            container.appendChild(div);
+        });
+        const lethalityRate = Math.round((completedCount / this.tasks.length) * 100);
+        if(window.PlayerState) {
+            PlayerState.data.lethality = lethalityRate;
+            PlayerState.save();
+        }
+        this.updateStatsUI(activeCount, this.tasks.length, lethalityRate);
+    },
+    updateStatsUI(active, all, lethality) {
+        if(document.getElementById('cnt-active-val')) document.getElementById('cnt-active-val').textContent = active;
+        if(document.getElementById('stat-lethality')) document.getElementById('stat-lethality').textContent = `${lethality}%`;
+    },
+    save() { localStorage.setItem('SL_QUESTS', JSON.stringify(this.tasks)); }
+};
+
+// ==========================================
+// POMODORO TIMER
+// ==========================================
+const Pomodoro = {
+    defaultTime: parseInt(localStorage.getItem('SL_SYS_TIMER')) || (5 * 3600),
+    timeLeft: 0, timer: null, isRunning: false,
+    init() { this.timeLeft = this.defaultTime; this.updateUI(); },
+    saveSettings() {
+        const h = parseInt(document.getElementById('inputHours').value) || 0;
+        const m = parseInt(document.getElementById('inputMinutes').value) || 0;
+        const tot = (h * 3600) + (m * 60);
+        if (tot > 0) {
+            this.defaultTime = tot;
+            localStorage.setItem('SL_SYS_TIMER', this.defaultTime.toString());
+            document.getElementById('timerModal').classList.add('hidden');
+            clearInterval(this.timer); this.timeLeft = this.defaultTime; this.isRunning = false;
+            this.toggle();
+        }
+    },
+    toggle() {
+        if(typeof SoundEffects !== 'undefined') SoundEffects.playSystemClick();
+        const btn = document.getElementById('timerBtn');
+        const st = document.getElementById('timerStatus');
+        if (this.isRunning) {
+            clearInterval(this.timer);
+            btn.textContent = 'START'; btn.classList.remove('bg-rose-600/30');
+            st.textContent = 'PAUSED'; st.className = 'sys-font text-[9px] px-2 py-0.5 bg-amber-900 border border-amber-600 text-amber-300 uppercase';
+        } else {
+            if (this.timeLeft <= 0) this.timeLeft = this.defaultTime;
+            this.timer = setInterval(() => { if (this.timeLeft > 0) { this.timeLeft--; this.updateUI(); } else { this.finish(); } }, 1000);
+            btn.textContent = '⏸️'; btn.classList.add('bg-rose-600/30');
+            st.textContent = 'IN COMBAT'; st.className = 'sys-font text-[9px] px-2 py-0.5 bg-rose-900 border border-rose-600 text-rose-300 uppercase animate-pulse';
+        }
+        this.isRunning = !this.isRunning;
+    },
+    reset() {
+        if(typeof SoundEffects !== 'undefined') SoundEffects.playSystemClick();
+        clearInterval(this.timer);
+        this.timeLeft = this.defaultTime; this.isRunning = false;
+        const btn = document.getElementById('timerBtn'); btn.textContent = 'START'; btn.classList.remove('bg-rose-600/30');
+        const st = document.getElementById('timerStatus');
+        st.textContent = 'IDLE'; st.className = 'sys-font text-[9px] px-2 py-0.5 bg-slate-800 border border-slate-600 text-slate-300 uppercase';
+        this.updateUI();
+    },
+    finish() {
+        clearInterval(this.timer);
+        if(typeof SoundEffects !== 'undefined') SoundEffects.playSuccess();
+        if (typeof confetti !== 'undefined') confetti({ particleCount: 100, colors: ['#00f0ff'] });
+        this.reset();
+    },
+    updateUI() {
+        const h = Math.floor(this.timeLeft / 3600).toString().padStart(2, '0');
+        const m = Math.floor((this.timeLeft % 3600) / 60).toString().padStart(2, '0');
+        const s = (this.timeLeft % 60).toString().padStart(2, '0');
+        if(document.getElementById('timerDisplay')) document.getElementById('timerDisplay').textContent = `${h}:${m}:${s}`;
+    }
+};
+
+const Milestone = {
+    hide() {
+        document.getElementById('milestoneModal').classList.add('hidden');
+        if(typeof SoundEffects !== 'undefined') SoundEffects.playSystemClick();
+    }
+};
+</script>
+</body>
+</html>

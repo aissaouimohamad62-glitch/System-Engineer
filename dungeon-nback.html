@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dual N-Back Vortex | Sovereign System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'sys-dark': '#000000',
+                        'sys-cyan': '#00f0ff',
+                        'sys-purple': '#b026ff',
+                        'sys-white': '#ffffff',
+                        'sys-green': '#10b981',
+                        'sys-rose': '#e11d48',
+                    },
+                    fontFamily: {
+                        'cairo': ['Cairo', 'sans-serif'],
+                        'orbitron': ['Orbitron', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --sys-cyan: #00f0ff;
+            --sys-purple: #b026ff;
+            --sys-white: #ffffff;
+            --sys-green: #10b981;
+            --sys-rose: #e11d48;
+        }
+
+        * { scrollbar-width: thin; scrollbar-color: var(--sys-purple) #000000; }
+        *::-webkit-scrollbar { width: 6px; }
+        *::-webkit-scrollbar-track { background: #000000; }
+        *::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--sys-cyan), var(--sys-purple)); border-radius: 3px; }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--sys-bg-dark);
+            color: #e2e8f0;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .bg-grid-pattern {
+                    }
+
+        .scanline {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent 50%, rgba(255, 255, 255, 0.02) 50%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.5;
+        }
+
+        .neon-border {
+            border: 1px solid rgba(176, 38, 255, 0.2);
+            box-shadow: 0 0 20px rgba(176, 38, 255, 0.06), inset 0 0 20px rgba(176, 38, 255, 0.03);
+            transition: all 0.3s ease;
+        }
+        .neon-border:hover {
+            border-color: rgba(176, 38, 255, 0.6);
+            box-shadow: 0 0 30px rgba(176, 38, 255, 0.2), 0 0 60px rgba(0, 240, 255, 0.08), inset 0 0 30px rgba(176, 38, 255, 0.1);
+        }
+
+        .sys-btn {
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .sys-btn::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+        .sys-btn:hover::after { left: 100%; }
+
+        .glitch-text {
+            position: relative;
+            animation: glitch 3s infinite;
+        }
+        @keyframes glitch {
+            0%, 100% { text-shadow: 0 0 10px var(--sys-purple), 0 0 20px var(--sys-purple); }
+            50% { text-shadow: 0 0 20px var(--sys-cyan), 0 0 40px var(--sys-cyan), -2px 0 var(--sys-purple), 2px 0 var(--sys-cyan); }
+        }
+
+        .particle-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.5s ease-in-out;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        /* N-Back Specific Styles */
+        .nback-cell {
+            transition: all 0.1s ease;
+            border-radius: 12px;
+            position: relative;
+        }
+        .nback-cell.active {
+            background: var(--sys-cyan) !important;
+            box-shadow: 0 0 30px var(--sys-cyan), 0 0 60px var(--sys-cyan), inset 0 0 15px rgba(255,255,255,0.5);
+            transform: scale(0.92);
+        }
+        .nback-cell.feedback-correct {
+            background: var(--sys-green) !important;
+            box-shadow: 0 0 25px var(--sys-green), 0 0 50px var(--sys-green);
+        }
+        .nback-cell.feedback-wrong {
+            background: var(--sys-rose) !important;
+            box-shadow: 0 0 25px var(--sys-rose), 0 0 50px var(--sys-rose);
+        }
+
+        .match-btn {
+            transition: all 0.15s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .match-btn:active { transform: scale(0.95); }
+        .match-btn.pressed {
+            box-shadow: 0 0 20px currentColor, inset 0 0 10px rgba(255,255,255,0.2);
+        }
+
+        .stimulus-display {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            letter-spacing: 0.2em;
+        }
+
+        .trial-indicator {
+            transition: all 0.3s ease;
+        }
+        .trial-indicator.completed { background: var(--sys-green); }
+        .trial-indicator.missed { background: var(--sys-rose); }
+        .trial-indicator.correct-hit { background: var(--sys-cyan); }
+        .trial-indicator.false-alarm { background: var(--sys-rose); }
+
+        .phase-transition {
+            animation: phaseIn 0.5s ease-out;
+        }
+        @keyframes phaseIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .countdown-number {
+            animation: countPulse 1s ease-in-out;
+        }
+        @keyframes countPulse {
+            0% { transform: scale(2); opacity: 0; }
+            50% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .result-stat {
+            animation: statSlide 0.6s ease-out forwards;
+            opacity: 0;
+        }
+        @keyframes statSlide {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        /* ==========================================
+   SOVEREIGN VIDEO BACKGROUND SYSTEM
+   ========================================== */
+.sovereign-video-bg-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2; /* ليكون خلف جزيئات الـ Canvas وخلف كل محتوى المتجر */
+    overflow: hidden;
+    background-color: #000000; /* خلفية احتياطية سوداء في حال تأخر تحميل الفيديو */
+}
+
+.sovereign-video-element {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+    
+     /* ميزة التضبيب المطلوبة (مضببة قليلاً فقط لتمنح عمقاً بصرياً فخماً) */
+    filter: blur(0.1px) brightness(1); 
+    
+    /* نسبة شفافية متوازنة لكي لا تؤثر الحركة على تركيزك أثناء قراءة الألقاب والمخططات */
+    opacity: 1; 
+    transition: opacity 1s ease-in-out;
+}
+
+.sovereign-video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* تدرج ظلي يسحب الضوء نحو الأطراف ليعطي تأثير بوابات الزنازين Dark Rpg */
+    background: radial-gradient(circle, transparent 30%, rgba(0, 0, 0, 0.85) 100%);
+    pointer-events: none;
+}
+    </style>
+<base target="_blank">
+    <link rel="stylesheet" href="index11.css">
+    <script src="monarch-core.js"></script>
+</head>
+<body class="relative">
+<div class="sov-secondary-bg" aria-hidden="true"></div>
+    <canvas id="particles" class="particle-canvas"></canvas>
+    <div class="scanline"></div>
+<div class="fixed top-6 left-6 z-50 flex gap-4 items-center color: #dedede; /* لون أرجواني سيادي */
+    text-shadow: 0 0 8px rgb(133, 133, 133);
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-left: 10px;
+    padding: 3px 10px;
+    
+    
+    
+    letter-spacing: 1px;">
+    <button onclick="SoundEffects.toggleMusic(1)" class="w-10 h-10 flex items-center justify-center bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-[var(--sys-cyan)] rounded-full transition-all shadow-[0_0_10px_rgba(0,0,0,0.5)]">
+        <span id="musicIcon1" class="text-lg animate-pulse">🎵</span>
+    </button>
+    <button onclick="SoundEffects.toggleMusic(2)" class="w-10 h-10 flex items-center justify-center bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-[var(--sys-cyan)] rounded-full transition-all shadow-[0_0_10px_rgba(0,0,0,0.5)]">
+        <span id="musicIcon2" class="text-lg animate-pulse">🎼</span>
+    </button>
+    <a href="https://aissaouimohamad62-glitch.github.io/proto/" target="_blank" class="px-4 py-2 bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-white text-xs font-black uppercase tracking-widest rounded flex items-center gap-2 shadow-[0_0_10px_rgba(0,0,0,0.5)] transition-all">
+        <span>𝐏𝐎𝐑𝐓𝐅𝐎𝐋𝐈𝐎</span> <span class="text-[var(--sys-cyan)]">📍</span>
+    </a>
+    <a href="https://aissaouimohamad62-glitch.github.io/booksoverhaul.dz/" target="_blank" class="px-4 py-2 bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-[var(--sys-cyan)] text-white text-xs font-black uppercase tracking-widest rounded flex items-center gap-2 shadow-[0_0_10px_rgba(0,0,0,0.5)] transition-all">
+        <span>𝐋𝐈𝐁𝐑𝐀𝐑𝐘</span> <span class="text-[var(--sys-cyan)]">📒</span>
+    </a>
+    
+</div>
+    <!-- Header -->
+    <header class="relative z-10 max-w-7xl mx-auto mb-6 p-4">
+        <div class="bg-black/80 backdrop-blur-xl border border-white/10 rounded-xl p-4 flex flex-wrap justify-between items-center gap-4" style="box-shadow: 0 0 30px rgba(176, 38, 255, 0.1);">
+            <div class="flex items-center gap-4">
+                <button onclick="window.location.href='dungeons.html'" class="sys-btn text-xs bg-black/80 px-4 py-2 border border-white/20 hover:border-sys-purple hover:text-sys-purple transition rounded-lg flex items-center gap-2 text-white/70">
+                    <span>↩</span> <span>العودة للزنازين</span>
+                </button>
+                <div class="flex flex-col">
+                    <span class="font-orbitron text-[10px] text-white/30 tracking-[0.3em] uppercase">Sovereign System</span>
+                    <h1 class="font-orbitron text-xl font-black tracking-widest text-sys-purple uppercase glitch-text">🌀 DUAL N-BACK</h1>
+                </div>
+            </div>
+            <nav class="flex flex-wrap gap-2 justify-center md:justify-start">
+            <a href="index11.html" class="px-4 py-2 text-xs font-mono sovereign-panel rounded hover:bg-[var(--sys-cyan)] hover:text-black transition duration-300 text-slate-300">
+                🏠 DASHBOARD
+            </a>
+            <a href="active-quests.html" class="px-4 py-2 text-xs font-mono bg-cyan-950/40 border border-[var(--sys-cyan)] text-[var(--sys-cyan)] rounded font-bold shadow-[0_0_10px_rgba(0,240,255,0.1)]">
+                ⚔️ ACTIVE QUESTS
+            </a>
+            <a href="brain-stats.html" class="px-4 py-2 text-xs font-mono sovereign-panel rounded hover:bg-[var(--sys-cyan)] hover:text-black transition duration-300 text-slate-300">
+                🧠 BRAIN STATS
+            </a>
+            <a href="operational-charter.html" class="px-4 py-2 text-xs font-mono sovereign-panel rounded hover:bg-[var(--sys-cyan)] hover:text-black transition duration-300 text-slate-300">
+                📜 CHARTER
+            </a>
+            <a href="monarch-ai.html" class="px-4 py-2 text-xs font-mono sovereign-panel rounded hover:bg-[var(--sys-cyan)] hover:text-black transition duration-300 text-slate-300">
+                🤖 MONARCH AI
+            </a>
+            <a href="system-logs.html" class="px-4 py-2 text-xs font-mono sovereign-panel rounded hover:bg-[var(--sys-cyan)] hover:text-black transition duration-300 text-slate-300">
+                📊 SYSTEM LOGS
+            </a>
+        </nav>
+
+
+            <div class="flex items-center gap-6 flex-wrap justify-center">
+                <div class="flex flex-col items-center min-w-[80px]">
+                    <span class="font-orbitron text-[10px] text-white/40 tracking-wider uppercase">Level</span>
+                    <span id="currentLevel" class="font-orbitron text-2xl font-bold text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">1</span>
+                </div>
+                <div class="flex flex-col items-center min-w-[60px]">
+                    <span class="font-orbitron text-[10px] text-white/40 tracking-wider uppercase">XP</span>
+                    <span id="currentXP" class="font-orbitron text-lg font-bold text-white/80">0</span>
+                </div>
+                <div class="flex flex-col items-center min-w-[60px]">
+                    <span class="font-orbitron text-[10px] text-white/40 tracking-wider uppercase">INT</span>
+                    <span id="stat-int" class="font-orbitron text-lg font-bold text-sys-purple drop-shadow-[0_0_8px_rgba(176,38,255,0.4)]">10</span>
+                </div>
+                <div class="flex flex-col items-center min-w-[60px]">
+                    <span class="font-orbitron text-[10px] text-white/40 tracking-wider uppercase">Gold</span>
+                    <span id="stat-gold" class="font-orbitron text-lg font-bold text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Game Container -->
+    <main class="relative z-10 max-w-4xl mx-auto px-4 pb-10">
+
+        <!-- Phase: Menu -->
+        <div id="phase-menu" class="phase-transition">
+            <div class="text-center mb-8">
+                <div class="font-orbitron text-sys-purple tracking-[0.4em] text-xs mb-3">RANK: S — MEMORY VORTEX</div>
+                <h2 class="font-orbitron text-4xl md:text-5xl font-black text-white mb-4 glitch-text">Dual N-Back</h2>
+                <p class="font-cairo text-white/50 text-sm max-w-xl mx-auto leading-relaxed mb-2">
+                    التدريب العلمي الصارم لتوسيع <span class="text-sys-cyan">الذاكرة العاملة</span> وزيادة <span class="text-sys-purple">الذكاء السائل</span>.
+                </p>
+                <p class="font-cairo text-white/30 text-xs max-w-lg mx-auto leading-relaxed">
+                    في كل جولة: مربع يضيء + حرف ينطق. اضغط <span class="text-sys-cyan font-bold">[بصري]</span> إذا تطابق الموقع مع ما قبل N جولات.
+                    اضغط <span class="text-sys-purple font-bold">[سمعي]</span> إذا تطابق الحرف مع ما قبل N جولات.
+                </p>
+            </div>
+
+            <!-- N Level Selector -->
+            <div class="bg-black/60 border border-white/10 rounded-2xl p-6 mb-6 max-w-md mx-auto" style="box-shadow: 0 0 30px rgba(176, 38, 255, 0.08);">
+                <div class="font-orbitron text-white/60 text-xs tracking-wider mb-4 text-center">اختر مستوى N-BACK</div>
+                <div class="flex justify-center gap-3">
+                    <button onclick="NBackApp.setN(1)" id="btn-n1" class="n-selector px-6 py-3 bg-black border border-white/10 rounded-xl font-orbitron text-lg font-bold text-white/50 hover:border-sys-cyan hover:text-sys-cyan transition">
+                        1-Back
+                    </button>
+                    <button onclick="NBackApp.setN(2)" id="btn-n2" class="n-selector px-6 py-3 bg-black border border-sys-purple rounded-xl font-orbitron text-lg font-bold text-sys-purple transition shadow-[0_0_15px_rgba(176,38,255,0.2)]">
+                        2-Back
+                    </button>
+                    <button onclick="NBackApp.setN(3)" id="btn-n3" class="n-selector px-6 py-3 bg-black border border-white/10 rounded-xl font-orbitron text-lg font-bold text-white/50 hover:border-sys-purple hover:text-sys-purple transition">
+                        3-Back
+                    </button>
+                </div>
+                <div id="n-description" class="text-center mt-4 text-xs text-white/40 font-cairo">
+                    قارن الجولة الحالية بالجولة قبل <span class="text-sys-purple font-bold">2</span> جولات
+                </div>
+            </div>
+
+            <!-- Settings -->
+            <div class="bg-black/60 border border-white/10 rounded-2xl p-6 mb-6 max-w-md mx-auto">
+                <div class="font-orbitron text-white/60 text-xs tracking-wider mb-4 text-center">إعدادات الجلسة</div>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-white/50 text-sm font-cairo">عدد الجولات</span>
+                        <div class="flex gap-2">
+                            <button onclick="NBackApp.setTrials(15)" class="trial-btn px-3 py-1 bg-black border border-white/10 rounded text-xs text-white/50 hover:border-sys-cyan hover:text-sys-cyan transition">15</button>
+                            <button onclick="NBackApp.setTrials(20)" class="trial-btn px-3 py-1 bg-black border border-sys-cyan rounded text-xs text-sys-cyan transition">20</button>
+                            <button onclick="NBackApp.setTrials(25)" class="trial-btn px-3 py-1 bg-black border border-white/10 rounded text-xs text-white/50 hover:border-sys-cyan hover:text-sys-cyan transition">25</button>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-white/50 text-sm font-cairo">سرعة العرض</span>
+                        <div class="flex gap-2">
+                            <button onclick="NBackApp.setSpeed(2000)" class="speed-btn px-3 py-1 bg-black border border-white/10 rounded text-xs text-white/50 hover:border-sys-cyan hover:text-sys-cyan transition">بطيء</button>
+                            <button onclick="NBackApp.setSpeed(1500)" class="speed-btn px-3 py-1 bg-black border border-sys-cyan rounded text-xs text-sys-cyan transition">عادي</button>
+                            <button onclick="NBackApp.setSpeed(1000)" class="speed-btn px-3 py-1 bg-black border border-white/10 rounded text-xs text-white/50 hover:border-sys-cyan hover:text-sys-cyan transition">سريع</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button onclick="NBackApp.startCountdown()" class="sys-btn px-10 py-4 bg-sys-purple/10 border border-sys-purple/50 text-sys-purple hover:bg-sys-purple hover:text-white transition rounded-xl text-sm shadow-[0_0_20px_rgba(176,38,255,0.15)]">
+                    ENTER THE VORTEX
+                </button>
+            </div>
+        </div>
+
+        <!-- Phase: Countdown -->
+        <div id="phase-countdown" class="hidden text-center py-20">
+            <div class="font-orbitron text-white/30 text-sm tracking-widest mb-8">PREPARING NEURAL LINK...</div>
+            <div id="countdown-number" class="font-orbitron text-8xl font-black text-sys-purple drop-shadow-[0_0_30px_rgba(176,38,255,0.5)] countdown-number">3</div>
+        </div>
+
+        <!-- Phase: Game -->
+        <div id="phase-game" class="hidden">
+            <!-- Game HUD -->
+            <div class="flex justify-between items-center mb-6 px-2">
+                <div class="flex items-center gap-4">
+                    <div class="font-orbitron text-sys-purple text-xs tracking-wider">
+                        <span class="text-white/30">N=</span><span id="game-n-level" class="text-sys-purple">2</span>
+                    </div>
+                    <div class="font-orbitron text-white/40 text-xs">
+                        TRIAL <span id="current-trial" class="text-white">0</span>/<span id="total-trials">20</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="font-orbitron text-xs">
+                        <span class="text-sys-cyan">V: <span id="vis-score">0</span></span>
+                    </div>
+                    <div class="font-orbitron text-xs">
+                        <span class="text-sys-purple">A: <span id="aud-score">0</span></span>
+                    </div>
+                    <div class="w-24 h-1 bg-white/5 rounded-full overflow-hidden">
+                        <div id="game-progress" class="h-full bg-gradient-to-r from-sys-cyan to-sys-purple transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visual Grid -->
+            <div class="flex justify-center mb-6">
+                <div id="nback-grid" class="grid grid-cols-3 gap-3 w-64 h-64 md:w-80 md:h-80" style="filter: drop-shadow(0 0 30px rgba(0, 240, 255, 0.1));">
+                    <!-- Cells generated by JS -->
+                </div>
+            </div>
+
+            <!-- Audio Display -->
+            <div class="text-center mb-6">
+                <div id="audio-display" class="stimulus-display text-5xl md:text-6xl text-sys-purple drop-shadow-[0_0_20px_rgba(176,38,255,0.4)] h-16 flex items-center justify-center">
+                    —
+                </div>
+                <div id="audio-hint" class="text-xs text-white/20 mt-1 font-orbitron tracking-widest">AUDIO STIMULUS</div>
+            </div>
+
+            <!-- Status Message -->
+            <div class="text-center mb-6 h-8">
+                <div id="game-status" class="font-cairo text-sm text-white/40">راقب واستمع...</div>
+            </div>
+
+            <!-- Match Buttons -->
+            <div class="flex justify-center gap-4 max-w-md mx-auto mb-6">
+                <button id="btn-visual" onmousedown="NBackApp.pressVisual()" onmouseup="NBackApp.releaseVisual()" ontouchstart="NBackApp.pressVisual()" ontouchend="NBackApp.releaseVisual()" class="match-btn flex-1 py-4 bg-sys-cyan/5 border border-sys-cyan/40 rounded-xl text-sys-cyan font-orbitron font-bold text-sm tracking-wider transition hover:bg-sys-cyan/10" style="box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);">
+                    <div class="text-2xl mb-1">👁️</div>
+                    <div>VISUAL MATCH</div>
+                    <div class="text-[10px] text-white/30 mt-1 font-cairo">[A] أو انقر</div>
+                </button>
+                <button id="btn-audio" onmousedown="NBackApp.pressAudio()" onmouseup="NBackApp.releaseAudio()" ontouchstart="NBackApp.pressAudio()" ontouchend="NBackApp.releaseAudio()" class="match-btn flex-1 py-4 bg-sys-purple/5 border border-sys-purple/40 rounded-xl text-sys-purple font-orbitron font-bold text-sm tracking-wider transition hover:bg-sys-purple/10" style="box-shadow: 0 0 15px rgba(176, 38, 255, 0.1);">
+                    <div class="text-2xl mb-1">🔊</div>
+                    <div>AUDIO MATCH</div>
+                    <div class="text-[10px] text-white/30 mt-1 font-cairo">[L] أو انقر</div>
+                </button>
+            </div>
+
+            <!-- Trial History -->
+            <div class="max-w-md mx-auto">
+                <div class="font-orbitron text-[10px] text-white/20 tracking-wider mb-2 text-center">TRIAL HISTORY</div>
+                <div id="trial-history" class="flex justify-center gap-1 flex-wrap">
+                    <!-- Generated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase: Results -->
+        <div id="phase-results" class="hidden text-center">
+            <div class="font-orbitron text-sys-purple tracking-[0.4em] text-xs mb-4">SESSION COMPLETE</div>
+            <h2 id="result-title" class="font-orbitron text-3xl font-black text-white mb-6">VORTEX CLEARED</h2>
+
+            <div class="bg-black/60 border border-white/10 rounded-2xl p-6 max-w-md mx-auto mb-6" style="box-shadow: 0 0 30px rgba(176, 38, 255, 0.08);">
+                <!-- Overall Score -->
+                <div class="mb-6">
+                    <div class="font-orbitron text-white/40 text-xs tracking-wider mb-2">OVERALL ACCURACY</div>
+                    <div id="result-accuracy" class="font-orbitron text-5xl font-black text-sys-cyan drop-shadow-[0_0_15px_rgba(0,240,255,0.4)]">85%</div>
+                </div>
+
+                <!-- Detailed Stats -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-black/40 border border-white/5 rounded-xl p-3">
+                        <div class="font-orbitron text-[10px] text-sys-cyan mb-1">VISUAL</div>
+                        <div id="result-vis" class="font-orbitron text-xl font-bold text-white">6/8</div>
+                        <div id="result-vis-pct" class="text-xs text-white/40">75%</div>
+                    </div>
+                    <div class="bg-black/40 border border-white/5 rounded-xl p-3">
+                        <div class="font-orbitron text-[10px] text-sys-purple mb-1">AUDIO</div>
+                        <div id="result-aud" class="font-orbitron text-xl font-bold text-white">5/7</div>
+                        <div id="result-aud-pct" class="text-xs text-white/40">71%</div>
+                    </div>
+                </div>
+
+                <!-- Breakdown -->
+                <div class="space-y-2 text-xs font-cairo">
+                    <div class="flex justify-between text-white/50">
+                        <span>إجابات صحيحة:</span>
+                        <span id="result-correct" class="text-sys-green">11</span>
+                    </div>
+                    <div class="flex justify-between text-white/50">
+                        <span>إجابات خاطئة:</span>
+                        <span id="result-wrong" class="text-sys-rose">3</span>
+                    </div>
+                    <div class="flex justify-between text-white/50">
+                        <span>تطابقات مفوتة:</span>
+                        <span id="result-missed" class="text-white/60">2</span>
+                    </div>
+                    <div class="flex justify-between text-white/50 border-t border-white/5 pt-2 mt-2">
+                        <span>النقاط المكتسبة:</span>
+                        <span id="result-points" class="text-sys-cyan font-orbitron">+200 XP</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-center gap-3">
+                <button onclick="NBackApp.showMenu()" class="sys-btn px-6 py-3 bg-black border border-white/20 text-white/70 hover:border-sys-purple hover:text-sys-purple transition rounded-lg text-xs">
+                    تغيير الإعدادات
+                </button>
+                <button onclick="NBackApp.startCountdown()" class="sys-btn px-6 py-3 bg-sys-purple/10 border border-sys-purple/50 text-sys-purple hover:bg-sys-purple hover:text-white transition rounded-lg text-xs shadow-[0_0_15px_rgba(176,38,255,0.15)]">
+                    إعادة المحاولة
+                </button>
+            </div>
+        </div>
+
+    </main>
+<script>
+    const QuestSystem = {
+    tasks: [],
+    filter: 'all', // 'all' | 'active'
+    init() {
+        const saved = localStorage.getItem('SL_QUESTS');
+        this.tasks = saved ? JSON.parse(saved) : [];
+        this.render();
+    },
+    setFilter(mode) {
+        this.filter = mode;
+        this.render();
+    },
+    addTask() {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        const inp = document.getElementById('taskInput');
+        const prio = document.getElementById('prioritySelect').value;
+        const statSelect = document.getElementById('statSelect').value;
+        if(!inp || !inp.value.trim()) return;
+        const task = { id: Date.now(), text: inp.value.trim(), priority: prio, completed: false, stat: statSelect, createdAt: new Date().toISOString() };
+        this.tasks.unshift(task);
+        inp.value = '';
+        this.save();
+        this.render();
+        Toast.show('Quest deployed to system window', 'success');
+    },
+    toggleTask(id) {
+        const taskIndex = this.tasks.findIndex(t => t.id === id);
+        if (taskIndex === -1) return;
+        const task = this.tasks[taskIndex];
+        let xpReward = task.priority === 'high' ? 100 : task.priority === 'medium' ? 50 : 20;
+        let goldReward = task.priority === 'high' ? 30 : task.priority === 'medium' ? 15 : 5;
+        let authorityReward = task.priority === 'high' ? 10 : task.priority === 'medium' ? 5 : 2;
+
+        if (!task.completed) {
+            task.completed = true;
+            if(window.PlayerState) {
+                PlayerState.data.authority = (PlayerState.data.authority || 0) + authorityReward;
+                PlayerState.addXP(xpReward);
+                PlayerState.addGold(goldReward);
+                PlayerState.addStat(task.stat || 'int', 1);
+            }
+            Toast.show(`Quest Cleared! +${xpReward} EXP`, 'success');
+            if(window.SoundEffects) SoundEffects.playSuccess();
+            if(typeof confetti === 'function') confetti({particleCount: 80, spread: 60, origin: {y: 0.7}, colors: ['#00f0ff','#9d4edd']});
+        } else {
+            task.completed = false;
+            if(window.PlayerState) {
+                PlayerState.data.authority = Math.max(0, (PlayerState.data.authority || 0) - authorityReward);
+                PlayerState.addXP(-xpReward);
+                PlayerState.addGold(-goldReward);
+                if (PlayerState.data.gold < 0) PlayerState.data.gold = 0;
+                PlayerState.addStat(task.stat || 'int', -1);
+            }
+            Toast.show(`Quest Reversed! Rewards Deducted.`, 'error');
+            if(window.SoundEffects) SoundEffects.playSystemClick();
+        }
+        this.save();
+        this.render();
+    },
+    deleteTask(id) {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        this.tasks = this.tasks.filter(t => t.id !== id);
+        this.save();
+        this.render();
+    },
+    render() {
+        const container = document.getElementById('taskContainer');
+        const titleEl = document.getElementById('taskListTitle');
+        const backBtn = document.getElementById('backToAllBtn');
+        if(!container) return;
+        container.innerHTML = '';
+
+        // Update title and back button based on filter
+        if (titleEl) {
+            titleEl.textContent = this.filter === 'active' ? '⚔️ ACTIVE ENGAGEMENTS (Incomplete)' : '⚔️ Active Directives Log';
+            titleEl.className = this.filter === 'active' 
+                ? 'font-black text-sm text-amber-400 tracking-wide uppercase sys-font' 
+                : 'font-black text-sm text-[var(--sys-cyan)] tracking-wide uppercase sys-font';
+        }
+        if (backBtn) {
+            backBtn.classList.toggle('hidden', this.filter !== 'active');
+        }
+
+        let activeCount = 0; let completedCount = 0;
+
+        // Filter tasks
+        const displayTasks = this.filter === 'active' 
+            ? this.tasks.filter(t => !t.completed) 
+            : this.tasks;
+
+        if (displayTasks.length === 0) {
+            const emptyMsg = this.filter === 'active' 
+                ? '<p>[NO INCOMPLETE ENGAGEMENTS DETECTED]</p><p class="text-[10px] mt-2">All directives have been cleared.</p>'
+                : '<p>[NO ACTIVE QUESTS DETECTED]</p>';
+            container.innerHTML = `<div class="text-center py-10 opacity-30 sys-font">${emptyMsg}</div>`;
+            this.updateStatsUI(0, 0, 0);
+            return;
+        }
+        const statColors = { 'int': 'text-[var(--sys-cyan)]', 'str': 'text-rose-500', 'vit': 'text-emerald-500', 'agi': 'text-sky-400', 'sen': 'text-[var(--sys-purple)]' };
+        displayTasks.forEach(task => {
+            task.completed ? completedCount++ : activeCount++;
+            const escapedText = task.text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            const div = document.createElement('div');
+            div.className = `task-card flex items-center justify-between p-4 bg-slate-900/80 backdrop-blur-sm border-y border-y-slate-800 transition-all ${task.completed ? 'completed opacity-50' : ''}`;
+            div.innerHTML = `
+                <div class="flex items-center gap-4">
+                    <button onclick="QuestSystem.toggleTask(${task.id})" class="w-6 h-6 rounded border-2 border-[var(--sys-cyan)] flex items-center justify-center hover:bg-[var(--sys-cyan)] hover:bg-opacity-20 transition-colors ${task.completed ? 'bg-[var(--sys-cyan)]' : ''}">
+                        ${task.completed ? '<span class="text-black text-xs font-black">✓</span>' : ''}
+                    </button>
+                    <div>
+                        <div class="font-bold text-white text-sm ${task.completed ? 'line-through text-slate-500' : ''}">${escapedText}</div>
+                        <div class="flex gap-2 mt-1">
+                            <span class="sys-font text-[10px] px-2 py-0.5 border border-slate-700 bg-black/50 ${statColors[task.stat || 'int']} uppercase tracking-widest">+1 ${(task.stat || 'int').toUpperCase()}</span>
+                            <span class="sys-font text-[10px] px-2 py-0.5 border border-slate-700 bg-black/50 text-amber-400 uppercase tracking-widest">RANK: ${(task.priority || 'medium').toUpperCase()}</span>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="QuestSystem.deleteTask(${task.id})" class="text-slate-600 hover:text-rose-500 transition-colors p-2">🗑️</button>
+            `;
+            container.appendChild(div);
+        });
+        const lethalityRate = Math.round((completedCount / this.tasks.length) * 100);
+        if(window.PlayerState) {
+            PlayerState.data.lethality = lethalityRate;
+            PlayerState.save();
+        }
+        this.updateStatsUI(activeCount, this.tasks.length, lethalityRate);
+    },
+    updateStatsUI(active, all, lethality) {
+        if(document.getElementById('cnt-active-val')) document.getElementById('cnt-active-val').textContent = active;
+        if(document.getElementById('stat-lethality')) document.getElementById('stat-lethality').textContent = `${lethality}%`;
+    },
+    save() { localStorage.setItem('SL_QUESTS', JSON.stringify(this.tasks)); }
+};
+
+// ==========================================
+// POMODORO TIMER
+// ==========================================
+const Pomodoro = {
+    defaultTime: parseInt(localStorage.getItem('SL_SYS_TIMER')) || (5 * 3600),
+    timeLeft: 0, timer: null, isRunning: false,
+    init() { this.timeLeft = this.defaultTime; this.updateUI(); },
+    saveSettings() {
+        const h = parseInt(document.getElementById('inputHours').value) || 0;
+        const m = parseInt(document.getElementById('inputMinutes').value) || 0;
+        const tot = (h * 3600) + (m * 60);
+        if (tot > 0) {
+            this.defaultTime = tot;
+            localStorage.setItem('SL_SYS_TIMER', this.defaultTime.toString());
+            document.getElementById('timerModal').classList.add('hidden');
+            clearInterval(this.timer); this.timeLeft = this.defaultTime; this.isRunning = false;
+            this.toggle();
+        }
+    },
+    toggle() {
+        if(typeof SoundEffects !== 'undefined') SoundEffects.playSystemClick();
+        const btn = document.getElementById('timerBtn');
+        const st = document.getElementById('timerStatus');
+        if (this.isRunning) {
+            clearInterval(this.timer);
+            btn.textContent = 'START'; btn.classList.remove('bg-rose-600/30');
+            st.textContent = 'PAUSED'; st.className = 'sys-font text-[9px] px-2 py-0.5 bg-amber-900 border border-amber-600 text-amber-300 uppercase';
+        } else {
+            if (this.timeLeft <= 0) this.timeLeft = this.defaultTime;
+            this.timer = setInterval(() => { if (this.timeLeft > 0) { this.timeLeft--; this.updateUI(); } else { this.finish(); } }, 1000);
+            btn.textContent = '⏸️'; btn.classList.add('bg-rose-600/30');
+            st.textContent = 'IN COMBAT'; st.className = 'sys-font text-[9px] px-2 py-0.5 bg-rose-900 border border-rose-600 text-rose-300 uppercase animate-pulse';
+        }
+        this.isRunning = !this.isRunning;
+    },
+    reset() {
+        if(typeof SoundEffects !== 'undefined') SoundEffects.playSystemClick();
+        clearInterval(this.timer);
+        this.timeLeft = this.defaultTime; this.isRunning = false;
+        const btn = document.getElementById('timerBtn'); btn.textContent = 'START'; btn.classList.remove('bg-rose-600/30');
+        const st = document.getElementById('timerStatus');
+        st.textContent = 'IDLE'; st.className = 'sys-font text-[9px] px-2 py-0.5 bg-slate-800 border border-slate-600 text-slate-300 uppercase';
+        this.updateUI();
+    },
+    finish() {
+        clearInterval(this.timer);
+        if(typeof SoundEffects !== 'undefined') SoundEffects.playSuccess();
+        if (typeof confetti !== 'undefined') confetti({ particleCount: 100, colors: ['#00f0ff'] });
+        this.reset();
+    },
+    updateUI() {
+        const h = Math.floor(this.timeLeft / 3600).toString().padStart(2, '0');
+        const m = Math.floor((this.timeLeft % 3600) / 60).toString().padStart(2, '0');
+        const s = (this.timeLeft % 60).toString().padStart(2, '0');
+        if(document.getElementById('timerDisplay')) document.getElementById('timerDisplay').textContent = `${h}:${m}:${s}`;
+    }
+};
+
+const Milestone = {
+    hide() {
+        document.getElementById('milestoneModal').classList.add('hidden');
+        if(typeof SoundEffects !== 'undefined') SoundEffects.playSystemClick();
+    }
+};
+// ==========================================
+// PARTICLE SYSTEM
+// ==========================================
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+class Particle {
+    constructor() {
+        this.reset();
+    }
+    reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 0.5;
+        this.speedX = (Math.random() - 0.5) * 0.3;
+        this.speedY = (Math.random() - 0.5) * 0.3;
+        this.opacity = Math.random() * 0.5 + 0.1;
+        this.color = Math.random() > 0.6 ? '0, 240, 255' : (Math.random() > 0.5 ? '176, 38, 255' : '255, 255, 255');
+    }
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.reset();
+    }
+    draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`;
+        ctx.fill();
+    }
+}
+
+for (let i = 0; i < 60; i++) particles.push(new Particle());
+
+function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+// ==========================================
+// PLAYER STATE
+// ==========================================
+const PlayerState = {
+    data: {
+        level: 1, xp: 0, ap: 0,
+        stats: { str: 10, agi: 10, vit: 10, int: 10, sen: 10 },
+        gold: 0, authority: 0,
+        clearedDungeons: { Memory: 0, Hanoi: 0, Sudoku: 0, Math: 0, Chess: 0, NBack: 0 }
+    },
+    init() {
+        const saved = localStorage.getItem('monarch_system_data');
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            this.data = { ...this.data, ...parsed };
+            if (!this.data.clearedDungeons) this.data.clearedDungeons = { Memory: 0, Hanoi: 0, Sudoku: 0, Math: 0, Chess: 0, NBack: 0 };
+        }
+        this.updateUI();
+    },
+    save() {
+        if (window.SovereignCore) {
+            SovereignCore.save(this.data);
+        } else {
+            localStorage.setItem('monarch_system_data', JSON.stringify(this.data));
+        }
+        this.updateUI();
+    },
+    updateUI() {
+        document.getElementById('currentLevel').textContent = this.data.level || 1;
+        document.getElementById('currentXP').textContent = (this.data.xp || 0) + '/' + ((this.data.level || 1) * 100);
+        document.getElementById('stat-int').textContent = this.data.stats?.int || 10;
+        document.getElementById('stat-gold').textContent = this.data.gold || 0;
+    },
+    reward(xp, int, gold, auth) {
+        this.data.xp = (this.data.xp || 0) + xp;
+        this.data.stats.int = (this.data.stats.int || 10) + int;
+        this.data.gold = (this.data.gold || 0) + gold;
+        this.data.authority = (this.data.authority || 0) + (auth || 0);
+        this.data.clearedDungeons.NBack = (this.data.clearedDungeons.NBack || 0) + 1;
+
+        while (this.data.xp >= this.data.level * 100) {
+            this.data.xp -= this.data.level * 100;
+            this.data.level++;
+            this.data.ap = (this.data.ap || 0) + 3;
+        }
+        this.save();
+    }
+};
+
+// ==========================================
+// DUAL N-BACK ENGINE (Scientifically Accurate)
+// Based on Jaeggi et al. 2008 methodology
+// ==========================================
+const NBackApp = {
+    // Config
+    n: 2,
+    totalTrials: 20,
+    stimulusDuration: 500,    // 500ms display (per Jaeggi)
+    isi: 2500,                // 2500ms inter-stimulus interval
+
+    // State
+    sequence: [],
+    currentTrial: 0,
+    isPlaying: false,
+    isStimulusVisible: false,
+    timers: [],
+
+    // Audio
+    audioContext: null,
+    letters: ['C', 'H', 'K', 'L', 'Q', 'R', 'S', 'T'],
+
+    // Scoring
+    visualHits: 0,
+    visualMisses: 0,
+    visualFalseAlarms: 0,
+    visualCorrectRejections: 0,
+    audioHits: 0,
+    audioMisses: 0,
+    audioFalseAlarms: 0,
+    audioCorrectRejections: 0,
+
+    // Input tracking per trial
+    visualPressed: false,
+    audioPressed: false,
+
+    // ==========================================
+    // SETUP
+    // ==========================================
+    setN(val) {
+        this.n = val;
+        document.querySelectorAll('.n-selector').forEach(btn => {
+            btn.classList.remove('border-sys-purple', 'text-sys-purple', 'shadow-[0_0_15px_rgba(176,38,255,0.2)]');
+            btn.classList.add('border-white/10', 'text-white/50');
+        });
+        const active = document.getElementById('btn-n' + val);
+        active.classList.remove('border-white/10', 'text-white/50');
+        active.classList.add('border-sys-purple', 'text-sys-purple', 'shadow-[0_0_15px_rgba(176,38,255,0.2)]');
+        document.getElementById('n-description').innerHTML = 
+            'قارن الجولة الحالية بالجولة قبل <span class="text-sys-purple font-bold">' + val + '</span> جولات';
+    },
+
+    setTrials(count) {
+        this.totalTrials = count;
+        document.querySelectorAll('.trial-btn').forEach(btn => {
+            btn.classList.remove('border-sys-cyan', 'text-sys-cyan');
+            btn.classList.add('border-white/10', 'text-white/50');
+        });
+        event.target.classList.remove('border-white/10', 'text-white/50');
+        event.target.classList.add('border-sys-cyan', 'text-sys-cyan');
+    },
+
+    setSpeed(ms) {
+        this.isi = ms;
+        document.querySelectorAll('.speed-btn').forEach(btn => {
+            btn.classList.remove('border-sys-cyan', 'text-sys-cyan');
+            btn.classList.add('border-white/10', 'text-white/50');
+        });
+        event.target.classList.remove('border-white/10', 'text-white/50');
+        event.target.classList.add('border-sys-cyan', 'text-sys-cyan');
+    },
+
+    // ==========================================
+    // PHASE MANAGEMENT
+    // ==========================================
+    showPhase(phase) {
+        ['menu', 'countdown', 'game', 'results'].forEach(p => {
+            document.getElementById('phase-' + p).classList.add('hidden');
+        });
+        document.getElementById('phase-' + phase).classList.remove('hidden');
+        document.getElementById('phase-' + phase).classList.add('phase-transition');
+    },
+
+    showMenu() {
+        this.showPhase('menu');
+    },
+
+    startCountdown() {
+        this.showPhase('countdown');
+        let count = 3;
+        const el = document.getElementById('countdown-number');
+        el.textContent = count;
+
+        const interval = setInterval(() => {
+            count--;
+            if (count > 0) {
+                el.textContent = count;
+                el.classList.remove('countdown-number');
+                void el.offsetWidth;
+                el.classList.add('countdown-number');
+            } else {
+                clearInterval(interval);
+                this.startGame();
+            }
+        }, 1000);
+    },
+
+    // ==========================================
+    // AUDIO SYSTEM
+    // ==========================================
+    initAudio() {
+        if (!this.audioContext) {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    },
+
+    playTone(freq, duration, type = 'sine') {
+        this.initAudio();
+        const osc = this.audioContext.createOscillator();
+        const gain = this.audioContext.createGain();
+        osc.connect(gain);
+        gain.connect(this.audioContext.destination);
+        osc.frequency.value = freq;
+        osc.type = type;
+        gain.gain.setValueAtTime(0.15, this.audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + duration);
+        osc.start(this.audioContext.currentTime);
+        osc.stop(this.audioContext.currentTime + duration);
+    },
+
+    playLetterSound(letter) {
+        // Each letter gets a unique frequency for auditory discrimination
+        const freqs = { 'C': 262, 'H': 294, 'K': 330, 'L': 349, 'Q': 392, 'R': 440, 'S': 494, 'T': 523 };
+        this.playTone(freqs[letter] || 440, 0.3, 'sine');
+
+        // Also use speech synthesis as backup
+        if ('speechSynthesis' in window) {
+            const utter = new SpeechSynthesisUtterance(letter);
+            utter.lang = 'en-US';
+            utter.rate = 1.8;
+            utter.volume = 0.4;
+            utter.pitch = 1.2;
+            speechSynthesis.speak(utter);
+        }
+    },
+
+    playFeedbackSound(correct) {
+        if (correct) {
+            this.playTone(880, 0.15, 'sine');
+            setTimeout(() => this.playTone(1100, 0.15, 'sine'), 100);
+        } else {
+            this.playTone(150, 0.3, 'sawtooth');
+        }
+    },
+
+    // ==========================================
+    // SEQUENCE GENERATION (Scientifically Balanced)
+    // ==========================================
+    generateSequence() {
+        this.sequence = [];
+        const positions = [];
+        const audios = [];
+
+        // Generate base random sequence
+        for (let i = 0; i < this.totalTrials; i++) {
+            positions.push(Math.floor(Math.random() * 9));
+            audios.push(Math.floor(Math.random() * this.letters.length));
+        }
+
+        // Force matches at ~30% rate for both modalities (scientific standard)
+        // This ensures the game is playable but challenging
+        const targetMatches = Math.floor(this.totalTrials * 0.35);
+        let visualMatches = 0;
+        let audioMatches = 0;
+
+        // First pass: count existing matches
+        for (let i = this.n; i < this.totalTrials; i++) {
+            if (positions[i] === positions[i - this.n]) visualMatches++;
+            if (audios[i] === audios[i - this.n]) audioMatches++;
+        }
+
+        // Adjust to target
+        for (let i = this.n; i < this.totalTrials && (visualMatches < targetMatches || audioMatches < targetMatches); i++) {
+            if (visualMatches < targetMatches && Math.random() < 0.5) {
+                positions[i] = positions[i - this.n];
+                visualMatches++;
+            }
+            if (audioMatches < targetMatches && Math.random() < 0.5) {
+                audios[i] = audios[i - this.n];
+                audioMatches++;
+            }
+        }
+
+        // Build sequence objects
+        for (let i = 0; i < this.totalTrials; i++) {
+            this.sequence.push({
+                position: positions[i],
+                audio: audios[i],
+                letter: this.letters[audios[i]],
+                isVisualMatch: i >= this.n && positions[i] === positions[i - this.n],
+                isAudioMatch: i >= this.n && audios[i] === audios[i - this.n]
+            });
+        }
+    },
+
+    // ==========================================
+    // GAME LOGIC
+    // ==========================================
+    startGame() {
+        this.currentTrial = 0;
+        this.visualHits = 0;
+        this.visualMisses = 0;
+        this.visualFalseAlarms = 0;
+        this.visualCorrectRejections = 0;
+        this.audioHits = 0;
+        this.audioMisses = 0;
+        this.audioFalseAlarms = 0;
+        this.audioCorrectRejections = 0;
+        this.isPlaying = true;
+        this.timers = [];
+
+        this.generateSequence();
+        this.renderGrid();
+        this.renderHistory();
+        this.showPhase('game');
+
+        document.getElementById('game-n-level').textContent = this.n;
+        document.getElementById('total-trials').textContent = this.totalTrials;
+        document.getElementById('current-trial').textContent = '0';
+        document.getElementById('vis-score').textContent = '0';
+        document.getElementById('aud-score').textContent = '0';
+        document.getElementById('game-progress').style.width = '0%';
+
+        // Start first trial after brief delay
+        setTimeout(() => this.runTrial(), 500);
+    },
+
+    renderGrid() {
+        const grid = document.getElementById('nback-grid');
+        grid.innerHTML = '';
+        for (let i = 0; i < 9; i++) {
+            const cell = document.createElement('div');
+            cell.id = 'cell-' + i;
+            cell.className = 'nback-cell bg-black/60 border border-white/10';
+            grid.appendChild(cell);
+        }
+    },
+
+    renderHistory() {
+        const container = document.getElementById('trial-history');
+        container.innerHTML = '';
+        for (let i = 0; i < this.totalTrials; i++) {
+            const dot = document.createElement('div');
+            dot.id = 'history-' + i;
+            dot.className = 'trial-indicator w-2 h-2 rounded-full bg-white/10';
+            container.appendChild(dot);
+        }
+    },
+
+    runTrial() {
+        if (!this.isPlaying || this.currentTrial >= this.totalTrials) {
+            this.endGame();
+            return;
+        }
+
+        const trial = this.sequence[this.currentTrial];
+        this.visualPressed = false;
+        this.audioPressed = false;
+        this.isStimulusVisible = true;
+
+        // Update HUD
+        document.getElementById('current-trial').textContent = this.currentTrial + 1;
+        document.getElementById('game-progress').style.width = ((this.currentTrial + 1) / this.totalTrials * 100) + '%';
+        document.getElementById('game-status').textContent = 'راقب واستمع...';
+        document.getElementById('game-status').className = 'font-cairo text-sm text-sys-cyan';
+
+        // Show visual stimulus
+        for (let i = 0; i < 9; i++) {
+            const cell = document.getElementById('cell-' + i);
+            cell.classList.remove('active', 'feedback-correct', 'feedback-wrong');
+        }
+        const activeCell = document.getElementById('cell-' + trial.position);
+        activeCell.classList.add('active');
+
+        // Show audio stimulus
+        document.getElementById('audio-display').textContent = trial.letter;
+        this.playLetterSound(trial.letter);
+
+        // Enable buttons
+        document.getElementById('btn-visual').classList.remove('opacity-50', 'pointer-events-none');
+        document.getElementById('btn-audio').classList.remove('opacity-50', 'pointer-events-none');
+
+        // Stimulus duration timer
+        const stimTimer = setTimeout(() => {
+            this.hideStimulus();
+        }, this.stimulusDuration);
+        this.timers.push(stimTimer);
+    },
+
+    hideStimulus() {
+        if (!this.isPlaying) return;
+
+        this.isStimulusVisible = false;
+
+        // Hide visual
+        for (let i = 0; i < 9; i++) {
+            document.getElementById('cell-' + i).classList.remove('active');
+        }
+
+        // Hide audio display
+        document.getElementById('audio-display').textContent = '—';
+
+        // Response window
+        document.getElementById('game-status').textContent = 'هل تطابق؟';
+        document.getElementById('game-status').className = 'font-cairo text-sm text-white/60';
+
+        // Response window timer
+        const responseTimer = setTimeout(() => {
+            this.evaluateTrial();
+        }, this.isi - this.stimulusDuration);
+        this.timers.push(responseTimer);
+    },
+
+    // ==========================================
+    // INPUT HANDLING
+    // ==========================================
+    pressVisual() {
+        if (!this.isPlaying || !this.isStimulusVisible || this.visualPressed) return;
+        this.visualPressed = true;
+        document.getElementById('btn-visual').classList.add('pressed', 'bg-sys-cyan/20');
+    },
+
+    releaseVisual() {
+        document.getElementById('btn-visual').classList.remove('pressed', 'bg-sys-cyan/20');
+    },
+
+    pressAudio() {
+        if (!this.isPlaying || !this.isStimulusVisible || this.audioPressed) return;
+        this.audioPressed = true;
+        document.getElementById('btn-audio').classList.add('pressed', 'bg-sys-purple/20');
+    },
+
+    releaseAudio() {
+        document.getElementById('btn-audio').classList.remove('pressed', 'bg-sys-purple/20');
+    },
+
+    // ==========================================
+    // TRIAL EVALUATION
+    // ==========================================
+    evaluateTrial() {
+        if (!this.isPlaying) return;
+
+        const trial = this.sequence[this.currentTrial];
+        const historyDot = document.getElementById('history-' + this.currentTrial);
+
+        // Evaluate Visual
+        if (trial.isVisualMatch) {
+            if (this.visualPressed) {
+                this.visualHits++;
+                historyDot.classList.add('correct-hit');
+            } else {
+                this.visualMisses++;
+                historyDot.classList.add('missed');
+            }
+        } else {
+            if (this.visualPressed) {
+                this.visualFalseAlarms++;
+                historyDot.classList.add('false-alarm');
+            } else {
+                this.visualCorrectRejections++;
+            }
+        }
+
+        // Evaluate Audio
+        if (trial.isAudioMatch) {
+            if (this.audioPressed) {
+                this.audioHits++;
+                if (!historyDot.classList.contains('correct-hit')) {
+                    historyDot.classList.add('correct-hit');
+                }
+            } else {
+                this.audioMisses++;
+                if (!historyDot.classList.contains('missed')) {
+                    historyDot.classList.add('missed');
+                }
+            }
+        } else {
+            if (this.audioPressed) {
+                this.audioFalseAlarms++;
+                if (!historyDot.classList.contains('false-alarm')) {
+                    historyDot.classList.add('false-alarm');
+                }
+            } else {
+                this.audioCorrectRejections++;
+            }
+        }
+
+        // Update score display
+        document.getElementById('vis-score').textContent = this.visualHits;
+        document.getElementById('aud-score').textContent = this.audioHits;
+
+        // Show feedback on grid
+        this.showTrialFeedback(trial);
+
+        this.currentTrial++;
+
+        // Next trial
+        const nextTimer = setTimeout(() => {
+            this.runTrial();
+        }, 300);
+        this.timers.push(nextTimer);
+    },
+
+    showTrialFeedback(trial) {
+        const cell = document.getElementById('cell-' + trial.position);
+
+        // Visual feedback on cell
+        if (trial.isVisualMatch && this.visualPressed) {
+            cell.classList.add('feedback-correct');
+        } else if (!trial.isVisualMatch && this.visualPressed) {
+            cell.classList.add('feedback-wrong');
+        } else if (trial.isVisualMatch && !this.visualPressed) {
+            cell.classList.add('feedback-wrong');
+        }
+
+        setTimeout(() => {
+            cell.classList.remove('feedback-correct', 'feedback-wrong');
+        }, 200);
+    },
+
+    // ==========================================
+    // END GAME & SCORING
+    // ==========================================
+    endGame() {
+        this.isPlaying = false;
+        this.timers.forEach(t => clearTimeout(t));
+        this.timers = [];
+
+        // Calculate d-prime (signal detection theory measure)
+        const visualDPrime = this.calculateDPrime(
+            this.visualHits, this.visualMisses,
+            this.visualFalseAlarms, this.visualCorrectRejections
+        );
+        const audioDPrime = this.calculateDPrime(
+            this.audioHits, this.audioMisses,
+            this.audioFalseAlarms, this.audioCorrectRejections
+        );
+
+        // Calculate accuracy
+        const visualTotal = this.visualHits + this.visualMisses + this.visualFalseAlarms + this.visualCorrectRejections;
+        const audioTotal = this.audioHits + this.audioMisses + this.audioFalseAlarms + this.audioCorrectRejections;
+        const visualAccuracy = visualTotal > 0 ? ((this.visualHits + this.visualCorrectRejections) / visualTotal * 100) : 0;
+        const audioAccuracy = audioTotal > 0 ? ((this.audioHits + this.audioCorrectRejections) / audioTotal * 100) : 0;
+        const overallAccuracy = (visualAccuracy + audioAccuracy) / 2;
+
+        // Determine rewards based on accuracy
+        let xpReward = 0, intReward = 0, goldReward = 0;
+        let passed = false;
+
+        if (overallAccuracy >= 85) {
+            passed = true;
+            xpReward = 200 * this.n;
+            intReward = 5 * this.n;
+            goldReward = 50 * this.n;
+        } else if (overallAccuracy >= 70) {
+            passed = true;
+            xpReward = 150 * this.n;
+            intReward = 3 * this.n;
+            goldReward = 30 * this.n;
+        } else if (overallAccuracy >= 50) {
+            xpReward = 80 * this.n;
+            intReward = 1 * this.n;
+            goldReward = 15 * this.n;
+        } else {
+            xpReward = 30 * this.n;
+            goldReward = 5 * this.n;
+        }
+
+        // Show results
+        this.showResults(passed, overallAccuracy, visualAccuracy, audioAccuracy, xpReward, intReward, goldReward);
+
+        if (passed) {
+            PlayerState.reward(xpReward, intReward, goldReward, 5);
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#00f0ff', '#b026ff', '#ffffff']
+            });
+        }
+    },
+
+    calculateDPrime(hits, misses, falseAlarms, correctRejections) {
+        // Simplified d-prime calculation
+        const hitRate = (hits + misses) > 0 ? hits / (hits + misses) : 0;
+        const faRate = (falseAlarms + correctRejections) > 0 ? falseAlarms / (falseAlarms + correctRejections) : 0;
+
+        // Avoid extreme values
+        const HR = Math.max(0.01, Math.min(0.99, hitRate));
+        const FAR = Math.max(0.01, Math.min(0.99, faRate));
+
+        // Z-score approximation
+        const zHR = Math.sqrt(2) * this.invErrorFunction(2 * HR - 1);
+        const zFAR = Math.sqrt(2) * this.invErrorFunction(2 * FAR - 1);
+
+        return zHR - zFAR;
+    },
+
+    invErrorFunction(x) {
+        // Approximation of inverse error function
+        const a = 0.147;
+        const sign = x < 0 ? -1 : 1;
+        x = Math.abs(x);
+        const ln = Math.log(1 - x * x);
+        const part1 = 2 / (Math.PI * a) + ln / 2;
+        const part2 = ln / a;
+        return sign * Math.sqrt(Math.sqrt(part1 * part1 - part2) - part1);
+    },
+
+    showResults(passed, overallAccuracy, visualAccuracy, audioAccuracy, xp, int, gold) {
+        this.showPhase('results');
+
+        document.getElementById('result-title').textContent = passed ? 'VORTEX CLEARED' : 'VORTEX FAILED';
+        document.getElementById('result-title').className = passed 
+            ? 'font-orbitron text-3xl font-black text-sys-cyan mb-6 drop-shadow-[0_0_15px_rgba(0,240,255,0.4)]'
+            : 'font-orbitron text-3xl font-black text-sys-purple mb-6 drop-shadow-[0_0_15px_rgba(176,38,255,0.4)]';
+
+        document.getElementById('result-accuracy').textContent = Math.round(overallAccuracy) + '%';
+        document.getElementById('result-accuracy').className = passed
+            ? 'font-orbitron text-5xl font-black text-sys-cyan drop-shadow-[0_0_15px_rgba(0,240,255,0.4)]'
+            : 'font-orbitron text-5xl font-black text-sys-purple drop-shadow-[0_0_15px_rgba(176,38,255,0.4)]';
+
+        const visualTotalMatches = this.visualHits + this.visualMisses;
+        const audioTotalMatches = this.audioHits + this.audioMisses;
+
+        document.getElementById('result-vis').textContent = this.visualHits + '/' + visualTotalMatches;
+        document.getElementById('result-vis-pct').textContent = Math.round(visualAccuracy) + '%';
+        document.getElementById('result-aud').textContent = this.audioHits + '/' + audioTotalMatches;
+        document.getElementById('result-aud-pct').textContent = Math.round(audioAccuracy) + '%';
+
+        document.getElementById('result-correct').textContent = this.visualHits + this.audioHits;
+        document.getElementById('result-wrong').textContent = this.visualFalseAlarms + this.audioFalseAlarms;
+        document.getElementById('result-missed').textContent = this.visualMisses + this.audioMisses;
+        document.getElementById('result-points').textContent = '+' + xp + ' XP';
+    },
+
+    // ==========================================
+    // KEYBOARD SUPPORT
+    // ==========================================
+    initKeyboard() {
+        document.addEventListener('keydown', (e) => {
+            if (!this.isPlaying || !this.isStimulusVisible) return;
+
+            if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') {
+                e.preventDefault();
+                this.pressVisual();
+            }
+            if (e.key === 'l' || e.key === 'L' || e.key === 'ArrowRight') {
+                e.preventDefault();
+                this.pressAudio();
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') {
+                this.releaseVisual();
+            }
+            if (e.key === 'l' || e.key === 'L' || e.key === 'ArrowRight') {
+                this.releaseAudio();
+            }
+        });
+    }
+};
+
+// ==========================================
+// INIT
+// ==========================================
+window.addEventListener('DOMContentLoaded', () => {
+    PlayerState.init();
+    NBackApp.initKeyboard();
+});
+const UI = {
+    toggleTimerSettings() {
+        if (typeof SoundEffects !== 'undefined') SoundEffects.playSystemClick();
+        document.getElementById('timerModal').classList.toggle('hidden');
+    }
+};
+
+const Toast = {
+    show(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+        const toast = document.createElement('div');
+        const colors = {
+            success: 'border-emerald-500 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)]',
+            error: 'border-rose-500 text-rose-400 shadow-[0_0_15px_rgba(225,29,72,0.3)]',
+            info: 'border-[var(--sys-cyan)] text-[var(--sys-cyan)] shadow-[0_0_15px_rgba(0,240,255,0.3)]'
+        };
+        toast.className = `pointer-events-auto px-5 py-3 bg-[#02040a]/95 border backdrop-blur-md text-sm font-bold sys-font tracking-wide animate-system-pop ${colors[type] || colors.info}`;
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 4000);
+    }
+};
+    // ==========================================
+// SYSTEM RESET ENGINE (HARD RESET)
+// ==========================================
+const SystemReset = {
+    confirmAndReset() {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        
+        // رسالة التحذير الأولى
+        const firstConfirm = confirm("⚠️ تحذير أمني سيادي: هل أنت متأكد أنك تريد مسح جميع البيانات؟\n(سيعود المستوى إلى 1، وتفقد كل الذهب، الخبرة، المهام، والسجلات ولن يمكنك استرجاعها).");
+        if (!firstConfirm) return;
+
+        // رسالة التأكيد النهائية
+        const secondConfirm = confirm("‼️ تأكيد نهائي: هذه العملية ستعيد النظام إلى نقطة الصفر. هل تريد تنفيذ 'مسح الذاكرة'؟");
+        if (!secondConfirm) return;
+
+        // قائمة المفاتيح المخزنة في النظام لمسحها
+        const keysToReset = [
+            'monarch_system_data', 
+            'sovereign_active_quest', 
+            'directive_start_time', 
+            'sovereign_active_program', 
+            'SL_QUESTS', 
+            'sovereign_system_logs',
+            'sovereign_titles_index'
+        ];
+
+        // تنفيذ المسح
+        keysToReset.forEach(key => localStorage.removeItem(key));
+
+        // مسح أي تخزين مؤقت للألقاب والمقايضات
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('title_cache_')) {
+                localStorage.removeItem(key);
+            }
+        });
+
+        alert("🔄 تم مسح الذاكرة وإعادة ضبط النظام بالكامل. سيتم إعادة تشغيل الواجهة.");
+        
+        // إعادة تحميل الصفحة لتطبيق حالة الصفر
+        window.location.reload();
+    }
+};
+
+// ==========================================
+// SOUND EFFECTS
+// ==========================================
+const SoundEffects = {
+    track1: new Audio('SHADOWBORN.mp3'),
+    track2: new Audio('Kingdom_of_Iron.mp3'),
+    currentTrackNumber: null,
+    isMusicPlaying: false,
+
+    init() {
+        this.track1.loop = true;
+        this.track2.loop = true;
+    },
+
+    toggleMusic(trackNumber) {
+        const icon1 = document.getElementById('musicIcon1');
+        const icon2 = document.getElementById('musicIcon2');
+
+        if (this.isMusicPlaying && this.currentTrackNumber === trackNumber) {
+            this.stopAllAudio();
+            return;
+        }
+        if (this.isMusicPlaying) this.stopAllAudio();
+
+        this.isMusicPlaying = true;
+        this.currentTrackNumber = trackNumber;
+
+        if (trackNumber === 1) {
+            this.track1.play().catch(err => console.log("Auto-play blocked:", err));
+            if (icon1) icon1.textContent = '⏸️';
+            if (icon2) icon2.textContent = '🎼';
+        } else if (trackNumber === 2) {
+            this.track2.play().catch(err => console.log("Auto-play blocked:", err));
+            if (icon1) icon1.textContent = '🎵';
+            if (icon2) icon2.textContent = '⏸️';
+        }
+    },
+
+    stopAllAudio() {
+        this.track1.pause(); this.track1.currentTime = 0;
+        this.track2.pause(); this.track2.currentTime = 0;
+        const icon1 = document.getElementById('musicIcon1');
+        const icon2 = document.getElementById('musicIcon2');
+        if (icon1) icon1.textContent = '🎵';
+        if (icon2) icon2.textContent = '🎼';
+        this.isMusicPlaying = false;
+        this.currentTrackNumber = null;
+    },
+
+    playSystemClick() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            gain.gain.setValueAtTime(0.05, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.start(); osc.stop(ctx.currentTime + 0.1);
+        } catch(e) {}
+    },
+
+    playSuccess() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((freq, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.1);
+                gain.gain.setValueAtTime(0.1, ctx.currentTime + i * 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.1 + 0.3);
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.start(ctx.currentTime + i * 0.1);
+                osc.stop(ctx.currentTime + i * 0.1 + 0.3);
+            });
+        } catch(e) {}
+    },
+
+    playLevelUp() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const notes = [440, 554, 659, 880, 1108];
+            notes.forEach((freq, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.15);
+                gain.gain.setValueAtTime(0.08, ctx.currentTime + i * 0.15);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.15 + 0.4);
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.start(ctx.currentTime + i * 0.15);
+                osc.stop(ctx.currentTime + i * 0.15 + 0.4);
+            });
+        } catch(e) {}
+    }
+};
+SoundEffects.init();
+
+// ==========================================
+// DIRECTIVE TIMER ENGINE
+// ==========================================
+const DirectiveTimer = {
+    startTime: null,
+    timerInterval: null,
+    isRunning: false,
+
+    start(savedStartTime) {
+        if (this.isRunning) return;
+        this.startTime = savedStartTime || Date.now();
+        this.isRunning = true;
+        localStorage.setItem('directive_start_time', this.startTime.toString());
+        this.update();
+        this.timerInterval = setInterval(() => this.update(), 1000);
+    },
+
+    stop() {
+        clearInterval(this.timerInterval);
+        this.isRunning = false;
+        this.startTime = null;
+        localStorage.removeItem('directive_start_time');
+    },
+
+    update() {
+        if (!this.startTime) return;
+        const elapsed = Date.now() - this.startTime;
+        const timerEl = document.getElementById('directiveTimer');
+        const progressEl = document.getElementById('directiveProgressBar');
+        if (timerEl) timerEl.textContent = this.formatTime(elapsed);
+        if (progressEl) {
+            const progress = Math.min((elapsed / (25 * 60 * 1000)) * 100, 100);
+            progressEl.style.width = `${progress}%`;
+        }
+    },
+
+    formatTime(ms) {
+        const totalSeconds = Math.floor(ms / 1000);
+        const hours = Math.floor(totalSeconds / 3600).toString().padStart(2, '0');
+        const minutes = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
+        const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+        return `${hours}:${minutes}:${seconds}`;
+    },
+
+    reset() {
+        this.stop();
+        const timerEl = document.getElementById('directiveTimer');
+        const progressEl = document.getElementById('directiveProgressBar');
+        if (timerEl) timerEl.textContent = '00:00:00';
+        if (progressEl) progressEl.style.width = '0%';
+    }
+};
+
+// ==========================================
+// ANIME POPUP ENGINE
+// ==========================================
+const AnimePopup = {
+    currentQuest: null,
+    questStartTime: null,
+    playerLevel: 1,
+    playerXP: 0,
+    playerGold: 0,
+
+    show(title, description, timeLimit, rewardXP) {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        this.syncPlayerState();
+
+        this.currentQuest = { 
+            title: title, 
+            rewardXP: rewardXP || 10, 
+            timeLimit: timeLimit || "25:00",
+            type: this.inferQuestType(title),
+            details: description,
+            acceptedAt: null,
+            active: false
+        };
+
+        document.getElementById('animePopupTitle').textContent = title;
+        document.getElementById('animePopupDesc').innerHTML = description;
+        document.getElementById('animePopupTime').textContent = `TIME: ${this.currentQuest.timeLimit}`;
+        document.getElementById('animePopupReward').textContent = `REWARD: +${this.currentQuest.rewardXP} EXP`;
+        document.getElementById('directiveTargetTime').textContent = this.currentQuest.timeLimit;
+
+        const modal = document.getElementById('animeSystemPopup');
+        modal.classList.remove('hidden');
+    },
+
+    inferQuestType(title) {
+        const t = title.toLowerCase();
+        if (t.match(/برمج|code|هندس|ai|تطوير|برمجية/)) return 'coding_ai';
+        if (t.match(/رياض|بدني|ppl|جري|تدريب|قتال/)) return 'sports';
+        if (t.match(/لغة|إنجليز|english|كتاب|قرآن|روح|شرع/)) return 'languages_books';
+        if (t.match(/زنزان|dungeon|ذهن|شطرنج|سودوكو|ذاكرة/)) return 'dungeons';
+        return 'coding_ai';
+    },
+
+    syncPlayerState() {
+        try {
+            const coreData = JSON.parse(localStorage.getItem('monarch_system_data')) || {};
+            this.playerLevel = coreData.level || 1;
+            this.playerXP = coreData.xp || 0;
+            this.playerGold = coreData.gold || 0;
+        } catch(e) {}
+    },
+
+    acceptQuest() {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        document.getElementById('animeSystemPopup').classList.add('hidden');
+        if(this.currentQuest) {
+            this.currentQuest.acceptedAt = Date.now();
+            this.currentQuest.active = true;
+            localStorage.setItem('sovereign_active_quest', JSON.stringify(this.currentQuest));
+
+            document.getElementById('activeDirectiveText').textContent = this.currentQuest.title;
+            document.getElementById('activeDirectiveBar').classList.remove('hidden');
+            DirectiveTimer.start(this.currentQuest.acceptedAt);
+
+            if(window.SovereignEngine) SovereignEngine.state.activeQuest = this.currentQuest;
+            if(window.Toast) Toast.show('تم تفعيل المهمة: ' + this.currentQuest.title, 'success');
+        }
+    },
+
+  completeQuest() {
+        let quest = this.currentQuest || (window.SovereignEngine ? SovereignEngine.state.activeQuest : null);
+        if (!quest) {
+            try { quest = JSON.parse(localStorage.getItem('sovereign_active_quest')); } catch(e){}
+        }
+        if (!quest) {
+            document.getElementById('activeDirectiveBar').classList.add('hidden');
+            if (window.DirectiveTimer) DirectiveTimer.stop();
+            return;
+        }
+
+        const questType = quest.type || 'coding_ai';
+        const baseReward = (window.SovereignEngine ? SovereignEngine.config.weights[questType] : null) || 10;
+        const acceptedAt = quest.acceptedAt || Date.now();
+        const elapsedMinutes = Math.floor((Date.now() - acceptedAt) / 60000);
+
+        let timeBonus = 0;
+        if (elapsedMinutes >= 25) timeBonus = 10;
+        if (elapsedMinutes >= 60) timeBonus = 25;
+
+        const totalXP = baseReward + timeBonus;
+        const goldReward = totalXP * 2;
+
+        if(window.PlayerState) {
+            PlayerState.addXP(totalXP);
+            PlayerState.addGold(goldReward);
+        }
+
+        if(window.SovereignEngine) {
+            SovereignEngine.logToSystem('quest', `تصفية مهمة: [${quest.title}] | +${totalXP} XP`);
+        }
+
+    
+        document.getElementById('activeDirectiveBar').classList.add('hidden');
+        if (window.DirectiveTimer) DirectiveTimer.stop();
+        localStorage.removeItem('sovereign_active_quest');
+        localStorage.removeItem('directive_start_time');
+        if(window.SovereignEngine) SovereignEngine.state.activeQuest = null;
+        this.currentQuest = null;
+
+  
+        if (typeof confetti === 'function') {
+            
+            confetti({
+                particleCount: 140,
+                spread: 80,
+                origin: { y: 0.5 },
+                colors: ['#00f0ff', '#7000ff', '#120024'], 
+                scalar: 0.5,     
+                gravity: 0.8,     
+                startVelocity: 45, 
+                ticks: 80
+            });
+
+            // النبضة الثانية: هالة ذهبية ناعمة تطفو بعد ربع ثانية (ترمز للمكافأة العاهلية)
+            setTimeout(() => {
+                confetti({
+                    particleCount: 40,
+                    spread: 360,
+                    origin: { y: 0.45 },
+                    colors: ['#ffb700', '#ffffff'], // ذهبي ملكي وأبيض ناصع
+                    scalar: 0.4,
+                    gravity: 0.2,       // جاذبية خفيفة جداً تجعل الذهب يطفو كالغبار السحري
+                    startVelocity: 15,  // حركة هادئة
+                    ticks: 120
+                });
+            }, 250);
+        }
+
+        // إشعار النظام الصارم (System Notification)
+        if(window.Toast) {
+        
+            Toast.show(systemMessage, 'success');
+        }
+    },
+
+    cancelQuest() {
+        if(window.SoundEffects) SoundEffects.playSystemClick();
+        let questToCancel = this.currentQuest || (window.SovereignEngine ? SovereignEngine.state.activeQuest : null);
+        if (!questToCancel) {
+            try { questToCancel = JSON.parse(localStorage.getItem('sovereign_active_quest')); } catch(e){}
+        }
+
+        DirectiveTimer.stop();
+        document.getElementById('activeDirectiveBar').classList.add('hidden');
+
+        if(questToCancel && window.PlayerState) {
+            PlayerState.addXP(-10);
+            if(window.SovereignEngine) SovereignEngine.logToSystem('penalty', `إلغاء مهمة: [${questToCancel.title}] | -10 XP`);
+            if(window.Toast) Toast.show('تم إلغاء المهمة! عقوبة: -10 XP', 'error');
+        }
+
+        localStorage.removeItem('sovereign_active_quest');
+        localStorage.removeItem('directive_start_time');
+        if(window.SovereignEngine) SovereignEngine.state.activeQuest = null;
+        this.currentQuest = null;
+    }
+};
+
+// ==========================================
+
+
+</script>
+</body>
+</html>
